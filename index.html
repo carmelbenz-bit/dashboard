@@ -90,8 +90,24 @@
     background: #fff; color: #374151; font-size: 13px; font-family: inherit;
     cursor: pointer; white-space: nowrap; transition: background 0.12s, border-color 0.12s;
   }
-  .search-btn:hover { background: #f9fafb; border-color: #d1d5db; }
-  .search-btn svg { color: #6b7280; }
+  .search-btn.btn-active { background: #eff2ff; border-color: #c5d0f7; color: #3b5bdb; }
+  .search-btn.btn-active svg { color: #3b5bdb; }
+  .ctrl-popover {
+    position: fixed; background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.13);
+    min-width: 190px; z-index: 300; padding: 4px 0; display: none;
+  }
+  .ctrl-pop-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; cursor: pointer; font-size: 13px; color: #374151;
+    transition: background 0.1s; white-space: nowrap;
+  }
+  .ctrl-pop-item:hover { background: #f8f9fb; }
+  .ctrl-pop-item.cp-active { color: #3b5bdb; font-weight: 600; }
+  .ctrl-pop-item::before { content: ''; display: inline-block; width: 12px; flex-shrink: 0; }
+  .ctrl-pop-item.cp-active::before { content: '✓'; font-size: 11px; }
+
+
   .table-section { max-width: 1060px; margin: 16px auto 48px; padding: 0 40px; }
   .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; overflow: hidden; }
 
@@ -351,8 +367,8 @@
       <span class="search-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
       <input id="search-input" type="text" placeholder="חיפוש לפי שם תיק, משימה או שם לקוח..." oninput="onSearch()" />
     </div>
-    <button class="search-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>סינון</button>
-    <button class="search-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/><line x1="14" y1="2" x2="14" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="16" y1="18" x2="16" y2="22"/></svg>מיון</button>
+    <button id="btn-filter" class="search-btn" onclick="event.stopPropagation();toggleCtrlPop('filter-pop','btn-filter')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>סינון</button>
+    <button id="btn-sort"   class="search-btn" onclick="event.stopPropagation();toggleCtrlPop('sort-pop','btn-sort')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/><line x1="14" y1="2" x2="14" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="16" y1="18" x2="16" y2="22"/></svg>מיון</button>
   </div>
 </div>
 
@@ -503,6 +519,52 @@ function taskMatchesFilter(t, filter) {
   if (filter === 'today')   return days === 0;
   return false;
 }
+var taskFilter = 'all';
+var taskSort   = 'date-asc';
+var filterOptions = [
+  { val: 'all',       label: 'כל המשימות' },
+  { val: 'mine',      label: 'רק שלי' },
+  { val: 'other',     label: 'רק הצד השני' },
+  { val: 'with-date', label: 'רק עם תאריך' },
+  { val: 'no-date',   label: 'רק בלי תאריך' },
+  { val: 'overdue',   label: 'רק באיחור' }
+];
+var sortOptions = [
+  { val: 'date-asc',  label: 'לפי תאריך קרוב' },
+  { val: 'date-desc', label: 'לפי תאריך רחוק' },
+  { val: 'case-name', label: 'לפי שם תיק' },
+  { val: 'task-name', label: 'לפי שם משימה' }
+];
+function toggleCtrlPop(popId, btnId) {
+  var pop = document.getElementById(popId);
+  var btn = document.getElementById(btnId);
+  var opening = pop.style.display !== 'block';
+  document.querySelectorAll('.ctrl-popover').forEach(function(p) { p.style.display = 'none'; });
+  if (!opening) return;
+  var opts = popId === 'filter-pop' ? filterOptions : sortOptions;
+  var cur  = popId === 'filter-pop' ? taskFilter    : taskSort;
+  var fn   = popId === 'filter-pop' ? 'setTaskFilter' : 'setTaskSort';
+  pop.innerHTML = opts.map(function(o) {
+    return '<div class="ctrl-pop-item' + (cur === o.val ? ' cp-active' : '') + '" onclick="' + fn + '(\'' + o.val + '\')">' + o.label + '</div>';
+  }).join('');
+  var rect = btn.getBoundingClientRect();
+  pop.style.top   = (rect.bottom + 6) + 'px';
+  pop.style.right = (window.innerWidth - rect.right) + 'px';
+  pop.style.left  = 'auto';
+  pop.style.display = 'block';
+}
+function setTaskFilter(val) {
+  taskFilter = val;
+  document.querySelectorAll('.ctrl-popover').forEach(function(p) { p.style.display = 'none'; });
+  document.getElementById('btn-filter').classList.toggle('btn-active', val !== 'all');
+  render();
+}
+function setTaskSort(val) {
+  taskSort = val;
+  document.querySelectorAll('.ctrl-popover').forEach(function(p) { p.style.display = 'none'; });
+  document.getElementById('btn-sort').classList.toggle('btn-active', val !== 'date-asc');
+  render();
+}
 var pendingFeeFile = null; // {name, data} = new file; null = keep existing
 var pendingTaskFiles = null; // array of {name,data} = new files; null = keep existing
 
@@ -593,6 +655,24 @@ function render() {
       return true;
     });
   }
+  var taskFilterMap = null;
+  if (taskFilter !== 'all') {
+    taskFilterMap = {};
+    sorted = sorted.filter(function(c) {
+      var base = cardTaskMap ? (cardTaskMap[c.id] || []) : c.tasks;
+      var matching = base.filter(function(t) {
+        if (taskFilter === 'mine')      return t.owner !== 'הצד השני';
+        if (taskFilter === 'other')     return t.owner === 'הצד השני';
+        if (taskFilter === 'with-date') return !!t.date;
+        if (taskFilter === 'no-date')   return !t.date;
+        if (taskFilter === 'overdue')   return !!t.date && daysLeft(t.date) < 0;
+        return true;
+      });
+      if (!matching.length) return false;
+      taskFilterMap[c.id] = matching;
+      return true;
+    });
+  }
   // Update active card UI
   ['overdue','week','today'].forEach(function(f) {
     var el = document.getElementById('card-' + f);
@@ -652,7 +732,9 @@ function render() {
     tbody.appendChild(cr);
 
     // ── Task rows
-    var taskList = cardTaskMap ? (cardTaskMap[c.id] || []) : c.tasks;
+    var taskList = taskFilterMap ? (taskFilterMap[c.id] || [])
+                 : cardTaskMap   ? (cardTaskMap[c.id]   || [])
+                 : c.tasks;
     sortTasks(taskList).forEach(function(t) {
       var days = t.date ? daysLeft(t.date) : null;
       var isOther = t.owner === 'הצד השני';
@@ -708,6 +790,16 @@ function render() {
 
 // ── Sorting ───────────────────────────────────────────────────────
 function sortCases(arr) {
+  if (taskSort === 'case-name' || taskSort === 'task-name') {
+    return arr.slice().sort(function(a, b) { return (a.name||'').localeCompare(b.name||'', 'he'); });
+  }
+  if (taskSort === 'date-desc') {
+    return arr.slice().sort(function(a, b) {
+      var da = (function(c){ var d=c.tasks.filter(function(t){return t.date;}); return d.length ? -Math.max.apply(null,d.map(function(t){return new Date(t.date).getTime();})) : Infinity; })(a);
+      var db = (function(c){ var d=c.tasks.filter(function(t){return t.date;}); return d.length ? -Math.max.apply(null,d.map(function(t){return new Date(t.date).getTime();})) : Infinity; })(b);
+      return da - db;
+    });
+  }
   return arr.slice().sort(function(a, b) { return score(a) - score(b); });
 }
 function score(c) {
@@ -717,6 +809,17 @@ function score(c) {
 }
 
 function sortTasks(tasks) {
+  if (taskSort === 'task-name') {
+    return tasks.slice().sort(function(a, b) { return (a.action||'').localeCompare(b.action||'', 'he'); });
+  }
+  if (taskSort === 'date-desc') {
+    return tasks.slice().sort(function(a, b) {
+      if (!a.date && !b.date) return 0;
+      if (!a.date) return 1;
+      if (!b.date) return -1;
+      return new Date(b.date) - new Date(a.date);
+    });
+  }
   return tasks.slice().sort(function(a, b) {
     if (!a.date && !b.date) return 0;
     if (!a.date) return 1;
@@ -847,7 +950,7 @@ function toggleHearingPopover(cid) {
   }
 }
 document.addEventListener('click', function() {
-  document.querySelectorAll('.hp-popover').forEach(function(p) { p.style.display = 'none'; });
+  document.querySelectorAll('.hp-popover, .ctrl-popover').forEach(function(p) { p.style.display = 'none'; });
 });
 
 function fmt(s) {
@@ -1070,5 +1173,8 @@ function delTask(cid,tid) {
 
 render();
 </script>
+
+<div id="filter-pop" class="ctrl-popover" onclick="event.stopPropagation()"></div>
+<div id="sort-pop"   class="ctrl-popover" onclick="event.stopPropagation()"></div>
 </body>
 </html>
