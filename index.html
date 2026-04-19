@@ -191,29 +191,33 @@
   .modal { max-height: 90vh; overflow-y: auto; }
 
   /* Task rows — card layout */
-  tr.task-row td, tr.task-other td { padding: 0; border: none; border-bottom: 1px solid #edf0f6; }
+  tr.task-row td, tr.task-other td { padding: 0; border: none; border-bottom: 1px solid #e8ecf2; }
   tr.task-row td { background: #fff; }
   tr.task-row:hover td { background: #f7f9ff; }
   tr.task-other td { background: #f8f9fb; border-inline-end: 3px solid #cbd5e1; }
   tr.task-other:hover td { background: #f1f4f8; }
-  tr.task-done td { background: #f6fdf8 !important; border-bottom-color: #e4f0e8 !important; }
+  tr.task-done td { background: #f6fdf8 !important; border-bottom-color: #dff0e6 !important; }
   tr.task-done:hover td { background: #edf9f1 !important; }
 
-  .task-card { display: flex; align-items: flex-start; justify-content: space-between; padding: 13px 20px; gap: 14px; }
-  .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-  .task-card-actions { display: flex; align-items: center; gap: 3px; flex-shrink: 0; align-self: center; opacity: 0.35; transition: opacity 0.15s; }
+  .task-card { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 20px; gap: 16px; }
+  .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+  .task-card-actions { display: flex; align-items: center; gap: 3px; flex-shrink: 0; align-self: center; opacity: 0; transition: opacity 0.15s; }
   tr.task-row:hover .task-card-actions,
   tr.task-other:hover .task-card-actions { opacity: 1; }
   tr.task-done .task-card-actions { opacity: 1; }
   .task-title-done { text-decoration: line-through; color: #9ca3af !important; }
   .task-done-badge { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 20px; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; white-space: nowrap; flex-shrink: 0; }
   .task-line-1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .task-line-2 { display: flex; align-items: center; gap: 6px; }
-  .task-line-2-sep { width: 1px; height: 11px; background: #e4e8f0; flex-shrink: 0; margin: 0 2px; }
-  .task-line-3 { display: flex; flex-direction: column; gap: 2px; margin-top: 1px; }
-  .task-meta-label { font-size: 10px; color: #c4cad6; font-weight: 500; letter-spacing: 0.3px; white-space: nowrap; }
-  .task-meta-date { font-size: 12.5px; font-weight: 500; color: #374151; white-space: nowrap; }
-  .tc-no-date { color: #c4cad6; font-weight: 400; }
+  .task-line-2 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .task-line-3 { display: flex; flex-direction: column; gap: 3px; }
+  .task-date-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11.5px; font-weight: 500; color: #64748b;
+    background: #f4f6f9; border: 1px solid #e5e7eb;
+    border-radius: 20px; padding: 2px 9px; white-space: nowrap;
+  }
+  .task-date-chip svg { color: #b0b8c8; flex-shrink: 0; }
+  .task-date-chip.no-date { color: #b0b8c8; background: #f9fafc; border-style: dashed; font-style: italic; font-weight: 400; }
 
   .task-title-link { font-weight: 600; font-size: 14.5px; color: #1e2a3a; cursor: pointer; line-height: 1.35; }
   .task-title-link:hover { color: #2d4263; text-decoration: underline; }
@@ -221,9 +225,9 @@
   .tc-assignee-badge { font-size: 9.5px; font-weight: 500; padding: 1px 6px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
   .tc-assignee-mine  { background: #f0f5ff; color: #4b72c7; border: 1px solid #d4e0f8; }
   .tc-assignee-other { background: #f5f6f8; color: #8b95a6; border: 1px solid #e2e6ec; }
-  .tc-attachments { display: flex; flex-direction: column; gap: 2px; }
-  .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #b0b8c8; text-decoration: none; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .tc-attachment:hover { color: #4b6da8; text-decoration: underline; }
+  .tc-attachments { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #b0b8c8; text-decoration: none; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #f9fafc; border: 1px solid #edf0f6; border-radius: 6px; padding: 1px 7px; }
+  .tc-attachment:hover { color: #4b6da8; border-color: #c5d0f7; background: #f0f4ff; text-decoration: none; }
 
   .btn-icon-edit, .btn-icon-del, .btn-icon-done {
     display: inline-flex; align-items: center; justify-content: center;
@@ -799,7 +803,10 @@ function render() {
       var assigneeBadge = isOther
         ? '<span class="tc-assignee-badge tc-assignee-other">הצד השני</span>'
         : '<span class="tc-assignee-badge tc-assignee-mine">שלי</span>';
-      var dateHtml = t.date ? fmt(t.date) : '<span class="tc-no-date">ללא תאריך</span>';
+      var calIco = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+      var dateChip = t.date
+        ? '<span class="task-date-chip">' + calIco + fmt(t.date) + '</span>'
+        : '<span class="task-date-chip no-date">ללא תאריך</span>';
       var badgeCol = days !== null ? badgeHtml(days) : '';
       var icoEdit  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
       var icoTrash = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
@@ -810,7 +817,7 @@ function render() {
         '<td colspan="4"><div class="task-card">' +
           '<div class="task-card-body">' +
             '<div class="task-line-1"><span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' + assigneeBadge + (t.completed ? '<span class="task-done-badge">הושלם</span>' : '') + '</div>' +
-            '<div class="task-line-2"><span class="task-meta-label">מועד ביצוע</span><span class="task-line-2-sep"></span><span class="task-meta-date">' + dateHtml + '</span>' + (badgeCol ? '<span class="task-line-2-sep"></span>' + badgeCol : '') + '</div>' +
+            '<div class="task-line-2">' + dateChip + (badgeCol ? badgeCol : '') + '</div>' +
             (attachHtml ? '<div class="task-line-3">' + attachHtml + '</div>' : '') +
           '</div>' +
           '<div class="task-card-actions">' +
