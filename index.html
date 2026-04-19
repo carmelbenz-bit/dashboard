@@ -196,12 +196,17 @@
   tr.task-row:hover td { background: #f7f9ff; }
   tr.task-other td { background: #f8f9fb; border-inline-end: 3px solid #cbd5e1; }
   tr.task-other:hover td { background: #f1f4f8; }
+  tr.task-done td { background: #f6fdf8 !important; border-bottom-color: #e4f0e8 !important; }
+  tr.task-done:hover td { background: #edf9f1 !important; }
 
   .task-card { display: flex; align-items: flex-start; justify-content: space-between; padding: 13px 20px; gap: 14px; }
   .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
   .task-card-actions { display: flex; align-items: center; gap: 3px; flex-shrink: 0; align-self: center; opacity: 0.35; transition: opacity 0.15s; }
   tr.task-row:hover .task-card-actions,
   tr.task-other:hover .task-card-actions { opacity: 1; }
+  tr.task-done .task-card-actions { opacity: 1; }
+  .task-title-done { text-decoration: line-through; color: #9ca3af !important; }
+  .task-done-badge { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 20px; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; white-space: nowrap; flex-shrink: 0; }
   .task-line-1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .task-line-2 { display: flex; align-items: center; gap: 6px; }
   .task-line-2-sep { width: 1px; height: 11px; background: #e4e8f0; flex-shrink: 0; margin: 0 2px; }
@@ -782,9 +787,9 @@ function render() {
         if (days === 0) todayCnt++;
       }
       var tr = document.createElement('tr');
-      tr.className = isOther ? 'task-row task-other' : 'task-row';
+      tr.className = (isOther ? 'task-row task-other' : 'task-row') + (t.completed ? ' task-done' : '');
       var openEdit = 'openEditTask(' + c.id + ',' + t.id + ')';
-      var titleCls = 'task-title-link' + (isOther ? ' task-title-other' : '');
+      var titleCls = 'task-title-link' + (isOther ? ' task-title-other' : '') + (t.completed ? ' task-title-done' : '');
       var attachHtml = (t.files && t.files.length)
         ? '<div class="tc-attachments">' + t.files.map(function(f){
             return '<a class="tc-attachment" href="' + f.data + '" download="' + x(f.name) + '" title="' + x(f.name) + '">' +
@@ -804,7 +809,7 @@ function render() {
       tr.innerHTML =
         '<td colspan="4"><div class="task-card">' +
           '<div class="task-card-body">' +
-            '<div class="task-line-1"><span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' + assigneeBadge + '</div>' +
+            '<div class="task-line-1"><span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' + assigneeBadge + (t.completed ? '<span class="task-done-badge">הושלם</span>' : '') + '</div>' +
             '<div class="task-line-2"><span class="task-meta-label">מועד ביצוע</span><span class="task-line-2-sep"></span><span class="task-meta-date">' + dateHtml + '</span>' + (badgeCol ? '<span class="task-line-2-sep"></span>' + badgeCol : '') + '</div>' +
             (attachHtml ? '<div class="task-line-3">' + attachHtml + '</div>' : '') +
           '</div>' +
