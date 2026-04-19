@@ -625,7 +625,11 @@ function toHearingsArray(c) {
 function loadData() {
   var raw = JSON.parse(localStorage.getItem(STORE) || 'null');
   if (raw) {
-    var migrated = raw.map(toHearingsArray);
+    var migrated = raw.map(toHearingsArray).map(function(c) {
+      return Object.assign({}, c, { tasks: (c.tasks||[]).map(function(t) {
+        return t.completed === undefined ? Object.assign({}, t, {completed:false}) : t;
+      })});
+    });
     localStorage.setItem(STORE, JSON.stringify(migrated));
     return migrated;
   }
@@ -1167,7 +1171,7 @@ function addTask() {
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
     var files = pendingTaskFiles ? pendingTaskFiles.filter(Boolean) : [];
-    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files}])});
+    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:false}])});
   });
   persist(); closeModal(); render();
 }
@@ -1179,7 +1183,7 @@ function editTask() {
   var owner = document.querySelector('input[name="task-owner"]:checked').value;
     return Object.assign({},c,{tasks:c.tasks.map(function(t){
       var files = pendingTaskFiles.filter(Boolean);
-      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files} : t;
+      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:t.completed||false} : t;
     })});
   });
   persist(); closeModal(); render();
