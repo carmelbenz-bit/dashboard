@@ -70,6 +70,8 @@
     font-weight: 700; font-size: 15px; color: #1e2a3a;
     display: flex; align-items: center; gap: 8px;
   }
+  .case-name-link { cursor: pointer; }
+  .case-name-link:hover { color: #2d4263; text-decoration: underline; }
   .case-icon { color: #4b6da8; font-size: 15px; }
 
   /* Hearing date badge */
@@ -257,6 +259,22 @@
       <label>שם התיק</label>
       <input id="inp-name" type="text" placeholder="לדוגמה: כהן נ׳ לוי" />
     </div>
+    <div id="f-proc-num" class="field">
+      <label>מספר הליך <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-proc-num" type="text" placeholder="לדוגמה: 12345-06-24" />
+    </div>
+    <div id="f-client-name" class="field">
+      <label>שם לקוח <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-client-name" type="text" />
+    </div>
+    <div id="f-client-phone" class="field">
+      <label>טלפון <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-client-phone" type="text" />
+    </div>
+    <div id="f-client-email" class="field">
+      <label>מייל <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-client-email" type="email" />
+    </div>
     <div id="f-hearing-section"><span class="section-label">פרטי דיון</span></div>
     <div id="f-hearing" class="field">
       <label>תאריך דיון <span class="opt">(אופציונלי)</span></label>
@@ -383,11 +401,10 @@ function render() {
     cr.className = 'case-row';
     var hd = renderHearing(c.hearing);
     cr.innerHTML =
-      '<td><div class="case-name-cell"><span class="case-icon">⚖</span>' + x(c.name) + '</div></td>' +
+      '<td><div class="case-name-cell"><span class="case-icon">⚖</span><span class="case-name-link" onclick="openEditCase(' + c.id + ')">' + x(c.name) + '</span></div></td>' +
       '<td><div style="display:flex;align-items:flex-start;gap:6px;">' + hd + '<button class="hearing-edit-btn" onclick="openEditHearing(' + c.id + ')" title="עריכת דיון">✏</button></div></td>' +
       '<td></td><td></td>' +
       '<td><div class="btns">' +
-        '<button class="btn-sm be" onclick="openEditCase(' + c.id + ')">ערוך תיק</button>' +
         '<button class="btn-sm bd" onclick="delCase(' + c.id + ')">מחק</button>' +
       '</div></td>';
     tbody.appendChild(cr);
@@ -499,7 +516,7 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
+var ALL_FIELDS = ['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -522,9 +539,13 @@ function openAddCase() {
 function openEditCase(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
   mode = 'edit-case'; mCaseId = cid;
-  document.getElementById('m-title').textContent = 'עריכת שם תיק';
+  document.getElementById('m-title').textContent = 'עריכת תיק';
   document.getElementById('inp-name').value = c.name;
-  show(['f-name']);
+  document.getElementById('inp-proc-num').value    = c.procNum     || '';
+  document.getElementById('inp-client-name').value  = c.clientName  || '';
+  document.getElementById('inp-client-phone').value = c.clientPhone || '';
+  document.getElementById('inp-client-email').value = c.clientEmail || '';
+  show(['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email']);
   showModal(); document.getElementById('inp-name').focus();
 }
 function openEditHearing(cid) {
@@ -595,7 +616,14 @@ function editCase() {
   var name = document.getElementById('inp-name').value.trim();
   if (!name) { alert('נא להזין שם תיק'); return; }
   cases = cases.map(function(c) {
-    return c.id===mCaseId ? Object.assign({},c,{name:name}) : c;
+    if (c.id !== mCaseId) return c;
+    return Object.assign({}, c, {
+      name:        name,
+      procNum:     document.getElementById('inp-proc-num').value.trim()    || null,
+      clientName:  document.getElementById('inp-client-name').value.trim() || null,
+      clientPhone: document.getElementById('inp-client-phone').value.trim()|| null,
+      clientEmail: document.getElementById('inp-client-email').value.trim()|| null
+    });
   });
   persist(); closeModal(); render();
 }
