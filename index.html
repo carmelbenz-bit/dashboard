@@ -15,6 +15,7 @@
     direction: rtl;
   }
 
+  /* ── Header ── */
   .top-bar {
     background: linear-gradient(135deg, #1e2a3a 0%, #2d4263 100%);
     padding: 20px 40px;
@@ -31,6 +32,7 @@
   }
   .btn-add:hover { background: #e0bc66; }
 
+  /* ── Summary cards ── */
   .summary-row {
     display: flex; gap: 14px;
     padding: 22px 40px 0;
@@ -49,6 +51,7 @@
   .card.green  { border-top-color: #059669; } .card.green  .num { color: #059669; }
   .card.blue   { border-top-color: #3b82f6; } .card.blue   .num { color: #3b82f6; }
 
+  /* ── Table ── */
   .table-section { max-width: 1060px; margin: 22px auto 48px; padding: 0 40px; }
   .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); overflow: hidden; }
 
@@ -60,27 +63,45 @@
     letter-spacing: 0.5px; white-space: nowrap;
   }
 
+  /* Case header row */
   tr.case-row { background: #eef1f9; }
   tr.case-row td { padding: 12px 18px; border-bottom: 1px solid #dde3f2; }
   .case-name-cell {
     font-weight: 700; font-size: 15px; color: #1e2a3a;
     display: flex; align-items: center; gap: 8px;
   }
+  .case-name-link { cursor: pointer; }
+  .case-name-link:hover { color: #2d4263; text-decoration: underline; }
   .case-icon { color: #4b6da8; font-size: 15px; }
 
-  .hearing {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 12px; font-weight: 600; white-space: nowrap;
-    padding: 3px 10px; border-radius: 20px;
-    background: #f0f4ff; color: #3b5bdb; border: 1px solid #bac8ff;
-  }
+  /* Hearing date badge */
+  .hearing-cell { display: flex; flex-direction: column; gap: 0; align-items: flex-start; }
+  .hearing { display: inline-block; font-size: 13px; font-weight: 700; white-space: nowrap; padding: 3px 10px; border-radius: 20px; background: #f0f4ff; color: #3b5bdb; border: 1px solid #bac8ff; }
   .hearing.soon-h { background: #fffbeb; color: #b45309; border-color: #fcd34d; }
   .hearing.over-h { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+  .h-time { font-size: 12px; color: #9ca3af; font-weight: 400; padding: 2px 4px; margin-top: 4px; }
   .no-hearing { color: #c8ccd6; font-size: 13px; }
+  .h-mat-wrap { margin-top: 5px; }
+  .h-mat-label { font-size: 11px; font-weight: 700; color: #166534; margin-bottom: 3px; }
+  .h-mat-item { font-size: 11px; color: #374151; line-height: 1.5; padding-right: 2px; }
+  .h-mat-item::before { content: '•  '; color: #9ca3af; }
+  .section-label { display: block; font-size: 11px; font-weight: 700; color: #9ca3af; letter-spacing: 0.6px; padding: 14px 0 6px; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
+  .field textarea { width: 100%; padding: 10px 13px; border: 1.5px solid #e5e7eb; border-radius: 9px; font-size: 14px; font-family: inherit; direction: rtl; outline: none; color: #1e2a3a; transition: border 0.15s; resize: vertical; min-height: 75px; }
+  .field textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .modal { max-height: 90vh; overflow-y: auto; }
 
+  /* Task rows */
   tr.task-row { background: #fff; }
   tr.task-row:hover { background: #f8faff; }
   tr.task-row td { padding: 11px 18px; border-bottom: 1px solid #f0f2f8; font-size: 14px; }
+  tr.task-other { background: #f8f9fb; border-right: 3px solid #cbd5e1; }
+  tr.task-other:hover { background: #f1f3f7; }
+  tr.task-other td { color: #94a3b8; font-style: italic; }
+  .other-action { color: #94a3b8; font-style: italic; }
+  .other-date-wrap { display: flex; flex-direction: column; gap: 1px; }
+  .other-date-lbl { font-size: 10px; color: #b0b8cc; letter-spacing: 0.3px; font-style: normal; }
+  .other-date-val { font-size: 12px; color: #b0b8cc; font-style: normal; }
+  .other-badge { font-size: 11px; color: #c4c9d4; font-style: italic; }
   .task-action {
     padding-right: 28px; color: #374151;
     display: flex; align-items: center; gap: 8px;
@@ -89,6 +110,7 @@
   .no-date { color: #c0c4cc; font-style: italic; font-size: 13px; }
   .date-val { color: #6b7280; font-size: 13px; white-space: nowrap; }
 
+  /* Urgency badges */
   .badge {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 3px 10px; border-radius: 20px;
@@ -98,7 +120,14 @@
   .badge.soon { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
   .badge.ok   { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
   .badge.none { color: #d1d5db; }
+  .owner-toggle { display: flex; border: 1.5px solid #e5e7eb; border-radius: 9px; overflow: hidden; margin-top: 2px; }
+  .owner-toggle input[type=radio] { display: none; }
+  .owner-toggle label { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: #6b7280; background: #fff; transition: all 0.15s; }
+  .owner-toggle input[type=radio]:checked + label { background: #1e2a3a; color: #fff; }
+  .tag-mine  { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; white-space: nowrap; margin-right: 6px; }
+  .tag-other { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; white-space: nowrap; margin-right: 6px; }
 
+  /* Add-task row */
   tr.add-row td {
     padding: 7px 18px 7px 46px;
     background: #f7f9ff;
@@ -111,8 +140,10 @@
   }
   .btn-add-task:hover { background: #eef1fb; border-color: #4b6da8; }
 
+  /* Spacer between cases */
   tr.spacer td { height: 10px; background: #f4f6fb; padding: 0; }
 
+  /* Action buttons */
   .btns { display: flex; gap: 6px; flex-wrap: nowrap; }
   .btn-sm {
     border: none; border-radius: 6px; padding: 5px 11px;
@@ -124,11 +155,15 @@
   .bd { background: #fef2f2; color: #dc2626; }
   .te { background: #f0fdf4; color: #166534; }
   .td { background: #fef2f2; color: #dc2626; }
+  .hearing-edit-btn { background: none; border: none; cursor: pointer; font-size: 17px; color: #9ca3af; padding: 4px 6px; border-radius: 6px; line-height: 1; flex-shrink: 0; }
+  .hearing-edit-btn:hover { color: #6d28d9; background: #f5f0ff; }
 
+  /* Empty state */
   .empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
   .empty .ei { font-size: 42px; margin-bottom: 12px; }
   .empty p { font-size: 15px; }
 
+  /* ── Modal ── */
   .overlay {
     position: fixed; inset: 0;
     background: rgba(10,20,40,0.52);
@@ -213,6 +248,7 @@
   </div>
 </div>
 
+<!-- Modal -->
 <div id="overlay" class="overlay hidden" onclick="bgClick(event)">
   <div class="modal">
     <div class="mhdr">
@@ -223,9 +259,65 @@
       <label>שם התיק</label>
       <input id="inp-name" type="text" placeholder="לדוגמה: כהן נ׳ לוי" />
     </div>
+    <div id="f-proc-num" class="field">
+      <label>מספר הליך <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-proc-num" type="text" placeholder="לדוגמה: 12345-06-24" />
+    </div>
+    <div id="f-client-name" class="field">
+      <label>שם לקוח <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-client-name" type="text" />
+    </div>
+    <div id="f-client-phone" class="field">
+      <label>טלפון <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-client-phone" type="text" />
+    </div>
+    <div id="f-client-email" class="field">
+      <label>מייל <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-client-email" type="email" />
+    </div>
+    <div id="f-hearing-section"><span class="section-label">פרטי דיון</span></div>
     <div id="f-hearing" class="field">
       <label>תאריך דיון <span class="opt">(אופציונלי)</span></label>
       <input id="inp-hearing" type="date" />
+    </div>
+    <div id="f-time" class="field">
+      <label>שעה <span class="opt">(אופציונלי)</span></label>
+      <div style="display:flex;gap:8px;">
+        <select id="inp-time-h" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="">-- שעה --</option>
+          <option>08</option><option>09</option><option>10</option><option>11</option>
+          <option>12</option><option>13</option><option>14</option><option>15</option>
+          <option>16</option><option>17</option><option>18</option><option>19</option>
+          <option>20</option>
+        </select>
+        <select id="inp-time-m" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="00">00</option>
+          <option value="15">15</option>
+          <option value="30">30</option>
+          <option value="45">45</option>
+        </select>
+      </div>
+    </div>
+    <div id="f-court" class="field">
+      <label>שם בית משפט <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-court" type="text" placeholder="לדוגמה: בית משפט שלום תל אביב" />
+    </div>
+    <div id="f-judge" class="field">
+      <label>שם השופט/ת <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-judge" type="text" placeholder="לדוגמה: כב׳ השופטת ישראלי" />
+    </div>
+    <div id="f-materials" class="field">
+      <label>חומרים ומסמכים להכין <span class="opt">(אופציונלי)</span></label>
+      <textarea id="inp-materials" placeholder="לדוגמה: תצהיר עדות ראשית, חוות דעת מומחה, מסמכי בנק..."></textarea>
+    </div>
+    <div id="f-owner" class="field">
+      <label>שייך ל</label>
+      <div class="owner-toggle">
+        <input type="radio" name="task-owner" id="owner-mine"  value="שלי" />
+        <label for="owner-mine">שלי</label>
+        <input type="radio" name="task-owner" id="owner-other" value="הצד השני" />
+        <label for="owner-other">הצד השני</label>
+      </div>
     </div>
     <div id="f-action" class="field">
       <label>פעולה</label>
@@ -243,31 +335,50 @@
 </div>
 
 <script>
-var STORE = 'law-cases-v2';
+// ── Data ──────────────────────────────────────────────────────────
+var STORE = 'law-cases-v3';
 var cases = loadData();
 var mode = null, mCaseId = null, mTaskId = null;
+
+function emptyHearing() {
+  return { date: null, time: null, court: null, judge: null, materials: null };
+}
 
 function loadData() {
   var raw = JSON.parse(localStorage.getItem(STORE) || 'null');
   if (raw) return raw;
-  var old = JSON.parse(localStorage.getItem('law-cases') || '[]');
-  if (old.length && old[0].action !== undefined) {
-    var migrated = old.map(function(c) {
+  // Migrate v2 format (hearingDate field)
+  var v2 = JSON.parse(localStorage.getItem('law-cases-v2') || 'null');
+  if (v2) {
+    var m2 = v2.map(function(c) {
+      var h = emptyHearing(); h.date = c.hearingDate || null;
+      return { id: c.id, name: c.name, hearing: h, tasks: c.tasks || [] };
+    });
+    localStorage.setItem(STORE, JSON.stringify(m2));
+    return m2;
+  }
+  // Migrate v1 format (flat .action)
+  var v1 = JSON.parse(localStorage.getItem('law-cases') || '[]');
+  if (v1.length && v1[0].action !== undefined) {
+    var m1 = v1.map(function(c) {
       var tasks = [];
       if (c.action) tasks.push({ id: uid(), action: c.action, date: c.date || null });
-      return { id: c.id, name: c.name, hearingDate: null, tasks: tasks };
+      return { id: c.id, name: c.name, hearing: emptyHearing(), tasks: tasks };
     });
-    localStorage.setItem(STORE, JSON.stringify(migrated));
-    return migrated;
+    localStorage.setItem(STORE, JSON.stringify(m1));
+    return m1;
   }
   return [];
 }
 
 function persist() { localStorage.setItem(STORE, JSON.stringify(cases)); }
+
 function uid() { return Date.now() + Math.floor(Math.random() * 9999); }
 
+// ── Render ────────────────────────────────────────────────────────
 function render() {
   var tbody = document.getElementById('tbody');
+  var empty = document.getElementById('tbl');
   var sorted = sortCases(cases);
 
   document.getElementById('empty').style.display = sorted.length ? 'none' : 'block';
@@ -277,6 +388,7 @@ function render() {
   var over = 0, soon = 0, ok = 0;
 
   sorted.forEach(function(c, ci) {
+    // Spacer between cases
     if (ci > 0) {
       var sp = document.createElement('tr');
       sp.className = 'spacer';
@@ -284,35 +396,47 @@ function render() {
       tbody.appendChild(sp);
     }
 
+    // ── Case header row
     var cr = document.createElement('tr');
     cr.className = 'case-row';
-    var hd = c.hearingDate
-      ? '<span class="hearing ' + hearingCls(c.hearingDate) + '">📅 ' + fmt(c.hearingDate) + '</span>'
-      : '<span class="no-hearing">—</span>';
+    var hd = renderHearing(c.hearing);
     cr.innerHTML =
-      '<td><div class="case-name-cell"><span class="case-icon">⚖</span>' + x(c.name) + '</div></td>' +
-      '<td>' + hd + '</td>' +
+      '<td><div class="case-name-cell"><span class="case-icon">⚖</span><span class="case-name-link" onclick="openEditCase(' + c.id + ')">' + x(c.name) + '</span></div></td>' +
+      '<td><div style="display:flex;align-items:flex-start;gap:6px;">' + hd + '<button class="hearing-edit-btn" onclick="openEditHearing(' + c.id + ')" title="עריכת דיון">✏</button></div></td>' +
       '<td></td><td></td>' +
       '<td><div class="btns">' +
-        '<button class="btn-sm be" onclick="openEditCase(' + c.id + ')">ערוך תיק</button>' +
         '<button class="btn-sm bd" onclick="delCase(' + c.id + ')">מחק</button>' +
       '</div></td>';
     tbody.appendChild(cr);
 
+    // ── Task rows
     sortTasks(c.tasks).forEach(function(t) {
       var days = t.date ? daysLeft(t.date) : null;
-      if (days !== null) {
+      var isOther = t.owner === 'הצד השני';
+      if (days !== null && !isOther) {
         if (days < 0) over++;
         else if (days <= 7) soon++;
         else ok++;
       }
+      var ownerTag = isOther
+        ? '<span class="tag-other">הצד השני</span>'
+        : '<span class="tag-mine">שלי</span>';
       var tr = document.createElement('tr');
-      tr.className = 'task-row';
+      tr.className = isOther ? 'task-row task-other' : 'task-row';
+      var dateCell = isOther
+        ? (t.date ? '<div class="other-date-wrap"><span class="other-date-lbl">מועד הצד השני</span><span class="other-date-val">' + fmt(t.date) + '</span></div>' : '<span class="other-badge">—</span>')
+        : (t.date ? '<span class="date-val">' + fmt(t.date) + '</span>' : '<span class="no-date">ללא תאריך</span>');
+      var badgeCell = isOther
+        ? '<span class="other-badge">מעקב בלבד</span>'
+        : (days !== null ? badgeHtml(days) : '<span class="badge none">—</span>');
+      var actionContent = isOther
+        ? '<div class="task-action"><span class="arrow" style="color:#cbd5e1">↳</span>' + ownerTag + '<span class="other-action">' + x(t.action) + '</span></div>'
+        : '<div class="task-action"><span class="arrow">↳</span>' + ownerTag + x(t.action) + '</div>';
       tr.innerHTML =
-        '<td><div class="task-action"><span class="arrow">↓</span>' + x(t.action) + '</div></td>' +
+        '<td>' + actionContent + '</td>' +
         '<td></td>' +
-        '<td>' + (t.date ? '<span class="date-val">' + fmt(t.date) + '</span>' : '<span class="no-date">ללא תאריך</span>') + '</td>' +
-        '<td>' + (days !== null ? badgeHtml(days) : '<span class="badge none">—</span>') + '</td>' +
+        '<td>' + dateCell + '</td>' +
+        '<td>' + badgeCell + '</td>' +
         '<td><div class="btns">' +
           '<button class="btn-sm te" onclick="openEditTask(' + c.id + ',' + t.id + ')">ערוך</button>' +
           '<button class="btn-sm td" onclick="delTask(' + c.id + ',' + t.id + ')">מחק</button>' +
@@ -320,6 +444,7 @@ function render() {
       tbody.appendChild(tr);
     });
 
+    // ── Add task row
     var ar = document.createElement('tr');
     ar.className = 'add-row';
     ar.innerHTML = '<td colspan="5"><button class="btn-add-task" onclick="openAddTask(' + c.id + ')">+ הוסף משימה לתיק ' + x(c.name) + '</button></td>';
@@ -332,6 +457,7 @@ function render() {
   document.getElementById('cnt-cases').textContent = sorted.length;
 }
 
+// ── Sorting ───────────────────────────────────────────────────────
 function sortCases(arr) {
   return arr.slice().sort(function(a, b) { return score(a) - score(b); });
 }
@@ -340,6 +466,7 @@ function score(c) {
   if (!dated.length) return Infinity;
   return Math.min.apply(null, dated.map(function(t){ return new Date(t.date).getTime(); }));
 }
+
 function sortTasks(tasks) {
   return tasks.slice().sort(function(a, b) {
     if (!a.date && !b.date) return 0;
@@ -349,6 +476,7 @@ function sortTasks(tasks) {
   });
 }
 
+// ── Helpers ───────────────────────────────────────────────────────
 function daysLeft(d) {
   var t = new Date(); t.setHours(0,0,0,0);
   var v = new Date(d); v.setHours(0,0,0,0);
@@ -366,6 +494,20 @@ function hearingCls(d) {
   if (days <= 14) return 'soon-h';
   return '';
 }
+function renderHearing(h) {
+  if (!h || !h.date) return '<span class="no-hearing">—</span>';
+  var parts = [];
+  parts.push('<span class="hearing ' + hearingCls(h.date) + '">' + fmt(h.date) + '</span>');
+  if (h.time) parts.push('<div class="h-time">' + h.time + '</div>');
+  if (h.court) parts.push('<div class="h-detail">🏛 ' + x(h.court) + '</div>');
+  if (h.judge) parts.push('<div class="h-detail">👤 ' + x(h.judge) + '</div>');
+  if (h.materials) {
+    var items = h.materials.split('\n').filter(function(s){ return s.trim(); });
+    var rows = items.map(function(s){ return '<div class="h-mat-item">' + x(s.trim()) + '</div>'; }).join('');
+    parts.push('<div class="h-mat-wrap"><div class="h-mat-label">📋 חומרים</div>' + rows + '</div>');
+  }
+  return '<div class="hearing-cell">' + parts.join('') + '</div>';
+}
 function fmt(s) {
   return new Date(s).toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit', year:'numeric'});
 }
@@ -373,9 +515,12 @@ function x(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── Modal helpers ─────────────────────────────────────────────────
+var ALL_FIELDS = ['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
 function show(ids) {
-  ['f-name','f-hearing','f-action','f-date'].forEach(function(id) {
-    document.getElementById(id).style.display = ids.indexOf(id) >= 0 ? '' : 'none';
+  ALL_FIELDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = ids.indexOf(id) >= 0 ? '' : 'none';
   });
 }
 function openAddCase() {
@@ -383,25 +528,49 @@ function openAddCase() {
   document.getElementById('m-title').textContent = 'הוספת תיק חדש';
   document.getElementById('inp-name').value = '';
   document.getElementById('inp-hearing').value = '';
-  show(['f-name','f-hearing']);
+  document.getElementById('inp-time-h').value = '';
+  document.getElementById('inp-time-m').value = '00';
+  document.getElementById('inp-court').value = '';
+  document.getElementById('inp-judge').value = '';
+  document.getElementById('inp-materials').value = '';
+  show(['f-name','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials']);
   showModal(); document.getElementById('inp-name').focus();
 }
 function openEditCase(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
   mode = 'edit-case'; mCaseId = cid;
   document.getElementById('m-title').textContent = 'עריכת תיק';
-  document.getElementById('inp-name').value    = c.name;
-  document.getElementById('inp-hearing').value = c.hearingDate || '';
-  show(['f-name','f-hearing']);
+  document.getElementById('inp-name').value = c.name;
+  document.getElementById('inp-proc-num').value    = c.procNum     || '';
+  document.getElementById('inp-client-name').value  = c.clientName  || '';
+  document.getElementById('inp-client-phone').value = c.clientPhone || '';
+  document.getElementById('inp-client-email').value = c.clientEmail || '';
+  show(['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email']);
   showModal(); document.getElementById('inp-name').focus();
+}
+function openEditHearing(cid) {
+  var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  var h = c.hearing || emptyHearing();
+  mode = 'edit-hearing'; mCaseId = cid;
+  document.getElementById('m-title').textContent = 'פרטי דיון — ' + c.name;
+  document.getElementById('inp-hearing').value   = h.date || '';
+  var tp = h.time ? h.time.split(':') : ['','00'];
+  document.getElementById('inp-time-h').value = tp[0] || '';
+  document.getElementById('inp-time-m').value = tp[1] || '00';
+  document.getElementById('inp-court').value     = h.court || '';
+  document.getElementById('inp-judge').value     = h.judge || '';
+  document.getElementById('inp-materials').value = h.materials || '';
+  show(['f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials']);
+  showModal(); document.getElementById('inp-hearing').focus();
 }
 function openAddTask(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
   mode = 'add-task'; mCaseId = cid;
   document.getElementById('m-title').textContent = 'משימה חדשה — ' + c.name;
+  document.getElementById('owner-mine').checked = true;
   document.getElementById('inp-action').value = '';
   document.getElementById('inp-date').value   = '';
-  show(['f-action','f-date']);
+  show(['f-owner','f-action','f-date']);
   showModal(); document.getElementById('inp-action').focus();
 }
 function openEditTask(cid, tid) {
@@ -409,41 +578,68 @@ function openEditTask(cid, tid) {
   var t = c.tasks.find(function(v){ return v.id===tid; }); if (!t) return;
   mode = 'edit-task'; mCaseId = cid; mTaskId = tid;
   document.getElementById('m-title').textContent = 'עריכת משימה';
+  var ownerVal = t.owner || 'שלי';
+  document.querySelector('input[name="task-owner"][value="' + ownerVal + '"]').checked = true;
   document.getElementById('inp-action').value = t.action;
   document.getElementById('inp-date').value   = t.date || '';
-  show(['f-action','f-date']);
+  show(['f-owner','f-action','f-date']);
   showModal(); document.getElementById('inp-action').focus();
 }
 function showModal()  { document.getElementById('overlay').classList.remove('hidden'); }
 function closeModal() { document.getElementById('overlay').classList.add('hidden'); }
 function bgClick(e)   { if (e.target===document.getElementById('overlay')) closeModal(); }
 
+// ── Save ──────────────────────────────────────────────────────────
 function saveModal() {
-  if (mode === 'add-case')  addCase();
-  if (mode === 'edit-case') editCase();
-  if (mode === 'add-task')  addTask();
-  if (mode === 'edit-task') editTask();
+  if (mode === 'add-case')     { addCase();      }
+  if (mode === 'edit-case')    { editCase();     }
+  if (mode === 'edit-hearing') { editHearing();  }
+  if (mode === 'add-task')     { addTask();      }
+  if (mode === 'edit-task')    { editTask();     }
+}
+function readHearingFromModal() {
+  return {
+    date:      document.getElementById('inp-hearing').value   || null,
+    time:      document.getElementById('inp-time-h').value ? (document.getElementById('inp-time-h').value + ':' + document.getElementById('inp-time-m').value) : null,
+    court:     document.getElementById('inp-court').value.trim()     || null,
+    judge:     document.getElementById('inp-judge').value.trim()     || null,
+    materials: document.getElementById('inp-materials').value.trim() || null
+  };
 }
 function addCase() {
   var name = document.getElementById('inp-name').value.trim();
   if (!name) { alert('נא להזין שם תיק'); return; }
-  cases.push({ id: uid(), name: name, hearingDate: document.getElementById('inp-hearing').value || null, tasks: [] });
+  cases.push({ id: uid(), name: name, hearing: readHearingFromModal(), tasks: [] });
   persist(); closeModal(); render();
 }
 function editCase() {
   var name = document.getElementById('inp-name').value.trim();
   if (!name) { alert('נא להזין שם תיק'); return; }
   cases = cases.map(function(c) {
-    return c.id===mCaseId ? Object.assign({},c,{name:name, hearingDate:document.getElementById('inp-hearing').value||null}) : c;
+    if (c.id !== mCaseId) return c;
+    return Object.assign({}, c, {
+      name:        name,
+      procNum:     document.getElementById('inp-proc-num').value.trim()    || null,
+      clientName:  document.getElementById('inp-client-name').value.trim() || null,
+      clientPhone: document.getElementById('inp-client-phone').value.trim()|| null,
+      clientEmail: document.getElementById('inp-client-email').value.trim()|| null
+    });
+  });
+  persist(); closeModal(); render();
+}
+function editHearing() {
+  cases = cases.map(function(c) {
+    return c.id===mCaseId ? Object.assign({},c,{hearing:readHearingFromModal()}) : c;
   });
   persist(); closeModal(); render();
 }
 function addTask() {
   var action = document.getElementById('inp-action').value.trim();
   if (!action) { alert('נא להזין פעולה'); return; }
+  var owner = document.querySelector('input[name="task-owner"]:checked').value;
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
-    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null}])});
+    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner}])});
   });
   persist(); closeModal(); render();
 }
@@ -452,8 +648,9 @@ function editTask() {
   if (!action) { alert('נא להזין פעולה'); return; }
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
+  var owner = document.querySelector('input[name="task-owner"]:checked').value;
     return Object.assign({},c,{tasks:c.tasks.map(function(t){
-      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null} : t;
+      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner} : t;
     })});
   });
   persist(); closeModal(); render();
