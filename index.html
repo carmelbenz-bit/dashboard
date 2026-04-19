@@ -52,7 +52,10 @@
   .card.blue   { border-top-color: #3b82f6; } .card.blue   .num { color: #3b82f6; }
 
   /* ── Table ── */
-  .table-section { max-width: 1060px; margin: 22px auto 48px; padding: 0 40px; }
+  .search-wrap { max-width: 1060px; margin: 16px auto 0; padding: 0 40px; }
+  .search-wrap input { width: 100%; padding: 10px 16px 10px 40px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: inherit; direction: rtl; outline: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%239ca3af' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat left 12px center; color: #1e2a3a; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: border 0.15s; }
+  .search-wrap input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .table-section { max-width: 1060px; margin: 16px auto 48px; padding: 0 40px; }
   .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); overflow: hidden; }
 
   table { width: 100%; border-collapse: collapse; }
@@ -216,7 +219,7 @@
   .btn-cancel:hover { background: #e5e7eb; }
 
   @media (max-width: 680px) {
-    .top-bar, .summary-row, .table-section { padding-right: 14px; padding-left: 14px; }
+    .top-bar, .summary-row, .search-wrap, .table-section { padding-right: 14px; padding-left: 14px; }
     .summary-row { flex-wrap: wrap; }
     .card { min-width: calc(50% - 7px); }
     thead th:nth-child(2), tbody td:nth-child(2),
@@ -236,6 +239,10 @@
   <div class="card orange"><div class="num" id="cnt-soon">0</div><div class="lbl">משימות השבוע</div></div>
   <div class="card green"> <div class="num" id="cnt-ok">0</div>  <div class="lbl">משימות תקינות</div></div>
   <div class="card blue">  <div class="num" id="cnt-cases">0</div><div class="lbl">תיקים פתוחים</div></div>
+</div>
+
+<div class="search-wrap">
+  <input id="search-input" type="text" placeholder="חיפוש לפי שם תיק, משימה או שם לקוח..." oninput="onSearch()" />
 </div>
 
 <div class="table-section">
@@ -372,6 +379,11 @@
 var STORE = 'law-cases-v3';
 var cases = loadData();
 var mode = null, mCaseId = null, mTaskId = null;
+var searchQuery = '';
+function onSearch() {
+  searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
+  render();
+}
 var pendingFeeFile = null; // {name, data} = new file; null = keep existing
 var pendingTaskFiles = null; // array of {name,data} = new files; null = keep existing
 
@@ -433,6 +445,13 @@ function render() {
   var tbody = document.getElementById('tbody');
   var empty = document.getElementById('tbl');
   var sorted = sortCases(cases);
+  if (searchQuery) {
+    sorted = sorted.filter(function(c) {
+      if ((c.name || '').toLowerCase().indexOf(searchQuery) >= 0) return true;
+      if ((c.clientName || '').toLowerCase().indexOf(searchQuery) >= 0) return true;
+      return c.tasks.some(function(t) { return (t.action || '').toLowerCase().indexOf(searchQuery) >= 0; });
+    });
+  }
 
   document.getElementById('empty').style.display = sorted.length ? 'none' : 'block';
   document.getElementById('tbl').style.display   = sorted.length ? ''     : 'none';
