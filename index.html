@@ -39,19 +39,28 @@
     max-width: 1060px; margin: 0 auto;
   }
   .card {
-    flex: 1; background: #fff; border-radius: 12px;
-    padding: 16px 12px 12px; text-align: center;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    flex: 1; background: #fff; border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid #e5e7eb;
     border-top: 4px solid transparent;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px;
+    transition: box-shadow 0.15s, border-color 0.15s;
   }
-  .card .num { font-size: 28px; font-weight: 800; line-height: 1.1; }
-  .card .lbl { font-size: 11px; color: #888; margin-top: 5px; }
+  .card-text { display: flex; flex-direction: column; gap: 4px; }
+  .card .num { font-size: 2.2rem; font-weight: 800; line-height: 1; }
+  .card .lbl { font-size: 12px; color: #6b7280; font-weight: 500; }
+  .card-icon { padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .card.red    { border-top-color: #e53e3e; } .card.red    .num { color: #e53e3e; }
   .card.orange { border-top-color: #d97706; } .card.orange .num { color: #d97706; }
   .card.green  { border-top-color: #059669; } .card.green  .num { color: #059669; }
   .card.blue   { border-top-color: #3b82f6; } .card.blue   .num { color: #3b82f6; }
-  .card.filterable { cursor: pointer; transition: box-shadow 0.15s, transform 0.1s; }
-  .card.filterable:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.13); transform: translateY(-1px); }
+  .card.red    .card-icon { background: rgba(220,38,38,0.08);   color: #dc2626; }
+  .card.orange .card-icon { background: rgba(217,119,6,0.08);   color: #d97706; }
+  .card.green  .card-icon { background: rgba(5,150,105,0.08);   color: #059669; }
+  .card.blue   .card-icon { background: rgba(59,130,246,0.08);  color: #3b82f6; }
+  .card.filterable { cursor: pointer; }
+  .card.filterable:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.10); border-color: #c8d0dc; }
   .card.filterable.active { box-shadow: 0 0 0 3px currentColor; }
   .card.red.active    { box-shadow: 0 0 0 3px #e53e3e; }
   .card.orange.active { box-shadow: 0 0 0 3px #d97706; }
@@ -237,7 +246,8 @@
   @media (max-width: 680px) {
     .top-bar, .summary-row, .search-wrap, .table-section { padding-right: 14px; padding-left: 14px; }
     .summary-row { flex-wrap: wrap; }
-    .card { min-width: calc(50% - 7px); }
+    .card { min-width: calc(50% - 7px); padding: 16px; }
+    .card .num { font-size: 1.8rem; }
     thead th:nth-child(2), tbody td:nth-child(2),
     thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
   }
@@ -251,10 +261,22 @@
 </div>
 
 <div class="summary-row">
-  <div class="card red    filterable" id="card-overdue" onclick="filterCard('overdue')"><div class="num" id="cnt-over">0</div><div class="lbl">משימות באיחור</div></div>
-  <div class="card orange filterable" id="card-week"    onclick="filterCard('week')"   ><div class="num" id="cnt-soon">0</div><div class="lbl">משימות השבוע</div></div>
-  <div class="card green  filterable" id="card-today"   onclick="filterCard('today')"  ><div class="num" id="cnt-ok">0</div>  <div class="lbl">משימות להיום</div></div>
-  <div class="card blue"                                                                ><div class="num" id="cnt-cases">0</div><div class="lbl">תיקים פתוחים</div></div>
+  <div class="card red    filterable" id="card-overdue" onclick="filterCard('overdue')">
+    <div class="card-text"><div class="num" id="cnt-over">0</div><div class="lbl">משימות באיחור</div></div>
+    <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+  </div>
+  <div class="card orange filterable" id="card-week"    onclick="filterCard('week')">
+    <div class="card-text"><div class="num" id="cnt-soon">0</div><div class="lbl">משימות השבוע</div></div>
+    <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+  </div>
+  <div class="card green  filterable" id="card-today"   onclick="filterCard('today')">
+    <div class="card-text"><div class="num" id="cnt-ok">0</div><div class="lbl">משימות להיום</div></div>
+    <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+  </div>
+  <div class="card blue">
+    <div class="card-text"><div class="num" id="cnt-cases">0</div><div class="lbl">תיקים פתוחים</div></div>
+    <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+  </div>
 </div>
 <div class="filter-notice" id="filter-notice" style="display:none">
   <span class="filter-chip" id="filter-chip-text"></span>
