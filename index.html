@@ -220,7 +220,7 @@
   .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #b0b8c8; text-decoration: none; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tc-attachment:hover { color: #4b6da8; text-decoration: underline; }
 
-  .btn-icon-edit, .btn-icon-del {
+  .btn-icon-edit, .btn-icon-del, .btn-icon-done {
     display: inline-flex; align-items: center; justify-content: center;
     width: 26px; height: 26px; border-radius: 5px;
     cursor: pointer; border: 1px solid transparent; transition: background 0.12s, color 0.12s, border-color 0.12s;
@@ -229,6 +229,10 @@
   .btn-icon-edit:hover { background: #f1f5f9; color: #374151; border-color: #e2e8f0; }
   .btn-icon-del  { background: transparent; color: #f87171; }
   .btn-icon-del:hover  { background: #fef2f2; border-color: #fecaca; }
+  .btn-icon-done { background: transparent; color: #d1d5db; border-color: transparent; }
+  .btn-icon-done:hover { background: #f0fdf4; color: #22c55e; border-color: #bbf7d0; }
+  .btn-icon-done.is-done { color: #22c55e; border-color: #bbf7d0; background: #f0fdf4; }
+  .btn-icon-done.is-done:hover { background: #dcfce7; }
   .task-files-status { font-size: 12px; margin-bottom: 6px; }
   .task-file-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 4px; }
   .task-file-item span { color: #374151; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -794,6 +798,9 @@ function render() {
       var badgeCol = days !== null ? badgeHtml(days) : '';
       var icoEdit  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
       var icoTrash = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+      var icoCheck = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      var doneCls  = 'btn-icon-done' + (t.completed ? ' is-done' : '');
+      var doneTitle = t.completed ? 'סמן כלא הושלם' : 'סמן כהושלם';
       tr.innerHTML =
         '<td colspan="4"><div class="task-card">' +
           '<div class="task-card-body">' +
@@ -802,6 +809,7 @@ function render() {
             (attachHtml ? '<div class="task-line-3">' + attachHtml + '</div>' : '') +
           '</div>' +
           '<div class="task-card-actions">' +
+            '<button class="' + doneCls + '" onclick="toggleTaskDone(' + c.id + ',' + t.id + ')" title="' + doneTitle + '">' + icoCheck + '</button>' +
             '<button class="btn-icon-edit" onclick="' + openEdit + '" title="ערוך">' + icoEdit + '</button>' +
             '<button class="btn-icon-del"  onclick="delTask(' + c.id + ',' + t.id + ')" title="מחק">' + icoTrash + '</button>' +
           '</div>' +
@@ -1192,6 +1200,15 @@ function delCase(cid) {
   var c = cases.find(function(v){ return v.id===cid; });
   if (!c||!confirm('למחוק את התיק "'+c.name+'" וכל המשימות?')) return;
   cases = cases.filter(function(v){ return v.id!==cid; });
+  persist(); render();
+}
+function toggleTaskDone(cid, tid) {
+  cases = cases.map(function(c) {
+    if (c.id !== cid) return c;
+    return Object.assign({}, c, { tasks: c.tasks.map(function(t) {
+      return t.id === tid ? Object.assign({}, t, { completed: !t.completed }) : t;
+    })});
+  });
   persist(); render();
 }
 function delTask(cid,tid) {
