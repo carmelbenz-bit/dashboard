@@ -82,6 +82,13 @@
   .hearing.soon-h { background: #fffbeb; color: #b45309; border-color: #fcd34d; }
   .hearing.over-h { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
   .no-hearing { color: #c8ccd6; font-size: 13px; }
+  .hearing-cell { display: flex; flex-direction: column; gap: 3px; }
+  .h-detail { font-size: 11px; color: #6b7280; }
+  .h-materials { display: inline-block; font-size: 11px; background: #f0fdf4; color: #166534; padding: 1px 8px; border-radius: 10px; border: 1px solid #bbf7d0; margin-top: 2px; }
+  .section-label { display: block; font-size: 11px; font-weight: 700; color: #9ca3af; letter-spacing: 0.6px; padding: 14px 0 6px; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
+  .field textarea { width: 100%; padding: 10px 13px; border: 1.5px solid #e5e7eb; border-radius: 9px; font-size: 14px; font-family: inherit; direction: rtl; outline: none; color: #1e2a3a; transition: border 0.15s; resize: vertical; min-height: 75px; }
+  .field textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .modal { max-height: 90vh; overflow-y: auto; }
 
   /* Task rows */
   tr.task-row { background: #fff; }
@@ -236,9 +243,26 @@
       <label>שם התיק</label>
       <input id="inp-name" type="text" placeholder="לדוגמה: כהן נ׳ לוי" />
     </div>
+    <div id="f-hearing-section"><span class="section-label">פרטי דיון</span></div>
     <div id="f-hearing" class="field">
       <label>תאריך דיון <span class="opt">(אופציונלי)</span></label>
       <input id="inp-hearing" type="date" />
+    </div>
+    <div id="f-time" class="field">
+      <label>שעה <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-time" type="time" />
+    </div>
+    <div id="f-court" class="field">
+      <label>שם בית משפט <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-court" type="text" placeholder="לדוגמה: בית משפט שלום תל אביב" />
+    </div>
+    <div id="f-judge" class="field">
+      <label>שם השופט/ת <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-judge" type="text" placeholder="לדוגמה: כב׳ השופטת ישראלי" />
+    </div>
+    <div id="f-materials" class="field">
+      <label>חומרים ומסמכים להכין <span class="opt">(אופציונלי)</span></label>
+      <textarea id="inp-materials" placeholder="לדוגמה: תצהיר עדות ראשית, חוות דעת מומחה, מסמכי בנק..."></textarea>
     </div>
     <div id="f-action" class="field">
       <label>פעולה</label>
@@ -257,23 +281,37 @@
 
 <script>
 // ── Data ──────────────────────────────────────────────────────────
-var STORE = 'law-cases-v2';
+var STORE = 'law-cases-v3';
 var cases = loadData();
 var mode = null, mCaseId = null, mTaskId = null;
+
+function emptyHearing() {
+  return { date: null, time: null, court: null, judge: null, materials: null };
+}
 
 function loadData() {
   var raw = JSON.parse(localStorage.getItem(STORE) || 'null');
   if (raw) return raw;
-  // Migrate old format (flat case with .action)
-  var old = JSON.parse(localStorage.getItem('law-cases') || '[]');
-  if (old.length && old[0].action !== undefined) {
-    var migrated = old.map(function(c) {
+  // Migrate v2 format (hearingDate field)
+  var v2 = JSON.parse(localStorage.getItem('law-cases-v2') || 'null');
+  if (v2) {
+    var m2 = v2.map(function(c) {
+      var h = emptyHearing(); h.date = c.hearingDate || null;
+      return { id: c.id, name: c.name, hearing: h, tasks: c.tasks || [] };
+    });
+    localStorage.setItem(STORE, JSON.stringify(m2));
+    return m2;
+  }
+  // Migrate v1 format (flat .action)
+  var v1 = JSON.parse(localStorage.getItem('law-cases') || '[]');
+  if (v1.length && v1[0].action !== undefined) {
+    var m1 = v1.map(function(c) {
       var tasks = [];
       if (c.action) tasks.push({ id: uid(), action: c.action, date: c.date || null });
-      return { id: c.id, name: c.name, hearingDate: null, tasks: tasks };
+      return { id: c.id, name: c.name, hearing: emptyHearing(), tasks: tasks };
     });
-    localStorage.setItem(STORE, JSON.stringify(migrated));
-    return migrated;
+    localStorage.setItem(STORE, JSON.stringify(m1));
+    return m1;
   }
   return [];
 }
@@ -306,9 +344,7 @@ function render() {
     // ── Case header row
     var cr = document.createElement('tr');
     cr.className = 'case-row';
-    var hd = c.hearingDate
-      ? '<span class="hearing ' + hearingCls(c.hearingDate) + '">📅 ' + fmt(c.hearingDate) + '</span>'
-      : '<span class="no-hearing">—</span>';
+    var hd = renderHearing(c.hearing);
     cr.innerHTML =
       '<td><div class="case-name-cell"><span class="case-icon">⚖</span>' + x(c.name) + '</div></td>' +
       '<td>' + hd + '</td>' +
@@ -363,6 +399,7 @@ function score(c) {
   if (!dated.length) return Infinity;
   return Math.min.apply(null, dated.map(function(t){ return new Date(t.date).getTime(); }));
 }
+
 function sortTasks(tasks) {
   return tasks.slice().sort(function(a, b) {
     if (!a.date && !b.date) return 0;
@@ -390,6 +427,16 @@ function hearingCls(d) {
   if (days <= 14) return 'soon-h';
   return '';
 }
+function renderHearing(h) {
+  if (!h || !h.date) return '<span class="no-hearing">—</span>';
+  var parts = [];
+  var timeStr = h.time ? '  ' + h.time : '';
+  parts.push('<span class="hearing ' + hearingCls(h.date) + '">📅 ' + fmt(h.date) + timeStr + '</span>');
+  if (h.court) parts.push('<div class="h-detail">🏛 ' + x(h.court) + '</div>');
+  if (h.judge) parts.push('<div class="h-detail">👤 ' + x(h.judge) + '</div>');
+  if (h.materials) parts.push('<span class="h-materials">📋 חומרים</span>');
+  return '<div class="hearing-cell">' + parts.join('') + '</div>';
+}
 function fmt(s) {
   return new Date(s).toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit', year:'numeric'});
 }
@@ -398,9 +445,11 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
+var ALL_FIELDS = ['f-name','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-action','f-date'];
 function show(ids) {
-  ['f-name','f-hearing','f-action','f-date'].forEach(function(id) {
-    document.getElementById(id).style.display = ids.indexOf(id) >= 0 ? '' : 'none';
+  ALL_FIELDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = ids.indexOf(id) >= 0 ? '' : 'none';
   });
 }
 function openAddCase() {
@@ -408,16 +457,25 @@ function openAddCase() {
   document.getElementById('m-title').textContent = 'הוספת תיק חדש';
   document.getElementById('inp-name').value = '';
   document.getElementById('inp-hearing').value = '';
-  show(['f-name','f-hearing']);
+  document.getElementById('inp-time').value = '';
+  document.getElementById('inp-court').value = '';
+  document.getElementById('inp-judge').value = '';
+  document.getElementById('inp-materials').value = '';
+  show(['f-name','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials']);
   showModal(); document.getElementById('inp-name').focus();
 }
 function openEditCase(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  var h = c.hearing || emptyHearing();
   mode = 'edit-case'; mCaseId = cid;
-  document.getElementById('m-title').textContent = 'עריכת תיק';
-  document.getElementById('inp-name').value    = c.name;
-  document.getElementById('inp-hearing').value = c.hearingDate || '';
-  show(['f-name','f-hearing']);
+  document.getElementById('m-title').textContent = 'עריכת תיק — ' + c.name;
+  document.getElementById('inp-name').value      = c.name;
+  document.getElementById('inp-hearing').value   = h.date || '';
+  document.getElementById('inp-time').value      = h.time || '';
+  document.getElementById('inp-court').value     = h.court || '';
+  document.getElementById('inp-judge').value     = h.judge || '';
+  document.getElementById('inp-materials').value = h.materials || '';
+  show(['f-name','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials']);
   showModal(); document.getElementById('inp-name').focus();
 }
 function openAddTask(cid) {
@@ -450,17 +508,26 @@ function saveModal() {
   if (mode === 'add-task')  { addTask();  }
   if (mode === 'edit-task') { editTask(); }
 }
+function readHearingFromModal() {
+  return {
+    date:      document.getElementById('inp-hearing').value   || null,
+    time:      document.getElementById('inp-time').value      || null,
+    court:     document.getElementById('inp-court').value.trim()     || null,
+    judge:     document.getElementById('inp-judge').value.trim()     || null,
+    materials: document.getElementById('inp-materials').value.trim() || null
+  };
+}
 function addCase() {
   var name = document.getElementById('inp-name').value.trim();
   if (!name) { alert('נא להזין שם תיק'); return; }
-  cases.push({ id: uid(), name: name, hearingDate: document.getElementById('inp-hearing').value || null, tasks: [] });
+  cases.push({ id: uid(), name: name, hearing: readHearingFromModal(), tasks: [] });
   persist(); closeModal(); render();
 }
 function editCase() {
   var name = document.getElementById('inp-name').value.trim();
   if (!name) { alert('נא להזין שם תיק'); return; }
   cases = cases.map(function(c) {
-    return c.id===mCaseId ? Object.assign({},c,{name:name, hearingDate:document.getElementById('inp-hearing').value||null}) : c;
+    return c.id===mCaseId ? Object.assign({},c,{name:name, hearing:readHearingFromModal()}) : c;
   });
   persist(); closeModal(); render();
 }
