@@ -141,7 +141,8 @@
   .bd { background: #fef2f2; color: #dc2626; }
   .te { background: #f0fdf4; color: #166534; }
   .td { background: #fef2f2; color: #dc2626; }
-  .bh { background: #f5f0ff; color: #6d28d9; }
+  .hearing-edit-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: #9ca3af; padding: 2px 4px; border-radius: 4px; line-height: 1; flex-shrink: 0; }
+  .hearing-edit-btn:hover { color: #6d28d9; background: #f5f0ff; }
 
   /* Empty state */
   .empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
@@ -362,11 +363,10 @@ function render() {
     var hd = renderHearing(c.hearing);
     cr.innerHTML =
       '<td><div class="case-name-cell"><span class="case-icon">⚖</span>' + x(c.name) + '</div></td>' +
-      '<td>' + hd + '</td>' +
+      '<td><div style="display:flex;align-items:flex-start;gap:6px;">' + hd + '<button class="hearing-edit-btn" onclick="openEditHearing(' + c.id + ')" title="עריכת דיון">✏</button></div></td>' +
       '<td></td><td></td>' +
       '<td><div class="btns">' +
         '<button class="btn-sm be" onclick="openEditCase(' + c.id + ')">ערוך תיק</button>' +
-        '<button class="btn-sm bh" onclick="openEditHearing(' + c.id + ')">עריכת דיון</button>' +
         '<button class="btn-sm bd" onclick="delCase(' + c.id + ')">מחק</button>' +
       '</div></td>';
     tbody.appendChild(cr);
