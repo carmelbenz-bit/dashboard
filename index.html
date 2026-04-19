@@ -95,18 +95,15 @@
   .table-section { max-width: 1060px; margin: 16px auto 48px; padding: 0 40px; }
   .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; overflow: hidden; }
 
-  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  thead tr { background: #1e2a3a; border-bottom: 2px solid #2d4263; }
+  :root { --task-grid: 1fr 160px 160px 90px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { display: grid; grid-template-columns: var(--task-grid); background: #1e2a3a; border-bottom: 2px solid #2d4263; }
   thead th {
     color: #c9a84c; padding: 11px 18px;
     text-align: right; font-size: 11px; font-weight: 700;
     letter-spacing: 0.8px; white-space: nowrap; text-transform: uppercase;
-    overflow: hidden;
   }
-  thead th:nth-child(1) { width: 42%; }
-  thead th:nth-child(2) { width: 20%; text-align: center; }
-  thead th:nth-child(3) { width: 24%; text-align: center; }
-  thead th:nth-child(4) { width: 14%; text-align: center; }
+  thead th:nth-child(2), thead th:nth-child(3), thead th:nth-child(4) { text-align: center; }
 
   /* Case header row */
   tr.case-row { background: #eef1f9; }
@@ -183,8 +180,9 @@
   .field textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
   .modal { max-height: 90vh; overflow-y: auto; }
 
-  /* Task rows — one TD per header column */
-  tr.task-row td, tr.task-other td { padding: 10px 18px; vertical-align: middle; border: none; border-bottom: 1px solid #f4f5f9; overflow: hidden; }
+  /* Task rows — same fixed grid as header */
+  tr.task-row, tr.task-other { display: grid; grid-template-columns: var(--task-grid); align-items: center; }
+  tr.task-row td, tr.task-other td { padding: 10px 18px; border: none; border-bottom: 1px solid #f4f5f9; min-width: 0; }
   tr.task-row td { background: #fff; }
   tr.task-row:hover td { background: #f9fbff; }
   tr.task-other td { background: #f8f9fb; }
