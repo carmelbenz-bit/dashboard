@@ -127,13 +127,15 @@
   .hv-content { display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 0; }
   .hv-date-time { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
   .hv-date { font-size: 13px; font-weight: 600; color: #1e2a3a; white-space: nowrap; }
-  .hv-date.over-h { color: #dc2626; }
-  .hv-date.soon-h { color: #b45309; }
-  .hv-date.next-h { color: #3b5bdb; }
+  .hv-date.past-h  { color: #b0b8c8; }
+  .hv-date.soon-h  { color: #b45309; }
+  .hv-date.next-h  { color: #3b5bdb; }
   .hv-time { font-size: 11px; color: #9ca3af; }
-  .hv-details { display: flex; flex-direction: column; gap: 1px; padding-top: 1px; }
-  .hv-detail { font-size: 11px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+  .hv-details { display: flex; flex-direction: column; gap: 1px; padding-top: 2px; }
+  .hv-detail { font-size: 11px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
   .hv-edit-btns { display: flex; gap: 2px; flex-shrink: 0; }
+  .hv-item.is-next { background: #f0f4ff; border-radius: 7px; padding: 5px 8px; margin: 0 -8px; }
+  .hv-next-tag { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 8px; background: #eff2ff; color: #3b5bdb; border: 1px solid #c7d2ff; margin-inline-start: 5px; vertical-align: middle; white-space: nowrap; }
   .no-hearing { color: #c8ccd6; font-size: 13px; }
   .section-label { display: block; font-size: 11px; font-weight: 700; color: #9ca3af; letter-spacing: 0.6px; padding: 14px 0 6px; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
   .field textarea { width: 100%; padding: 10px 13px; border: 1.5px solid #e5e7eb; border-radius: 9px; font-size: 14px; font-family: inherit; direction: rtl; outline: none; color: #1e2a3a; transition: border 0.15s; resize: vertical; min-height: 75px; }
@@ -739,10 +741,11 @@ function hearingCls(d) {
   if (days <= 14) return 'soon-h';
   return '';
 }
-function renderOneHearing(h, colorCls) {
+function renderOneHearing(h, colorCls, isNext) {
   if (!h || !h.date) return '';
   var html = '<div class="hv-date-time">' +
-    '<span class="hv-date' + (colorCls ? ' ' + colorCls : '') + '">' + fmt(h.date) + '</span>' +
+    '<span class="hv-date' + (colorCls ? ' ' + colorCls : '') + '">' + fmt(h.date) +
+    (isNext ? '<span class="hv-next-tag">הבא</span>' : '') + '</span>' +
     (h.time ? '<span class="hv-time">' + h.time + '</span>' : '') +
   '</div>';
   if (h.court || h.judge) {
@@ -769,9 +772,11 @@ function renderHearings(hearings, cid) {
   }
   var blocks = list.map(function(h) {
     var d = h.date ? daysLeft(h.date) : null;
-    var colorCls = h.id === nextId ? 'next-h' : d !== null && d < 0 ? 'over-h' : d !== null && d <= 14 ? 'soon-h' : '';
-    return '<div class="hv-item">' +
-      '<div class="hv-content">' + renderOneHearing(h, colorCls) + '</div>' +
+    var isNext = h.id === nextId;
+    var colorCls = isNext ? 'next-h' : d !== null && d < 0 ? 'past-h' : d !== null && d <= 14 ? 'soon-h' : '';
+    var itemCls = 'hv-item' + (isNext ? ' is-next' : '');
+    return '<div class="' + itemCls + '">' +
+      '<div class="hv-content">' + renderOneHearing(h, colorCls, isNext) + '</div>' +
       '<div class="hv-edit-btns">' +
         '<button class="hearing-edit-btn" onclick="openEditHearing(' + cid + ',' + h.id + ')" title="עריכה">✏</button>' +
         '<button class="hearing-del-btn"  onclick="delHearing(' + cid + ',' + h.id + ')"  title="מחיקה">×</button>' +
