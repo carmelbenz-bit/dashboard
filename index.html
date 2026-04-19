@@ -116,17 +116,21 @@
   .case-meta-sep { font-size: 10px; color: #d1d5db; padding: 0 6px; }
   .case-meta-proc { font-family: 'Courier New', monospace; font-size: 11px; color: #9ca3af; letter-spacing: 0.3px; }
 
-  /* Hearing date badge */
-  .hearing-cell { display: flex; flex-direction: column; gap: 0; align-items: flex-start; }
-  .hearing { display: inline-block; font-size: 13px; font-weight: 700; white-space: nowrap; padding: 3px 10px; border-radius: 20px; background: #f0f4ff; color: #3b5bdb; border: 1px solid #bac8ff; }
-  .hearing.soon-h { background: #fffbeb; color: #b45309; border-color: #fcd34d; }
-  .hearing.over-h { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
-  .h-time { font-size: 12px; color: #9ca3af; font-weight: 400; padding: 2px 4px; margin-top: 4px; }
+  /* Hearing display — v0 style */
+  .hv-list { display: flex; flex-direction: column; }
+  .hv-item { display: flex; align-items: flex-start; gap: 6px; padding: 5px 0; }
+  .hv-item + .hv-item { border-top: 1px dashed #edf0f7; margin-top: 2px; }
+  .hv-content { display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 0; }
+  .hv-date-time { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+  .hv-date { font-size: 13px; font-weight: 600; color: #1e2a3a; white-space: nowrap; }
+  .hv-date.over-h { color: #dc2626; }
+  .hv-date.soon-h { color: #b45309; }
+  .hv-date.next-h { color: #3b5bdb; }
+  .hv-time { font-size: 11px; color: #9ca3af; }
+  .hv-details { display: flex; flex-direction: column; gap: 1px; padding-top: 1px; }
+  .hv-detail { font-size: 11px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+  .hv-edit-btns { display: flex; gap: 2px; flex-shrink: 0; }
   .no-hearing { color: #c8ccd6; font-size: 13px; }
-  .h-mat-wrap { margin-top: 5px; }
-  .h-mat-label { font-size: 11px; font-weight: 700; color: #166534; margin-bottom: 3px; }
-  .h-mat-item { font-size: 11px; color: #374151; line-height: 1.5; padding-right: 2px; }
-  .h-mat-item::before { content: '•  '; color: #9ca3af; }
   .section-label { display: block; font-size: 11px; font-weight: 700; color: #9ca3af; letter-spacing: 0.6px; padding: 14px 0 6px; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
   .field textarea { width: 100%; padding: 10px 13px; border: 1.5px solid #e5e7eb; border-radius: 9px; font-size: 14px; font-family: inherit; direction: rtl; outline: none; color: #1e2a3a; transition: border 0.15s; resize: vertical; min-height: 75px; }
   .field textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
@@ -234,11 +238,8 @@
   .hearing-edit-btn:hover { color: #6d28d9; background: #f5f0ff; }
   .hearing-del-btn { background: none; border: none; cursor: pointer; font-size: 15px; color: #d1d5db; padding: 4px 5px; border-radius: 6px; line-height: 1; flex-shrink: 0; }
   .hearing-del-btn:hover { color: #dc2626; background: #fef2f2; }
-  .hearing-block { display: flex; align-items: flex-start; gap: 4px; }
-  .hearing-sep { border-top: 1px dashed #e5e7eb; margin: 6px 0; }
   .btn-add-hearing { display: inline-block; margin-top: 6px; background: none; border: 1px dashed #97aad4; color: #4b6da8; padding: 2px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
   .btn-add-hearing:hover { background: #eef1fb; border-color: #4b6da8; }
-  .h-detail { font-size: 11px; color: #6b7280; margin-top: 2px; }
 
   /* Empty state */
   .empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
@@ -733,32 +734,46 @@ function hearingCls(d) {
   if (days <= 14) return 'soon-h';
   return '';
 }
-function renderOneHearing(h) {
+function renderOneHearing(h, colorCls) {
   if (!h || !h.date) return '';
-  var parts = [];
-  parts.push('<span class="hearing ' + hearingCls(h.date) + '">' + fmt(h.date) + '</span>');
-  if (h.time) parts.push('<div class="h-time">' + h.time + '</div>');
-  if (h.court) parts.push('<div class="h-detail">🏛 ' + x(h.court) + '</div>');
-  if (h.judge) parts.push('<div class="h-detail">👤 ' + x(h.judge) + '</div>');
-  if (h.materials) {
-    var items = h.materials.split('\n').filter(function(s){ return s.trim(); });
-    var rows = items.map(function(s){ return '<div class="h-mat-item">' + x(s.trim()) + '</div>'; }).join('');
-    parts.push('<div class="h-mat-wrap"><div class="h-mat-label">📋 חומרים</div>' + rows + '</div>');
+  var html = '<div class="hv-date-time">' +
+    '<span class="hv-date' + (colorCls ? ' ' + colorCls : '') + '">' + fmt(h.date) + '</span>' +
+    (h.time ? '<span class="hv-time">' + h.time + '</span>' : '') +
+  '</div>';
+  if (h.court || h.judge) {
+    html += '<div class="hv-details">';
+    if (h.court) html += '<span class="hv-detail">' + x(h.court) + '</span>';
+    if (h.judge) html += '<span class="hv-detail">' + x(h.judge) + '</span>';
+    html += '</div>';
   }
-  return '<div class="hearing-cell">' + parts.join('') + '</div>';
+  return html;
 }
 function renderHearings(hearings, cid) {
-  var blocks = (hearings || []).map(function(h) {
-    return '<div class="hearing-block">' +
-      renderOneHearing(h) +
-      '<div style="display:flex;flex-direction:column;gap:2px;padding-top:2px;">' +
+  var list = (hearings || []).slice().sort(function(a, b) {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1; if (!b.date) return -1;
+    return new Date(a.date) - new Date(b.date);
+  });
+  var nextId = null;
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].date && daysLeft(list[i].date) >= 0) { nextId = list[i].id; break; }
+  }
+  if (!list.length) {
+    return '<span class="no-hearing">—</span>' +
+      '<div><button class="btn-add-hearing" onclick="openAddHearing(' + cid + ')">+ דיון</button></div>';
+  }
+  var blocks = list.map(function(h) {
+    var d = h.date ? daysLeft(h.date) : null;
+    var colorCls = h.id === nextId ? 'next-h' : d !== null && d < 0 ? 'over-h' : d !== null && d <= 14 ? 'soon-h' : '';
+    return '<div class="hv-item">' +
+      '<div class="hv-content">' + renderOneHearing(h, colorCls) + '</div>' +
+      '<div class="hv-edit-btns">' +
         '<button class="hearing-edit-btn" onclick="openEditHearing(' + cid + ',' + h.id + ')" title="עריכה">✏</button>' +
         '<button class="hearing-del-btn"  onclick="delHearing(' + cid + ',' + h.id + ')"  title="מחיקה">×</button>' +
       '</div>' +
     '</div>';
   });
-  var sep = '<div class="hearing-sep"></div>';
-  return (blocks.length ? blocks.join(sep) : '<span class="no-hearing">—</span>') +
+  return '<div class="hv-list">' + blocks.join('') + '</div>' +
     '<div><button class="btn-add-hearing" onclick="openAddHearing(' + cid + ')">+ דיון</button></div>';
 }
 function fmt(s) {
