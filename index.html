@@ -275,6 +275,14 @@
       <label>מייל <span class="opt">(אופציונלי)</span></label>
       <input id="inp-client-email" type="email" />
     </div>
+    <div id="f-case-court" class="field">
+      <label>בית משפט <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-case-court" type="text" placeholder="לדוגמה: בית משפט שלום תל אביב" />
+    </div>
+    <div id="f-case-judge" class="field">
+      <label>שופט/ת <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-case-judge" type="text" placeholder="לדוגמה: כב׳ השופטת ישראלי" />
+    </div>
     <div id="f-hearing-section"><span class="section-label">פרטי דיון</span></div>
     <div id="f-hearing" class="field">
       <label>תאריך דיון <span class="opt">(אופציונלי)</span></label>
@@ -516,7 +524,7 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
+var ALL_FIELDS = ['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -544,8 +552,10 @@ function openEditCase(cid) {
   document.getElementById('inp-proc-num').value    = c.procNum     || '';
   document.getElementById('inp-client-name').value  = c.clientName  || '';
   document.getElementById('inp-client-phone').value = c.clientPhone || '';
-  document.getElementById('inp-client-email').value = c.clientEmail || '';
-  show(['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email']);
+  document.getElementById('inp-client-email').value  = c.clientEmail  || '';
+  document.getElementById('inp-case-court').value    = c.caseCourtName || '';
+  document.getElementById('inp-case-judge').value    = c.caseJudge    || '';
+  show(['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge']);
   showModal(); document.getElementById('inp-name').focus();
 }
 function openEditHearing(cid) {
@@ -622,7 +632,9 @@ function editCase() {
       procNum:     document.getElementById('inp-proc-num').value.trim()    || null,
       clientName:  document.getElementById('inp-client-name').value.trim() || null,
       clientPhone: document.getElementById('inp-client-phone').value.trim()|| null,
-      clientEmail: document.getElementById('inp-client-email').value.trim()|| null
+      clientEmail:   document.getElementById('inp-client-email').value.trim()  || null,
+      caseCourtName: document.getElementById('inp-case-court').value.trim()    || null,
+      caseJudge:     document.getElementById('inp-case-judge').value.trim()    || null
     });
   });
   persist(); closeModal(); render();
