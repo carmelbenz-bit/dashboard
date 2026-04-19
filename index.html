@@ -115,6 +115,10 @@
   .case-meta-item { font-size: 11.5px; color: #6b7280; white-space: nowrap; }
   .case-meta-sep { font-size: 10px; color: #d1d5db; padding: 0 6px; }
   .case-meta-proc { font-family: 'Courier New', monospace; font-size: 11px; color: #9ca3af; letter-spacing: 0.3px; }
+  .case-header-block { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+  .case-header-side { display: flex; align-items: flex-start; gap: 16px; flex-shrink: 0; }
+  .case-hearings-panel { min-width: 155px; }
+  .case-row-actions { flex-shrink: 0; }
 
   /* Hearing display — v0 style */
   .hv-list { display: flex; flex-direction: column; }
@@ -626,18 +630,19 @@ function render() {
       ? '<div class="case-meta-row">' + metaParts.join('<span class="case-meta-sep">·</span>') + '</div>'
       : '';
     cr.innerHTML =
-      '<td><div class="case-header-cell">' +
-        '<div class="case-title-row">' +
-          '<span class="case-icon">⚖</span>' +
-          '<span class="case-name-link" onclick="openEditCase(' + c.id + ')">' + x(c.name) + '</span>' +
-          (c.feeFile ? '<a class="fee-link" href="' + c.feeFile.data + '" download="' + x(c.feeFile.name) + '" title="הסכם שכ&quot;ט: ' + x(c.feeFile.name) + '">📎</a>' : '') +
+      '<td colspan="5"><div class="case-header-block">' +
+        '<div class="case-header-cell">' +
+          '<div class="case-title-row">' +
+            '<span class="case-icon">⚖</span>' +
+            '<span class="case-name-link" onclick="openEditCase(' + c.id + ')">' + x(c.name) + '</span>' +
+            (c.feeFile ? '<a class="fee-link" href="' + c.feeFile.data + '" download="' + x(c.feeFile.name) + '" title="הסכם שכ&quot;ט: ' + x(c.feeFile.name) + '">📎</a>' : '') +
+          '</div>' +
+          metaHtml +
         '</div>' +
-        metaHtml +
-      '</div></td>' +
-      '<td>' + renderHearings(c.hearings, c.id) + '</td>' +
-      '<td></td><td></td>' +
-      '<td><div class="btns">' +
-        '<button class="btn-sm bd" onclick="delCase(' + c.id + ')">מחק</button>' +
+        '<div class="case-header-side">' +
+          '<div class="case-hearings-panel">' + renderHearings(c.hearings, c.id) + '</div>' +
+          '<div class="case-row-actions"><div class="btns"><button class="btn-sm bd" onclick="delCase(' + c.id + ')">מחק</button></div></div>' +
+        '</div>' +
       '</div></td>';
     tbody.appendChild(cr);
 
