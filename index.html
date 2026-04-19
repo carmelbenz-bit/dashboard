@@ -103,6 +103,8 @@
   tr.task-other:hover { background: #f1f3f7; }
   tr.task-other td { color: #94a3b8; font-style: italic; }
   .other-action { color: #94a3b8; font-style: italic; }
+  .task-action-link { cursor: pointer; }
+  .task-action-link:hover { text-decoration: underline; }
   .other-date-wrap { display: flex; flex-direction: column; gap: 1px; }
   .other-date-lbl { font-size: 10px; color: #b0b8cc; letter-spacing: 0.3px; font-style: normal; }
   .other-date-val { font-size: 12px; color: #b0b8cc; font-style: normal; }
@@ -486,9 +488,10 @@ function render() {
       var badgeCell = isOther
         ? '<span class="other-badge">מעקב בלבד</span>'
         : (days !== null ? badgeHtml(days) : '<span class="badge none">—</span>');
+      var openEdit = 'openEditTask(' + c.id + ',' + t.id + ')';
       var actionContent = isOther
-        ? '<div class="task-action"><span class="arrow" style="color:#cbd5e1">↳</span>' + ownerTag + '<span class="other-action">' + x(t.action) + '</span></div>'
-        : '<div class="task-action"><span class="arrow">↳</span>' + ownerTag + x(t.action) + '</div>';
+        ? '<div class="task-action"><span class="arrow" style="color:#cbd5e1">↳</span>' + ownerTag + '<span class="other-action task-action-link" onclick="' + openEdit + '">' + x(t.action) + '</span></div>'
+        : '<div class="task-action"><span class="arrow">↳</span>' + ownerTag + '<span class="task-action-link" onclick="' + openEdit + '">' + x(t.action) + '</span></div>';
       var filesHtml = (t.files && t.files.length)
         ? '<div class="task-file-links">' + t.files.map(function(f){
             return '<a class="task-file-link" href="' + f.data + '" download="' + x(f.name) + '" title="' + x(f.name) + '">📎 ' + x(f.name) + '</a>';
