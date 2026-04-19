@@ -92,6 +92,13 @@
   tr.task-row { background: #fff; }
   tr.task-row:hover { background: #f8faff; }
   tr.task-row td { padding: 11px 18px; border-bottom: 1px solid #f0f2f8; font-size: 14px; }
+  tr.task-other { background: #fafafa; }
+  tr.task-other:hover { background: #f5f5f5; }
+  tr.task-other td { color: #9ca3af; }
+  .other-date-wrap { display: flex; flex-direction: column; gap: 1px; }
+  .other-date-lbl { font-size: 10px; color: #b0b8cc; letter-spacing: 0.3px; }
+  .other-date-val { font-size: 12px; color: #b0b8cc; }
+  .other-badge { font-size: 11px; color: #c4c9d4; font-style: italic; }
   .task-action {
     padding-right: 28px; color: #374151;
     display: flex; align-items: center; gap: 8px;
@@ -397,12 +404,18 @@ function render() {
         ? '<span class="tag-other">הצד השני</span>'
         : '<span class="tag-mine">שלי</span>';
       var tr = document.createElement('tr');
-      tr.className = 'task-row';
+      tr.className = isOther ? 'task-row task-other' : 'task-row';
+      var dateCell = isOther
+        ? (t.date ? '<div class="other-date-wrap"><span class="other-date-lbl">מועד הצד השני</span><span class="other-date-val">' + fmt(t.date) + '</span></div>' : '<span class="other-badge">—</span>')
+        : (t.date ? '<span class="date-val">' + fmt(t.date) + '</span>' : '<span class="no-date">ללא תאריך</span>');
+      var badgeCell = isOther
+        ? '<span class="other-badge">מעקב בלבד</span>'
+        : (days !== null ? badgeHtml(days) : '<span class="badge none">—</span>');
       tr.innerHTML =
         '<td><div class="task-action"><span class="arrow">↳</span>' + ownerTag + x(t.action) + '</div></td>' +
         '<td></td>' +
-        '<td>' + (t.date ? '<span class="date-val">' + fmt(t.date) + '</span>' : '<span class="no-date">ללא תאריך</span>') + '</td>' +
-        '<td>' + (days !== null ? badgeHtml(days) : '<span class="badge none">—</span>') + '</td>' +
+        '<td>' + dateCell + '</td>' +
+        '<td>' + badgeCell + '</td>' +
         '<td><div class="btns">' +
           '<button class="btn-sm te" onclick="openEditTask(' + c.id + ',' + t.id + ')">ערוך</button>' +
           '<button class="btn-sm td" onclick="delTask(' + c.id + ',' + t.id + ')">מחק</button>' +
