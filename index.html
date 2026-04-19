@@ -124,9 +124,10 @@
   .case-name-link:hover { color: #2d4263; text-decoration: underline; }
   .fee-link { font-size: 14px; color: #9ca3af; text-decoration: none; padding: 1px 5px; border-radius: 4px; transition: background 0.12s, color 0.12s; }
   .fee-link:hover { color: #4b6da8; background: #eef1fb; }
-  .case-meta-row { display: flex; align-items: center; flex-wrap: wrap; padding-right: 25px; row-gap: 3px; }
-  .case-meta-item { font-size: 11.5px; color: #6b7280; white-space: nowrap; }
-  .case-meta-sep { font-size: 10px; color: #d1d5db; padding: 0 6px; }
+  .case-meta-row { display: flex; align-items: center; flex-wrap: wrap; padding-right: 25px; row-gap: 4px; }
+  .case-meta-item { font-size: 11.5px; color: #6b7280; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+  .case-meta-item svg { color: #b0b8c8; flex-shrink: 0; }
+  .case-meta-sep { font-size: 10px; color: #e2e6ef; padding: 0 6px; }
   .case-meta-proc { font-family: 'Courier New', monospace; font-size: 11px; color: #9ca3af; letter-spacing: 0.3px; }
   .case-header-block { display: flex; align-items: flex-start; justify-content: space-between; gap: 0; }
   .case-header-side { display: flex; align-items: flex-start; gap: 16px; flex-shrink: 0; padding-inline-start: 20px; }
@@ -706,11 +707,16 @@ function render() {
     // ── Case header row
     var cr = document.createElement('tr');
     cr.className = 'case-row';
+    var icoClient = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    var icoLawyer = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>';
+    var icoJudge  = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>';
+    var icoCourt  = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>';
     var metaParts = [];
     if (c.procNum)       metaParts.push('<span class="case-meta-item case-meta-proc">#\u202f' + x(c.procNum) + '</span>');
-    if (c.clientName)    metaParts.push('<span class="case-meta-item">' + x(c.clientName) + '</span>');
-    if (c.caseCourtName) metaParts.push('<span class="case-meta-item">' + x(c.caseCourtName) + '</span>');
-    if (c.handler)       metaParts.push('<span class="case-meta-item">' + x(c.handler) + '</span>');
+    if (c.clientName)    metaParts.push('<span class="case-meta-item">' + icoClient + x(c.clientName) + '</span>');
+    if (c.caseCourtName) metaParts.push('<span class="case-meta-item">' + icoCourt  + x(c.caseCourtName) + '</span>');
+    if (c.caseJudge)     metaParts.push('<span class="case-meta-item">' + icoJudge  + x(c.caseJudge) + '</span>');
+    if (c.handler)       metaParts.push('<span class="case-meta-item">' + icoLawyer + x(c.handler) + '</span>');
     var metaHtml = metaParts.length
       ? '<div class="case-meta-row">' + metaParts.join('<span class="case-meta-sep">·</span>') + '</div>'
       : '';
