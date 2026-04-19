@@ -132,26 +132,35 @@
   .field textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
   .modal { max-height: 90vh; overflow-y: auto; }
 
-  /* Task rows */
-  tr.task-row { background: #fff; }
-  tr.task-row:hover { background: #f8faff; }
-  tr.task-row td { padding: 11px 18px; border-bottom: 1px solid #f0f2f8; font-size: 14px; }
-  tr.task-other { background: #f8f9fb; border-right: 3px solid #cbd5e1; }
-  tr.task-other:hover { background: #f1f3f7; }
-  tr.task-other td { color: #94a3b8; font-style: italic; }
-  .other-action { color: #94a3b8; font-style: italic; }
+  /* Task rows — card style */
+  tr.task-row td, tr.task-other td { padding: 3px 14px; border: none; }
+  tr.task-row, tr.task-other { background: transparent; border: none; }
+
+  .task-card {
+    display: flex; align-items: center; gap: 14px;
+    padding: 11px 14px; border-radius: 9px;
+    background: #fff; border: 1px solid #edf0f7;
+    transition: background 0.13s, box-shadow 0.13s;
+  }
+  .task-card:hover { background: #f5f8ff; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+  .task-card-other { background: #f8f9fb; border: 1px solid #e6eaf3; border-inline-end: 3px solid #cbd5e1; }
+  .task-card-other:hover { background: #f1f4f8; box-shadow: none; }
+  .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .task-card-meta { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .task-card-date-col { min-width: 90px; text-align: center; }
+  .task-card-badge-col { min-width: 110px; text-align: center; }
+
+  .task-action { color: #1e2a3a; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+  .task-card-other .task-action { color: #94a3b8; font-style: italic; font-weight: 400; }
+  .other-action { color: #94a3b8; }
   .task-action-link { cursor: pointer; }
   .task-action-link:hover { text-decoration: underline; }
   .other-date-wrap { display: flex; flex-direction: column; gap: 1px; }
-  .other-date-lbl { font-size: 10px; color: #b0b8cc; letter-spacing: 0.3px; font-style: normal; }
-  .other-date-val { font-size: 12px; color: #b0b8cc; font-style: normal; }
+  .other-date-lbl { font-size: 10px; color: #b0b8cc; letter-spacing: 0.3px; }
+  .other-date-val { font-size: 12px; color: #b0b8cc; }
   .other-badge { font-size: 11px; color: #c4c9d4; font-style: italic; }
-  .task-action {
-    padding-right: 28px; color: #374151;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .task-file-links { padding-right: 28px; margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
-  .task-file-link { font-size: 11px; color: #4b6da8; text-decoration: none; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  .task-file-links { margin-top: 2px; display: flex; flex-direction: column; gap: 2px; }
+  .task-file-link { font-size: 11px; color: #4b6da8; text-decoration: none; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
   .task-file-link:hover { text-decoration: underline; }
   .task-files-status { font-size: 12px; color: #059669; margin-bottom: 6px; line-height: 1.6; }
   .arrow { color: #b0b8cc; }
@@ -643,15 +652,21 @@ function render() {
             return '<a class="task-file-link" href="' + f.data + '" download="' + x(f.name) + '" title="' + x(f.name) + '">📎 ' + x(f.name) + '</a>';
           }).join('') + '</div>'
         : '';
-      tr.innerHTML =
-        '<td>' + actionContent + filesHtml + '</td>' +
-        '<td></td>' +
-        '<td>' + dateCell + '</td>' +
-        '<td>' + badgeCell + '</td>' +
-        '<td><div class="btns">' +
+      var cardCls = 'task-card' + (isOther ? ' task-card-other' : '');
+      tr.innerHTML = '<td colspan="5"><div class="' + cardCls + '">' +
+        '<div class="task-card-body">' +
+          actionContent +
+          filesHtml +
+        '</div>' +
+        '<div class="task-card-meta">' +
+          '<div class="task-card-date-col">'  + dateCell  + '</div>' +
+          '<div class="task-card-badge-col">' + badgeCell + '</div>' +
+        '</div>' +
+        '<div class="btns">' +
           '<button class="btn-sm te" onclick="openEditTask(' + c.id + ',' + t.id + ')">ערוך</button>' +
           '<button class="btn-sm td" onclick="delTask(' + c.id + ',' + t.id + ')">מחק</button>' +
-        '</div></td>';
+        '</div>' +
+      '</div></td>';
       tbody.appendChild(tr);
     });
 
