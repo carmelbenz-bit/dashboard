@@ -39,32 +39,31 @@
     max-width: 1060px; margin: 0 auto;
   }
   .card {
-    flex: 1; background: #fff; border-radius: 14px;
+    flex: 1; background: #fff; border-radius: 16px;
     padding: 20px 22px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border: 1px solid #e5e7eb;
-    border-top: 4px solid transparent;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.04);
+    border: 1px solid #E7ECF3;
+    border-top: 3px solid transparent;
     display: flex; align-items: center; justify-content: space-between; gap: 14px;
     transition: box-shadow 0.15s, border-color 0.15s;
   }
-  .card-text { display: flex; flex-direction: column; gap: 4px; }
-  .card .num { font-size: 2.2rem; font-weight: 800; line-height: 1; }
-  .card .lbl { font-size: 12px; color: #6b7280; font-weight: 500; }
-  .card-icon { padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .card.red    { border-top-color: #e53e3e; } .card.red    .num { color: #e53e3e; }
-  .card.orange { border-top-color: #d97706; } .card.orange .num { color: #d97706; }
-  .card.green  { border-top-color: #059669; } .card.green  .num { color: #059669; }
-  .card.blue   { border-top-color: #3b82f6; } .card.blue   .num { color: #3b82f6; }
-  .card.red    .card-icon { background: rgba(220,38,38,0.08);   color: #dc2626; }
-  .card.orange .card-icon { background: rgba(217,119,6,0.08);   color: #d97706; }
-  .card.green  .card-icon { background: rgba(5,150,105,0.08);   color: #059669; }
-  .card.blue   .card-icon { background: rgba(59,130,246,0.08);  color: #3b82f6; }
+  .card-text { display: flex; flex-direction: column; gap: 5px; }
+  .card .num { font-size: 2rem; font-weight: 800; line-height: 1; color: #1B2A4A; }
+  .card .lbl { font-size: 12px; color: #7C89A0; font-weight: 500; letter-spacing: 0.1px; }
+  .card-icon { padding: 11px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .card.red    { border-top-color: #EF4444; } .card.red    .num { color: #EF4444; }
+  .card.orange { border-top-color: #F59E0B; } .card.orange .num { color: #F59E0B; }
+  .card.green  { border-top-color: #16A34A; } .card.green  .num { color: #16A34A; }
+  .card.blue   { border-top-color: #3B82F6; } .card.blue   .num { color: #3B82F6; }
+  .card.red    .card-icon { background: rgba(239,68,68,0.07);   color: #EF4444; }
+  .card.orange .card-icon { background: rgba(245,158,11,0.07);  color: #F59E0B; }
+  .card.green  .card-icon { background: rgba(22,163,74,0.07);   color: #16A34A; }
+  .card.blue   .card-icon { background: rgba(59,130,246,0.07);  color: #3B82F6; }
   .card.filterable { cursor: pointer; }
-  .card.filterable:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.10); border-color: #c8d0dc; }
-  .card.filterable.active { box-shadow: 0 0 0 3px currentColor; }
-  .card.red.active    { box-shadow: 0 0 0 3px #e53e3e; }
-  .card.orange.active { box-shadow: 0 0 0 3px #d97706; }
-  .card.green.active  { box-shadow: 0 0 0 3px #059669; }
+  .card.filterable:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); border-color: #CBD5E1; }
+  .card.red.active    { box-shadow: 0 0 0 2.5px #EF4444; }
+  .card.orange.active { box-shadow: 0 0 0 2.5px #F59E0B; }
+  .card.green.active  { box-shadow: 0 0 0 2.5px #16A34A; }
   .filter-notice { max-width: 1060px; margin: 10px auto 0; padding: 0 40px; }
   .filter-chip { display: inline-flex; align-items: center; gap: 8px; background: #1e2a3a; color: #fff; font-size: 12px; padding: 5px 12px; border-radius: 20px; }
   .filter-chip button { background: none; border: none; color: #c9a84c; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 0 0 4px; }
