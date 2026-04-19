@@ -111,6 +111,10 @@
     padding-right: 28px; color: #374151;
     display: flex; align-items: center; gap: 8px;
   }
+  .task-file-links { padding-right: 28px; margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
+  .task-file-link { font-size: 11px; color: #4b6da8; text-decoration: none; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  .task-file-link:hover { text-decoration: underline; }
+  .task-files-status { font-size: 12px; color: #059669; margin-bottom: 6px; line-height: 1.6; }
   .arrow { color: #b0b8cc; }
   .no-date { color: #c0c4cc; font-style: italic; font-size: 13px; }
   .date-val { color: #6b7280; font-size: 13px; white-space: nowrap; }
@@ -349,6 +353,11 @@
       <label>מועד ביצוע <span class="opt">(אופציונלי)</span></label>
       <input id="inp-date" type="date" />
     </div>
+    <div id="f-task-files" class="field">
+      <label>קבצים מצורפים <span class="opt">(אופציונלי)</span></label>
+      <div id="task-files-status" class="task-files-status"></div>
+      <input id="inp-task-files" type="file" multiple accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png" onchange="onTaskFilesChange(event)" />
+    </div>
     <div class="mftr">
       <button class="btn-cancel" onclick="closeModal()">ביטול</button>
       <button class="btn-save"   onclick="saveModal()">שמור</button>
@@ -362,6 +371,7 @@ var STORE = 'law-cases-v3';
 var cases = loadData();
 var mode = null, mCaseId = null, mTaskId = null;
 var pendingFeeFile = null; // {name, data} = new file; null = keep existing
+var pendingTaskFiles = null; // array of {name,data} = new files; null = keep existing
 
 function onFeeFileChange(e) {
   var file = e.target.files[0];
@@ -369,6 +379,16 @@ function onFeeFileChange(e) {
   var reader = new FileReader();
   reader.onload = function(ev) { pendingFeeFile = { name: file.name, data: ev.target.result }; };
   reader.readAsDataURL(file);
+}
+function onTaskFilesChange(e) {
+  var files = Array.from(e.target.files);
+  if (!files.length) { pendingTaskFiles = null; return; }
+  pendingTaskFiles = new Array(files.length);
+  files.forEach(function(file, i) {
+    var reader = new FileReader();
+    reader.onload = function(ev) { pendingTaskFiles[i] = { name: file.name, data: ev.target.result }; };
+    reader.readAsDataURL(file);
+  });
 }
 
 function emptyHearing() {
@@ -469,8 +489,13 @@ function render() {
       var actionContent = isOther
         ? '<div class="task-action"><span class="arrow" style="color:#cbd5e1">↳</span>' + ownerTag + '<span class="other-action">' + x(t.action) + '</span></div>'
         : '<div class="task-action"><span class="arrow">↳</span>' + ownerTag + x(t.action) + '</div>';
+      var filesHtml = (t.files && t.files.length)
+        ? '<div class="task-file-links">' + t.files.map(function(f){
+            return '<a class="task-file-link" href="' + f.data + '" download="' + x(f.name) + '" title="' + x(f.name) + '">📎 ' + x(f.name) + '</a>';
+          }).join('') + '</div>'
+        : '';
       tr.innerHTML =
-        '<td>' + actionContent + '</td>' +
+        '<td>' + actionContent + filesHtml + '</td>' +
         '<td></td>' +
         '<td>' + dateCell + '</td>' +
         '<td>' + badgeCell + '</td>' +
@@ -553,7 +578,7 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
+var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -613,7 +638,10 @@ function openAddTask(cid) {
   document.getElementById('owner-mine').checked = true;
   document.getElementById('inp-action').value = '';
   document.getElementById('inp-date').value   = '';
-  show(['f-owner','f-action','f-date']);
+  pendingTaskFiles = [];
+  document.getElementById('inp-task-files').value = '';
+  document.getElementById('task-files-status').innerHTML = '';
+  show(['f-owner','f-action','f-date','f-task-files']);
   showModal(); document.getElementById('inp-action').focus();
 }
 function openEditTask(cid, tid) {
@@ -625,7 +653,13 @@ function openEditTask(cid, tid) {
   document.querySelector('input[name="task-owner"][value="' + ownerVal + '"]').checked = true;
   document.getElementById('inp-action').value = t.action;
   document.getElementById('inp-date').value   = t.date || '';
-  show(['f-owner','f-action','f-date']);
+  pendingTaskFiles = null;
+  document.getElementById('inp-task-files').value = '';
+  var existing = t.files && t.files.length;
+  document.getElementById('task-files-status').innerHTML = existing
+    ? t.files.map(function(f){ return '📎 ' + x(f.name); }).join('<br>') + (existing ? '<br><span style="color:#aaa;font-size:11px">בחירת קבצים חדשים תחליף את הקיימים</span>' : '')
+    : '';
+  show(['f-owner','f-action','f-date','f-task-files']);
   showModal(); document.getElementById('inp-action').focus();
 }
 function showModal()  { document.getElementById('overlay').classList.remove('hidden'); }
@@ -686,7 +720,8 @@ function addTask() {
   var owner = document.querySelector('input[name="task-owner"]:checked').value;
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
-    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner}])});
+    var files = pendingTaskFiles ? pendingTaskFiles.filter(Boolean) : [];
+    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files}])});
   });
   persist(); closeModal(); render();
 }
@@ -697,7 +732,8 @@ function editTask() {
     if (c.id!==mCaseId) return c;
   var owner = document.querySelector('input[name="task-owner"]:checked').value;
     return Object.assign({},c,{tasks:c.tasks.map(function(t){
-      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner} : t;
+      var files = pendingTaskFiles !== null ? pendingTaskFiles.filter(Boolean) : (t.files || []);
+      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files} : t;
     })});
   });
   persist(); closeModal(); render();
