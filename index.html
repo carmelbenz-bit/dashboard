@@ -110,6 +110,12 @@
   .badge.soon { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
   .badge.ok   { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
   .badge.none { color: #d1d5db; }
+  .owner-toggle { display: flex; border: 1.5px solid #e5e7eb; border-radius: 9px; overflow: hidden; margin-top: 2px; }
+  .owner-toggle input[type=radio] { display: none; }
+  .owner-toggle label { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: #6b7280; background: #fff; transition: all 0.15s; }
+  .owner-toggle input[type=radio]:checked + label { background: #1e2a3a; color: #fff; }
+  .tag-mine  { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; white-space: nowrap; margin-right: 6px; }
+  .tag-other { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; white-space: nowrap; margin-right: 6px; }
 
   /* Add-task row */
   tr.add-row td {
@@ -278,6 +284,15 @@
       <label>חומרים ומסמכים להכין <span class="opt">(אופציונלי)</span></label>
       <textarea id="inp-materials" placeholder="לדוגמה: תצהיר עדות ראשית, חוות דעת מומחה, מסמכי בנק..."></textarea>
     </div>
+    <div id="f-owner" class="field">
+      <label>שייך ל</label>
+      <div class="owner-toggle">
+        <input type="radio" name="task-owner" id="owner-mine"  value="שלי" />
+        <label for="owner-mine">שלי</label>
+        <input type="radio" name="task-owner" id="owner-other" value="הצד השני" />
+        <label for="owner-other">הצד השני</label>
+      </div>
+    </div>
     <div id="f-action" class="field">
       <label>פעולה</label>
       <input id="inp-action" type="text" placeholder="לדוגמה: הגשת כתב הגנה" />
@@ -372,15 +387,19 @@ function render() {
     // ── Task rows
     sortTasks(c.tasks).forEach(function(t) {
       var days = t.date ? daysLeft(t.date) : null;
-      if (days !== null) {
+      var isOther = t.owner === 'הצד השני';
+      if (days !== null && !isOther) {
         if (days < 0) over++;
         else if (days <= 7) soon++;
         else ok++;
       }
+      var ownerTag = isOther
+        ? '<span class="tag-other">הצד השני</span>'
+        : '<span class="tag-mine">שלי</span>';
       var tr = document.createElement('tr');
       tr.className = 'task-row';
       tr.innerHTML =
-        '<td><div class="task-action"><span class="arrow">↳</span>' + x(t.action) + '</div></td>' +
+        '<td><div class="task-action"><span class="arrow">↳</span>' + ownerTag + x(t.action) + '</div></td>' +
         '<td></td>' +
         '<td>' + (t.date ? '<span class="date-val">' + fmt(t.date) + '</span>' : '<span class="no-date">ללא תאריך</span>') + '</td>' +
         '<td>' + (days !== null ? badgeHtml(days) : '<span class="badge none">—</span>') + '</td>' +
@@ -463,7 +482,7 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-action','f-date'];
+var ALL_FIELDS = ['f-name','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -510,9 +529,10 @@ function openAddTask(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
   mode = 'add-task'; mCaseId = cid;
   document.getElementById('m-title').textContent = 'משימה חדשה — ' + c.name;
+  document.getElementById('owner-mine').checked = true;
   document.getElementById('inp-action').value = '';
   document.getElementById('inp-date').value   = '';
-  show(['f-action','f-date']);
+  show(['f-owner','f-action','f-date']);
   showModal(); document.getElementById('inp-action').focus();
 }
 function openEditTask(cid, tid) {
@@ -520,9 +540,11 @@ function openEditTask(cid, tid) {
   var t = c.tasks.find(function(v){ return v.id===tid; }); if (!t) return;
   mode = 'edit-task'; mCaseId = cid; mTaskId = tid;
   document.getElementById('m-title').textContent = 'עריכת משימה';
+  var ownerVal = t.owner || 'שלי';
+  document.querySelector('input[name="task-owner"][value="' + ownerVal + '"]').checked = true;
   document.getElementById('inp-action').value = t.action;
   document.getElementById('inp-date').value   = t.date || '';
-  show(['f-action','f-date']);
+  show(['f-owner','f-action','f-date']);
   showModal(); document.getElementById('inp-action').focus();
 }
 function showModal()  { document.getElementById('overlay').classList.remove('hidden'); }
@@ -569,9 +591,10 @@ function editHearing() {
 function addTask() {
   var action = document.getElementById('inp-action').value.trim();
   if (!action) { alert('נא להזין פעולה'); return; }
+  var owner = document.querySelector('input[name="task-owner"]:checked').value;
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
-    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null}])});
+    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner}])});
   });
   persist(); closeModal(); render();
 }
@@ -580,8 +603,9 @@ function editTask() {
   if (!action) { alert('נא להזין פעולה'); return; }
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
+  var owner = document.querySelector('input[name="task-owner"]:checked').value;
     return Object.assign({},c,{tasks:c.tasks.map(function(t){
-      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null} : t;
+      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner} : t;
     })});
   });
   persist(); closeModal(); render();
