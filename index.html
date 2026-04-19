@@ -50,6 +50,15 @@
   .card.orange { border-top-color: #d97706; } .card.orange .num { color: #d97706; }
   .card.green  { border-top-color: #059669; } .card.green  .num { color: #059669; }
   .card.blue   { border-top-color: #3b82f6; } .card.blue   .num { color: #3b82f6; }
+  .card.filterable { cursor: pointer; transition: box-shadow 0.15s, transform 0.1s; }
+  .card.filterable:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.13); transform: translateY(-1px); }
+  .card.filterable.active { box-shadow: 0 0 0 3px currentColor; }
+  .card.red.active    { box-shadow: 0 0 0 3px #e53e3e; }
+  .card.orange.active { box-shadow: 0 0 0 3px #d97706; }
+  .card.green.active  { box-shadow: 0 0 0 3px #059669; }
+  .filter-notice { max-width: 1060px; margin: 10px auto 0; padding: 0 40px; }
+  .filter-chip { display: inline-flex; align-items: center; gap: 8px; background: #1e2a3a; color: #fff; font-size: 12px; padding: 5px 12px; border-radius: 20px; }
+  .filter-chip button { background: none; border: none; color: #c9a84c; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 0 0 4px; }
 
   /* ── Table ── */
   .search-wrap { max-width: 1060px; margin: 16px auto 0; padding: 0 40px; }
@@ -242,10 +251,13 @@
 </div>
 
 <div class="summary-row">
-  <div class="card red">   <div class="num" id="cnt-over">0</div><div class="lbl">משימות באיחור</div></div>
-  <div class="card orange"><div class="num" id="cnt-soon">0</div><div class="lbl">משימות השבוע</div></div>
-  <div class="card green"> <div class="num" id="cnt-ok">0</div>  <div class="lbl">משימות תקינות</div></div>
-  <div class="card blue">  <div class="num" id="cnt-cases">0</div><div class="lbl">תיקים פתוחים</div></div>
+  <div class="card red    filterable" id="card-overdue" onclick="filterCard('overdue')"><div class="num" id="cnt-over">0</div><div class="lbl">משימות באיחור</div></div>
+  <div class="card orange filterable" id="card-week"    onclick="filterCard('week')"   ><div class="num" id="cnt-soon">0</div><div class="lbl">משימות השבוע</div></div>
+  <div class="card green  filterable" id="card-today"   onclick="filterCard('today')"  ><div class="num" id="cnt-ok">0</div>  <div class="lbl">משימות להיום</div></div>
+  <div class="card blue"                                                                ><div class="num" id="cnt-cases">0</div><div class="lbl">תיקים פתוחים</div></div>
+</div>
+<div class="filter-notice" id="filter-notice" style="display:none">
+  <span class="filter-chip" id="filter-chip-text"></span>
 </div>
 
 <div class="search-wrap">
@@ -395,6 +407,19 @@ function onSearch() {
   searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
   render();
 }
+var cardFilter = null;
+function filterCard(type) {
+  cardFilter = cardFilter === type ? null : type;
+  render();
+}
+function taskMatchesFilter(t, filter) {
+  if (!filter || t.owner === 'הצד השני' || !t.date) return filter === null;
+  var days = daysLeft(t.date);
+  if (filter === 'overdue') return days < 0;
+  if (filter === 'week')    return days >= 0 && days <= 7;
+  if (filter === 'today')   return days === 0;
+  return false;
+}
 var pendingFeeFile = null; // {name, data} = new file; null = keep existing
 var pendingTaskFiles = null; // array of {name,data} = new files; null = keep existing
 
@@ -475,12 +500,36 @@ function render() {
       return c.tasks.some(function(t) { return (t.action || '').toLowerCase().indexOf(searchQuery) >= 0; });
     });
   }
+  var cardTaskMap = null;
+  if (cardFilter) {
+    cardTaskMap = {};
+    sorted = sorted.filter(function(c) {
+      var matching = c.tasks.filter(function(t) { return taskMatchesFilter(t, cardFilter); });
+      if (!matching.length) return false;
+      cardTaskMap[c.id] = matching;
+      return true;
+    });
+  }
+  // Update active card UI
+  ['overdue','week','today'].forEach(function(f) {
+    var el = document.getElementById('card-' + f);
+    if (el) el.classList.toggle('active', cardFilter === f);
+  });
+  var noticeEl = document.getElementById('filter-notice');
+  var chipEl   = document.getElementById('filter-chip-text');
+  if (cardFilter) {
+    var labels = { overdue: 'משימות באיחור', week: 'משימות השבוע', today: 'משימות להיום' };
+    chipEl.innerHTML = 'מציג: ' + labels[cardFilter] + ' <button onclick="filterCard(\'' + cardFilter + '\')">✕</button>';
+    noticeEl.style.display = '';
+  } else {
+    noticeEl.style.display = 'none';
+  }
 
   document.getElementById('empty').style.display = sorted.length ? 'none' : 'block';
   document.getElementById('tbl').style.display   = sorted.length ? ''     : 'none';
 
   tbody.innerHTML = '';
-  var over = 0, soon = 0, ok = 0;
+  var over = 0, soon = 0, todayCnt = 0;
 
   sorted.forEach(function(c, ci) {
     // Spacer between cases
@@ -510,13 +559,14 @@ function render() {
     tbody.appendChild(cr);
 
     // ── Task rows
-    sortTasks(c.tasks).forEach(function(t) {
+    var taskList = cardTaskMap ? (cardTaskMap[c.id] || []) : c.tasks;
+    sortTasks(taskList).forEach(function(t) {
       var days = t.date ? daysLeft(t.date) : null;
       var isOther = t.owner === 'הצד השני';
       if (days !== null && !isOther) {
         if (days < 0) over++;
         else if (days <= 7) soon++;
-        else ok++;
+        if (days === 0) todayCnt++;
       }
       var ownerTag = isOther
         ? '<span class="tag-other">הצד השני</span>'
@@ -559,8 +609,8 @@ function render() {
 
   document.getElementById('cnt-over').textContent  = over;
   document.getElementById('cnt-soon').textContent  = soon;
-  document.getElementById('cnt-ok').textContent    = ok;
-  document.getElementById('cnt-cases').textContent = sorted.length;
+  document.getElementById('cnt-ok').textContent    = todayCnt;
+  document.getElementById('cnt-cases').textContent = cases.length;
 }
 
 // ── Sorting ───────────────────────────────────────────────────────
