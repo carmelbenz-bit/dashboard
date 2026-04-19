@@ -310,6 +310,10 @@
       <div id="fee-file-status" class="fee-file-status"></div>
       <input id="inp-fee-file" type="file" accept=".pdf,.doc,.docx,.odt" onchange="onFeeFileChange(event)" />
     </div>
+    <div id="f-notes" class="field">
+      <label>הערות <span class="opt">(אופציונלי)</span></label>
+      <textarea id="inp-notes" placeholder="הערות חופשיות לגבי התיק..."></textarea>
+    </div>
     <div id="f-hearing-section"><span class="section-label">פרטי דיון</span></div>
     <div id="f-hearing" class="field">
       <label>תאריך דיון <span class="opt">(אופציונלי)</span></label>
@@ -600,7 +604,7 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files'];
+var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -635,7 +639,8 @@ function openEditCase(cid) {
   pendingFeeFile = null;
   document.getElementById('inp-fee-file').value = '';
   document.getElementById('fee-file-status').innerHTML = c.feeFile ? '📎 ' + x(c.feeFile.name) + ' (קיים)' : '';
-  show(['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file']);
+  document.getElementById('inp-notes').value = c.notes || '';
+  show(['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes']);
   showModal(); document.getElementById('inp-name').focus();
 }
 function openEditHearing(cid) {
@@ -725,7 +730,8 @@ function editCase() {
       clientEmail:   document.getElementById('inp-client-email').value.trim()  || null,
       caseCourtName: document.getElementById('inp-case-court').value.trim()    || null,
       caseJudge:     document.getElementById('inp-case-judge').value.trim()    || null,
-      feeFile:       pendingFeeFile !== null ? pendingFeeFile : (c.feeFile || null)
+      feeFile:       pendingFeeFile !== null ? pendingFeeFile : (c.feeFile || null),
+      notes:         document.getElementById('inp-notes').value.trim() || null
     });
   });
   persist(); closeModal(); render();
