@@ -84,6 +84,7 @@
   .no-hearing { color: #c8ccd6; font-size: 13px; }
   .hearing-cell { display: flex; flex-direction: column; gap: 3px; }
   .h-detail { font-size: 11px; color: #6b7280; }
+  .h-time { font-size: 11px; color: #6b7280; margin-top: 2px; }
   .h-materials { display: inline-block; font-size: 11px; background: #f0fdf4; color: #166534; padding: 1px 8px; border-radius: 10px; border: 1px solid #bbf7d0; margin-top: 2px; }
   .section-label { display: block; font-size: 11px; font-weight: 700; color: #9ca3af; letter-spacing: 0.6px; padding: 14px 0 6px; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
   .field textarea { width: 100%; padding: 10px 13px; border: 1.5px solid #e5e7eb; border-radius: 9px; font-size: 14px; font-family: inherit; direction: rtl; outline: none; color: #1e2a3a; transition: border 0.15s; resize: vertical; min-height: 75px; }
@@ -446,8 +447,8 @@ function hearingCls(d) {
 function renderHearing(h) {
   if (!h || !h.date) return '<span class="no-hearing">—</span>';
   var parts = [];
-  var timeStr = h.time ? '  ' + h.time : '';
-  parts.push('<span class="hearing ' + hearingCls(h.date) + '">📅 ' + fmt(h.date) + timeStr + '</span>');
+  parts.push('<span class="hearing ' + hearingCls(h.date) + '">📅 ' + fmt(h.date) + '</span>');
+  if (h.time) parts.push('<div class="h-time">🕐 ' + h.time + '</div>');
   if (h.court) parts.push('<div class="h-detail">🏛 ' + x(h.court) + '</div>');
   if (h.judge) parts.push('<div class="h-detail">👤 ' + x(h.judge) + '</div>');
   if (h.materials) parts.push('<span class="h-materials">📋 חומרים</span>');
