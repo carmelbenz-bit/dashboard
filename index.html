@@ -96,12 +96,6 @@
   .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; overflow: hidden; }
 
   table { width: 100%; border-collapse: collapse; }
-  thead tr { background: #1e2a3a; border-bottom: 2px solid #2d4263; }
-  thead th {
-    color: #c9a84c; padding: 11px 18px;
-    text-align: right; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.8px; white-space: nowrap; text-transform: uppercase;
-  }
 
   /* Case header row */
   tr.case-row { background: #eef1f9; }
@@ -179,41 +173,43 @@
   .modal { max-height: 90vh; overflow-y: auto; }
 
   /* Task rows — card layout */
-  tr.task-row td, tr.task-other td { padding: 0; border: none; border-bottom: 1px solid #f0f2f8; }
+  tr.task-row td, tr.task-other td { padding: 0; border: none; border-bottom: 1px solid #edf0f6; }
   tr.task-row td { background: #fff; }
-  tr.task-row:hover td { background: #f9fbff; }
+  tr.task-row:hover td { background: #f7f9ff; }
   tr.task-other td { background: #f8f9fb; border-inline-end: 3px solid #cbd5e1; }
   tr.task-other:hover td { background: #f1f4f8; }
 
-  .task-card { display: flex; align-items: flex-start; justify-content: space-between; padding: 10px 18px; gap: 12px; }
-  .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-  .task-card-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; align-self: center; }
+  .task-card { display: flex; align-items: flex-start; justify-content: space-between; padding: 13px 20px; gap: 14px; }
+  .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .task-card-actions { display: flex; align-items: center; gap: 3px; flex-shrink: 0; align-self: center; opacity: 0.35; transition: opacity 0.15s; }
+  tr.task-row:hover .task-card-actions,
+  tr.task-other:hover .task-card-actions { opacity: 1; }
   .task-line-1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .task-line-2 { display: flex; align-items: center; gap: 7px; }
-  .task-line-3 { display: flex; flex-direction: column; gap: 2px; }
-  .task-meta-label { font-size: 10.5px; color: #9ca3af; font-weight: 600; letter-spacing: 0.3px; white-space: nowrap; }
-  .task-meta-date { font-size: 13px; color: #4b5563; white-space: nowrap; }
-  .tc-no-date { color: #d1d5db; }
+  .task-line-2 { display: flex; align-items: center; gap: 8px; }
+  .task-line-3 { display: flex; flex-direction: column; gap: 2px; margin-top: 1px; }
+  .task-meta-label { font-size: 10px; color: #b0b8c8; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; white-space: nowrap; }
+  .task-meta-date { font-size: 12.5px; color: #4b5563; white-space: nowrap; }
+  .tc-no-date { color: #d1d5db; font-style: italic; }
 
-  .task-title-link { font-weight: 500; font-size: 14px; color: #1e2a3a; cursor: pointer; line-height: 1.3; }
-  .task-title-link:hover { text-decoration: underline; }
+  .task-title-link { font-weight: 500; font-size: 14px; color: #1e2a3a; cursor: pointer; line-height: 1.35; }
+  .task-title-link:hover { color: #2d4263; text-decoration: underline; }
   .task-title-other { color: #94a3b8; font-style: italic; font-weight: 400; }
   .tc-assignee-badge { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
   .tc-assignee-mine  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
   .tc-assignee-other { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
   .tc-attachments { display: flex; flex-direction: column; gap: 2px; }
-  .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #9ca3af; text-decoration: none; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #b0b8c8; text-decoration: none; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tc-attachment:hover { color: #4b6da8; text-decoration: underline; }
 
   .btn-icon-edit, .btn-icon-del {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: 6px;
-    cursor: pointer; border: 1px solid; transition: background 0.12s, color 0.12s;
+    width: 26px; height: 26px; border-radius: 5px;
+    cursor: pointer; border: 1px solid transparent; transition: background 0.12s, color 0.12s, border-color 0.12s;
   }
-  .btn-icon-edit { background: #fff; color: #6b7280; border-color: #e5e7eb; }
-  .btn-icon-edit:hover { background: #f9fafb; color: #374151; border-color: #d1d5db; }
-  .btn-icon-del  { background: #fff; color: #dc2626; border-color: #fecaca; }
-  .btn-icon-del:hover  { background: #fef2f2; }
+  .btn-icon-edit { background: transparent; color: #9ca3af; }
+  .btn-icon-edit:hover { background: #f1f5f9; color: #374151; border-color: #e2e8f0; }
+  .btn-icon-del  { background: transparent; color: #f87171; }
+  .btn-icon-del:hover  { background: #fef2f2; border-color: #fecaca; }
   .task-files-status { font-size: 12px; color: #059669; margin-bottom: 6px; line-height: 1.6; }
 
   /* Urgency badges */
@@ -317,7 +313,6 @@
     .summary-row { flex-wrap: wrap; }
     .card { min-width: calc(50% - 7px); padding: 16px; }
     .card .num { font-size: 1.8rem; }
-    thead th:nth-child(2), thead th:nth-child(3) { display: none; }
   }
 </style>
 </head>
@@ -364,14 +359,6 @@
 <div class="table-section">
   <div class="table-wrap">
     <table id="tbl">
-      <thead>
-        <tr>
-          <th>תיק / משימה</th>
-          <th>מועד ביצוע</th>
-          <th>דחיפות</th>
-          <th>פעולות</th>
-        </tr>
-      </thead>
       <tbody id="tbody"></tbody>
     </table>
     <div id="empty" class="empty" style="display:none">
