@@ -71,8 +71,27 @@
 
   /* ── Table ── */
   .search-wrap { max-width: 1060px; margin: 16px auto 0; padding: 0 40px; }
-  .search-wrap input { width: 100%; padding: 10px 16px 10px 40px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; font-family: inherit; direction: rtl; outline: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%239ca3af' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat left 12px center; color: #1e2a3a; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: border 0.15s; }
-  .search-wrap input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 6px 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .search-input-wrap { flex: 1; position: relative; display: flex; align-items: center; }
+  .search-input-icon { position: absolute; right: 10px; color: #9ca3af; pointer-events: none; display: flex; }
+  .search-input-wrap input {
+    width: 100%; padding: 7px 38px 7px 10px;
+    border: none; background: transparent; outline: none;
+    font-size: 14px; font-family: inherit; direction: rtl; color: #1e2a3a;
+  }
+  .search-input-wrap input::placeholder { color: #9ca3af; }
+  .search-btn {
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    padding: 7px 14px; border: 1px solid #e5e7eb; border-radius: 9px;
+    background: #fff; color: #374151; font-size: 13px; font-family: inherit;
+    cursor: pointer; white-space: nowrap; transition: background 0.12s, border-color 0.12s;
+  }
+  .search-btn:hover { background: #f9fafb; border-color: #d1d5db; }
+  .search-btn svg { color: #6b7280; }
   .table-section { max-width: 1060px; margin: 16px auto 48px; padding: 0 40px; }
   .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); overflow: hidden; }
 
@@ -245,6 +264,7 @@
 
   @media (max-width: 680px) {
     .top-bar, .summary-row, .search-wrap, .table-section { padding-right: 14px; padding-left: 14px; }
+    .search-btn span { display: none; }
     .summary-row { flex-wrap: wrap; }
     .card { min-width: calc(50% - 7px); padding: 16px; }
     .card .num { font-size: 1.8rem; }
@@ -283,7 +303,14 @@
 </div>
 
 <div class="search-wrap">
-  <input id="search-input" type="text" placeholder="חיפוש לפי שם תיק, משימה או שם לקוח..." oninput="onSearch()" />
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <span class="search-input-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+      <input id="search-input" type="text" placeholder="חיפוש לפי שם תיק, משימה או שם לקוח..." oninput="onSearch()" />
+    </div>
+    <button class="search-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>סינון</button>
+    <button class="search-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/><line x1="14" y1="2" x2="14" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="16" y1="18" x2="16" y2="22"/></svg>מיון</button>
+  </div>
 </div>
 
 <div class="table-section">
