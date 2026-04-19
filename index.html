@@ -776,7 +776,7 @@ function render() {
     sortTasks(taskList).forEach(function(t) {
       var days = t.date ? daysLeft(t.date) : null;
       var isOther = t.owner === 'הצד השני';
-      if (days !== null && !isOther) {
+      if (days !== null && !isOther && !t.completed) {
         if (days < 0) over++;
         else if (days <= 7) soon++;
         if (days === 0) todayCnt++;
