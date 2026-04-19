@@ -95,15 +95,13 @@
   .table-section { max-width: 1060px; margin: 16px auto 48px; padding: 0 40px; }
   .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; overflow: hidden; }
 
-  :root { --task-grid: 1fr 160px 160px 90px; }
   table { width: 100%; border-collapse: collapse; }
-  thead tr { display: grid; grid-template-columns: var(--task-grid); background: #1e2a3a; border-bottom: 2px solid #2d4263; }
+  thead tr { background: #1e2a3a; border-bottom: 2px solid #2d4263; }
   thead th {
     color: #c9a84c; padding: 11px 18px;
     text-align: right; font-size: 11px; font-weight: 700;
     letter-spacing: 0.8px; white-space: nowrap; text-transform: uppercase;
   }
-  thead th:nth-child(2), thead th:nth-child(3), thead th:nth-child(4) { text-align: center; }
 
   /* Case header row */
   tr.case-row { background: #eef1f9; }
@@ -180,18 +178,23 @@
   .field textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
   .modal { max-height: 90vh; overflow-y: auto; }
 
-  /* Task rows — same fixed grid as header */
-  tr.task-row, tr.task-other { display: grid; grid-template-columns: var(--task-grid); align-items: center; }
-  tr.task-row td, tr.task-other td { padding: 10px 18px; border: none; border-bottom: 1px solid #f4f5f9; min-width: 0; }
+  /* Task rows — card layout */
+  tr.task-row td, tr.task-other td { padding: 0; border: none; border-bottom: 1px solid #f0f2f8; }
   tr.task-row td { background: #fff; }
   tr.task-row:hover td { background: #f9fbff; }
-  tr.task-other td { background: #f8f9fb; }
+  tr.task-other td { background: #f8f9fb; border-inline-end: 3px solid #cbd5e1; }
   tr.task-other:hover td { background: #f1f4f8; }
-  tr.task-other td:last-child { border-inline-end: 3px solid #cbd5e1; }
 
-  /* Title cell */
-  .tc-title { display: flex; flex-direction: column; gap: 3px; }
-  .tc-title-line { display: flex; align-items: center; gap: 8px; }
+  .task-card { display: flex; align-items: flex-start; justify-content: space-between; padding: 10px 18px; gap: 12px; }
+  .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  .task-card-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; align-self: center; }
+  .task-line-1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .task-line-2 { display: flex; align-items: center; gap: 7px; }
+  .task-line-3 { display: flex; flex-direction: column; gap: 2px; }
+  .task-meta-label { font-size: 10.5px; color: #9ca3af; font-weight: 600; letter-spacing: 0.3px; white-space: nowrap; }
+  .task-meta-date { font-size: 13px; color: #4b5563; white-space: nowrap; }
+  .tc-no-date { color: #d1d5db; }
+
   .task-title-link { font-weight: 500; font-size: 14px; color: #1e2a3a; cursor: pointer; line-height: 1.3; }
   .task-title-link:hover { text-decoration: underline; }
   .task-title-other { color: #94a3b8; font-style: italic; font-weight: 400; }
@@ -199,18 +202,9 @@
   .tc-assignee-mine  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
   .tc-assignee-other { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
   .tc-attachments { display: flex; flex-direction: column; gap: 2px; }
-  .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #9ca3af; text-decoration: none; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #9ca3af; text-decoration: none; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tc-attachment:hover { color: #4b6da8; text-decoration: underline; }
 
-  /* Date cell */
-  .tc-cell-date { text-align: center; font-size: 13px; color: #6b7280; white-space: nowrap; }
-  .tc-no-date { color: #d1d5db; }
-
-  /* Badge cell */
-  .tc-cell-badge { text-align: center; }
-
-  /* Actions cell */
-  .tc-cell-actions { text-align: center; white-space: nowrap; }
   .btn-icon-edit, .btn-icon-del {
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border-radius: 6px;
@@ -698,16 +692,17 @@ function render() {
       var icoEdit  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
       var icoTrash = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
       tr.innerHTML =
-        '<td><div class="tc-title">' +
-          '<div class="tc-title-line"><span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' + assigneeBadge + '</div>' +
-          attachHtml +
-        '</div></td>' +
-        '<td class="tc-cell-date">' + dateHtml + '</td>' +
-        '<td class="tc-cell-badge">' + badgeCol + '</td>' +
-        '<td class="tc-cell-actions">' +
-          '<button class="btn-icon-edit" onclick="' + openEdit + '" title="ערוך">' + icoEdit + '</button> ' +
-          '<button class="btn-icon-del"  onclick="delTask(' + c.id + ',' + t.id + ')" title="מחק">' + icoTrash + '</button>' +
-        '</td>';
+        '<td colspan="4"><div class="task-card">' +
+          '<div class="task-card-body">' +
+            '<div class="task-line-1"><span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' + assigneeBadge + '</div>' +
+            '<div class="task-line-2"><span class="task-meta-label">מועד ביצוע</span><span class="task-meta-date">' + dateHtml + '</span>' + badgeCol + '</div>' +
+            (attachHtml ? '<div class="task-line-3">' + attachHtml + '</div>' : '') +
+          '</div>' +
+          '<div class="task-card-actions">' +
+            '<button class="btn-icon-edit" onclick="' + openEdit + '" title="ערוך">' + icoEdit + '</button>' +
+            '<button class="btn-icon-del"  onclick="delTask(' + c.id + ',' + t.id + ')" title="מחק">' + icoTrash + '</button>' +
+          '</div>' +
+        '</div></td>';
       tbody.appendChild(tr);
     });
 
