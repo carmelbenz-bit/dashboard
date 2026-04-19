@@ -179,48 +179,40 @@
   .field textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
   .modal { max-height: 90vh; overflow-y: auto; }
 
-  /* Task rows — v0 card style */
-  tr.task-row td, tr.task-other td { padding: 3px 14px; border: none; }
-  tr.task-row, tr.task-other { background: transparent; border: none; }
+  /* Task rows — one TD per header column */
+  tr.task-row td, tr.task-other td { padding: 10px 18px; vertical-align: middle; border: none; border-bottom: 1px solid #f4f5f9; }
+  tr.task-row td { background: #fff; }
+  tr.task-row:hover td { background: #f9fbff; }
+  tr.task-other td { background: #f8f9fb; }
+  tr.task-other:hover td { background: #f1f4f8; }
+  tr.task-other td:last-child { border-inline-end: 3px solid #cbd5e1; }
 
-  .task-card {
-    display: flex; align-items: center;
-    padding: 12px 16px; border-radius: 8px;
-    transition: background 0.12s;
-  }
-  .task-card:hover { background: rgba(0,0,0,0.025); }
-  .task-card-other { background: #f8f9fb; border-inline-end: 3px solid #cbd5e1; }
-  .task-card-other:hover { background: #f1f4f8; }
-
-  /* Title column */
-  .tc-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  /* Title cell */
+  .tc-title { display: flex; flex-direction: column; gap: 3px; }
+  .tc-title-line { display: flex; align-items: center; gap: 8px; }
   .task-title-link { font-weight: 500; font-size: 14px; color: #1e2a3a; cursor: pointer; line-height: 1.3; }
   .task-title-link:hover { text-decoration: underline; }
   .task-title-other { color: #94a3b8; font-style: italic; font-weight: 400; }
+  .tc-assignee-badge { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .tc-assignee-mine  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .tc-assignee-other { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
   .tc-attachments { display: flex; flex-direction: column; gap: 2px; }
   .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #9ca3af; text-decoration: none; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tc-attachment:hover { color: #4b6da8; text-decoration: underline; }
 
-  /* Assignee column */
-  .tc-assignee { width: 90px; display: flex; justify-content: center; flex-shrink: 0; }
-  .tc-assignee-badge { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
-  .tc-assignee-mine  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-  .tc-assignee-other { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
-
-  /* Date column */
-  .tc-date { width: 110px; text-align: center; flex-shrink: 0; font-size: 13px; color: #6b7280; white-space: nowrap; }
+  /* Date cell */
+  .tc-cell-date { text-align: center; font-size: 13px; color: #6b7280; white-space: nowrap; }
   .tc-no-date { color: #d1d5db; }
 
-  /* Badge column */
-  .tc-badge-col { width: 140px; display: flex; justify-content: center; flex-shrink: 0; }
+  /* Badge cell */
+  .tc-cell-badge { text-align: center; }
 
-  /* Action buttons — icon only */
-  .tc-actions { width: 64px; display: flex; justify-content: flex-end; gap: 4px; flex-shrink: 0; }
+  /* Actions cell */
+  .tc-cell-actions { text-align: center; white-space: nowrap; }
   .btn-icon-edit, .btn-icon-del {
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border-radius: 6px;
     cursor: pointer; border: 1px solid; transition: background 0.12s, color 0.12s;
-    flex-shrink: 0;
   }
   .btn-icon-edit { background: #fff; color: #6b7280; border-color: #e5e7eb; }
   .btn-icon-edit:hover { background: #f9fafb; color: #374151; border-color: #d1d5db; }
@@ -703,20 +695,17 @@ function render() {
       var badgeCol = days !== null ? badgeHtml(days) : '<span class="badge none">—</span>';
       var icoEdit  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
       var icoTrash = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
-      var cardCls = 'task-card' + (isOther ? ' task-card-other' : '');
-      tr.innerHTML = '<td colspan="4"><div class="' + cardCls + '">' +
-        '<div class="tc-title">' +
-          '<span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' +
+      tr.innerHTML =
+        '<td><div class="tc-title">' +
+          '<div class="tc-title-line"><span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' + assigneeBadge + '</div>' +
           attachHtml +
-        '</div>' +
-        '<div class="tc-assignee">' + assigneeBadge + '</div>' +
-        '<div class="tc-date">' + dateHtml + '</div>' +
-        '<div class="tc-badge-col">' + badgeCol + '</div>' +
-        '<div class="tc-actions">' +
-          '<button class="btn-icon-edit" onclick="' + openEdit + '" title="ערוך">' + icoEdit + '</button>' +
+        '</div></td>' +
+        '<td class="tc-cell-date">' + dateHtml + '</td>' +
+        '<td class="tc-cell-badge">' + badgeCol + '</td>' +
+        '<td class="tc-cell-actions">' +
+          '<button class="btn-icon-edit" onclick="' + openEdit + '" title="ערוך">' + icoEdit + '</button> ' +
           '<button class="btn-icon-del"  onclick="delTask(' + c.id + ',' + t.id + ')" title="מחק">' + icoTrash + '</button>' +
-        '</div>' +
-      '</div></td>';
+        '</td>';
       tbody.appendChild(tr);
     });
 
