@@ -171,6 +171,13 @@
   .td { background: #fef2f2; color: #dc2626; }
   .hearing-edit-btn { background: none; border: none; cursor: pointer; font-size: 17px; color: #9ca3af; padding: 4px 6px; border-radius: 6px; line-height: 1; flex-shrink: 0; }
   .hearing-edit-btn:hover { color: #6d28d9; background: #f5f0ff; }
+  .hearing-del-btn { background: none; border: none; cursor: pointer; font-size: 15px; color: #d1d5db; padding: 4px 5px; border-radius: 6px; line-height: 1; flex-shrink: 0; }
+  .hearing-del-btn:hover { color: #dc2626; background: #fef2f2; }
+  .hearing-block { display: flex; align-items: flex-start; gap: 4px; }
+  .hearing-sep { border-top: 1px dashed #e5e7eb; margin: 6px 0; }
+  .btn-add-hearing { display: inline-block; margin-top: 6px; background: none; border: 1px dashed #97aad4; color: #4b6da8; padding: 2px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .btn-add-hearing:hover { background: #eef1fb; border-color: #4b6da8; }
+  .h-detail { font-size: 11px; color: #6b7280; margin-top: 2px; }
 
   /* Empty state */
   .empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
@@ -382,7 +389,7 @@
 // ── Data ──────────────────────────────────────────────────────────
 var STORE = 'law-cases-v3';
 var cases = loadData();
-var mode = null, mCaseId = null, mTaskId = null;
+var mode = null, mCaseId = null, mTaskId = null, mHearingId = null;
 var searchQuery = '';
 function onSearch() {
   searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
@@ -413,15 +420,27 @@ function emptyHearing() {
   return { date: null, time: null, court: null, judge: null, materials: null };
 }
 
+function toHearingsArray(c) {
+  if (c.hearings) return c;
+  var h = c.hearing || emptyHearing();
+  var hearings = h.date ? [Object.assign({ id: uid() }, h)] : [];
+  var nc = Object.assign({}, c, { hearings: hearings });
+  delete nc.hearing;
+  return nc;
+}
 function loadData() {
   var raw = JSON.parse(localStorage.getItem(STORE) || 'null');
-  if (raw) return raw;
+  if (raw) {
+    var migrated = raw.map(toHearingsArray);
+    localStorage.setItem(STORE, JSON.stringify(migrated));
+    return migrated;
+  }
   // Migrate v2 format (hearingDate field)
   var v2 = JSON.parse(localStorage.getItem('law-cases-v2') || 'null');
   if (v2) {
     var m2 = v2.map(function(c) {
       var h = emptyHearing(); h.date = c.hearingDate || null;
-      return { id: c.id, name: c.name, hearing: h, tasks: c.tasks || [] };
+      return toHearingsArray({ id: c.id, name: c.name, hearing: h, tasks: c.tasks || [] });
     });
     localStorage.setItem(STORE, JSON.stringify(m2));
     return m2;
@@ -432,7 +451,7 @@ function loadData() {
     var m1 = v1.map(function(c) {
       var tasks = [];
       if (c.action) tasks.push({ id: uid(), action: c.action, date: c.date || null });
-      return { id: c.id, name: c.name, hearing: emptyHearing(), tasks: tasks };
+      return toHearingsArray({ id: c.id, name: c.name, hearing: emptyHearing(), tasks: tasks });
     });
     localStorage.setItem(STORE, JSON.stringify(m1));
     return m1;
@@ -475,7 +494,6 @@ function render() {
     // ── Case header row
     var cr = document.createElement('tr');
     cr.className = 'case-row';
-    var hd = renderHearing(c.hearing);
     cr.innerHTML =
       '<td><div class="case-name-cell"><span class="case-icon">⚖</span><div class="case-name-col">' +
         '<div style="display:flex;align-items:center;gap:6px;">' +
@@ -484,7 +502,7 @@ function render() {
         '</div>' +
         (c.handler ? '<div class="case-handler">👤 ' + x(c.handler) + '</div>' : '') +
       '</div></div></td>' +
-      '<td><div style="display:flex;align-items:flex-start;gap:6px;">' + hd + '<button class="hearing-edit-btn" onclick="openEditHearing(' + c.id + ')" title="עריכת דיון">✏</button></div></td>' +
+      '<td>' + renderHearings(c.hearings, c.id) + '</td>' +
       '<td></td><td></td>' +
       '<td><div class="btns">' +
         '<button class="btn-sm bd" onclick="delCase(' + c.id + ')">מחק</button>' +
@@ -582,8 +600,8 @@ function hearingCls(d) {
   if (days <= 14) return 'soon-h';
   return '';
 }
-function renderHearing(h) {
-  if (!h || !h.date) return '<span class="no-hearing">—</span>';
+function renderOneHearing(h) {
+  if (!h || !h.date) return '';
   var parts = [];
   parts.push('<span class="hearing ' + hearingCls(h.date) + '">' + fmt(h.date) + '</span>');
   if (h.time) parts.push('<div class="h-time">' + h.time + '</div>');
@@ -595,6 +613,20 @@ function renderHearing(h) {
     parts.push('<div class="h-mat-wrap"><div class="h-mat-label">📋 חומרים</div>' + rows + '</div>');
   }
   return '<div class="hearing-cell">' + parts.join('') + '</div>';
+}
+function renderHearings(hearings, cid) {
+  var blocks = (hearings || []).map(function(h) {
+    return '<div class="hearing-block">' +
+      renderOneHearing(h) +
+      '<div style="display:flex;flex-direction:column;gap:2px;padding-top:2px;">' +
+        '<button class="hearing-edit-btn" onclick="openEditHearing(' + cid + ',' + h.id + ')" title="עריכה">✏</button>' +
+        '<button class="hearing-del-btn"  onclick="delHearing(' + cid + ',' + h.id + ')"  title="מחיקה">×</button>' +
+      '</div>' +
+    '</div>';
+  });
+  var sep = '<div class="hearing-sep"></div>';
+  return (blocks.length ? blocks.join(sep) : '<span class="no-hearing">—</span>') +
+    '<div><button class="btn-add-hearing" onclick="openAddHearing(' + cid + ')">+ דיון</button></div>';
 }
 function fmt(s) {
   return new Date(s).toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit', year:'numeric'});
@@ -643,11 +675,24 @@ function openEditCase(cid) {
   show(['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes']);
   showModal(); document.getElementById('inp-name').focus();
 }
-function openEditHearing(cid) {
+function openAddHearing(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
-  var h = c.hearing || emptyHearing();
-  mode = 'edit-hearing'; mCaseId = cid;
-  document.getElementById('m-title').textContent = 'פרטי דיון — ' + c.name;
+  mode = 'add-hearing'; mCaseId = cid; mHearingId = null;
+  document.getElementById('m-title').textContent = 'דיון חדש — ' + c.name;
+  document.getElementById('inp-hearing').value = '';
+  document.getElementById('inp-time-h').value = '';
+  document.getElementById('inp-time-m').value = '00';
+  document.getElementById('inp-court').value = '';
+  document.getElementById('inp-judge').value = '';
+  document.getElementById('inp-materials').value = '';
+  show(['f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials']);
+  showModal(); document.getElementById('inp-hearing').focus();
+}
+function openEditHearing(cid, hid) {
+  var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  var h = (c.hearings || []).find(function(v){ return v.id===hid; }) || emptyHearing();
+  mode = 'edit-hearing'; mCaseId = cid; mHearingId = hid;
+  document.getElementById('m-title').textContent = 'עריכת דיון — ' + c.name;
   document.getElementById('inp-hearing').value   = h.date || '';
   var tp = h.time ? h.time.split(':') : ['','00'];
   document.getElementById('inp-time-h').value = tp[0] || '';
@@ -698,6 +743,7 @@ function saveModal() {
   if (mode === 'add-case')     { addCase();      }
   if (mode === 'edit-case')    { editCase();     }
   if (mode === 'edit-hearing') { editHearing();  }
+  if (mode === 'add-hearing')  { addHearing();   }
   if (mode === 'add-task')     { addTask();      }
   if (mode === 'edit-task')    { editTask();     }
 }
@@ -713,7 +759,9 @@ function readHearingFromModal() {
 function addCase() {
   var name = document.getElementById('inp-name').value.trim();
   if (!name) { alert('נא להזין שם תיק'); return; }
-  cases.push({ id: uid(), name: name, hearing: readHearingFromModal(), tasks: [] });
+  var h = readHearingFromModal();
+  var hearings = h.date ? [Object.assign({ id: uid() }, h)] : [];
+  cases.push({ id: uid(), name: name, hearings: hearings, tasks: [] });
   persist(); closeModal(); render();
 }
 function editCase() {
@@ -737,10 +785,28 @@ function editCase() {
   persist(); closeModal(); render();
 }
 function editHearing() {
+  var updated = Object.assign({ id: mHearingId }, readHearingFromModal());
   cases = cases.map(function(c) {
-    return c.id===mCaseId ? Object.assign({},c,{hearing:readHearingFromModal()}) : c;
+    if (c.id !== mCaseId) return c;
+    return Object.assign({}, c, { hearings: c.hearings.map(function(h) { return h.id === mHearingId ? updated : h; }) });
   });
   persist(); closeModal(); render();
+}
+function addHearing() {
+  var h = Object.assign({ id: uid() }, readHearingFromModal());
+  cases = cases.map(function(c) {
+    if (c.id !== mCaseId) return c;
+    return Object.assign({}, c, { hearings: (c.hearings || []).concat([h]) });
+  });
+  persist(); closeModal(); render();
+}
+function delHearing(cid, hid) {
+  if (!confirm('למחוק את הדיון?')) return;
+  cases = cases.map(function(c) {
+    if (c.id !== cid) return c;
+    return Object.assign({}, c, { hearings: c.hearings.filter(function(h) { return h.id !== hid; }) });
+  });
+  persist(); render();
 }
 function addTask() {
   var action = document.getElementById('inp-action').value.trim();
