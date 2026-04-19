@@ -129,6 +129,7 @@
   .case-meta-item svg { color: #b0b8c8; flex-shrink: 0; }
   .case-meta-sep { font-size: 10px; color: #e2e6ef; padding: 0 6px; }
   .case-meta-proc { font-family: 'Courier New', monospace; font-size: 11px; color: #9ca3af; letter-spacing: 0.3px; }
+  .case-note { font-size: 12.5px; color: #8896ab; line-height: 1.5; margin-top: 3px; white-space: pre-wrap; }
   .case-header-block { display: flex; align-items: flex-start; justify-content: space-between; gap: 0; }
   .case-header-side { display: flex; align-items: flex-start; gap: 16px; flex-shrink: 0; padding-inline-start: 20px; }
   .case-hearings-panel { min-width: 155px; }
@@ -728,6 +729,7 @@ function render() {
             '<span class="case-name-link" onclick="openEditCase(' + c.id + ')">' + x(c.name) + '</span>' +
             (c.feeFile ? '<a class="fee-link" href="' + c.feeFile.data + '" download="' + x(c.feeFile.name) + '" title="הסכם שכ&quot;ט: ' + x(c.feeFile.name) + '">📎</a>' : '') +
           '</div>' +
+          (c.notes ? '<div class="case-note">' + x(c.notes) + '</div>' : '') +
           metaHtml +
         '</div>' +
         '<div class="case-header-side">' +
