@@ -105,19 +105,16 @@
 
   /* Case header row */
   tr.case-row { background: #eef1f9; }
-  tr.case-row td { padding: 12px 18px; border-bottom: 1px solid #dde3f2; }
-  .case-name-cell {
-    font-weight: 700; font-size: 15px; color: #1e2a3a;
-    display: flex; align-items: flex-start; gap: 8px;
-  }
-  .case-name-col { display: flex; flex-direction: column; gap: 3px; }
-  .case-name-link { cursor: pointer; }
+  tr.case-row td { padding: 14px 18px; border-bottom: 1px solid #dde3f2; }
+  .case-header-cell { display: flex; flex-direction: column; gap: 5px; }
+  .case-title-row { display: flex; align-items: center; gap: 9px; }
+  .case-icon { color: #4b6da8; font-size: 16px; flex-shrink: 0; }
+  .case-name-link { cursor: pointer; font-size: 15px; font-weight: 700; color: #1e2a3a; }
   .case-name-link:hover { color: #2d4263; text-decoration: underline; }
-  .case-handler { font-size: 12px; color: #6b7280; font-weight: 400; }
-  .fee-link { font-size: 13px; text-decoration: none; color: #6b7280; flex-shrink: 0; }
-  .fee-link:hover { color: #1d4ed8; }
-  .fee-file-status { font-size: 12px; color: #059669; margin-bottom: 6px; }
-  .case-icon { color: #4b6da8; font-size: 15px; }
+  .case-meta-row { display: flex; align-items: center; flex-wrap: wrap; padding-right: 25px; row-gap: 3px; }
+  .case-meta-item { font-size: 11.5px; color: #6b7280; white-space: nowrap; }
+  .case-meta-sep { font-size: 10px; color: #d1d5db; padding: 0 6px; }
+  .case-meta-proc { font-family: 'Courier New', monospace; font-size: 11px; color: #9ca3af; letter-spacing: 0.3px; }
 
   /* Hearing date badge */
   .hearing-cell { display: flex; flex-direction: column; gap: 0; align-items: flex-start; }
@@ -592,14 +589,23 @@ function render() {
     // ── Case header row
     var cr = document.createElement('tr');
     cr.className = 'case-row';
+    var metaParts = [];
+    if (c.procNum)       metaParts.push('<span class="case-meta-item case-meta-proc">#\u202f' + x(c.procNum) + '</span>');
+    if (c.clientName)    metaParts.push('<span class="case-meta-item">' + x(c.clientName) + '</span>');
+    if (c.caseCourtName) metaParts.push('<span class="case-meta-item">' + x(c.caseCourtName) + '</span>');
+    if (c.handler)       metaParts.push('<span class="case-meta-item">' + x(c.handler) + '</span>');
+    var metaHtml = metaParts.length
+      ? '<div class="case-meta-row">' + metaParts.join('<span class="case-meta-sep">·</span>') + '</div>'
+      : '';
     cr.innerHTML =
-      '<td><div class="case-name-cell"><span class="case-icon">⚖</span><div class="case-name-col">' +
-        '<div style="display:flex;align-items:center;gap:6px;">' +
+      '<td><div class="case-header-cell">' +
+        '<div class="case-title-row">' +
+          '<span class="case-icon">⚖</span>' +
           '<span class="case-name-link" onclick="openEditCase(' + c.id + ')">' + x(c.name) + '</span>' +
           (c.feeFile ? '<a class="fee-link" href="' + c.feeFile.data + '" download="' + x(c.feeFile.name) + '" title="הסכם שכ&quot;ט: ' + x(c.feeFile.name) + '">📎</a>' : '') +
         '</div>' +
-        (c.handler ? '<div class="case-handler">👤 ' + x(c.handler) + '</div>' : '') +
-      '</div></div></td>' +
+        metaHtml +
+      '</div></td>' +
       '<td>' + renderHearings(c.hearings, c.id) + '</td>' +
       '<td></td><td></td>' +
       '<td><div class="btns">' +
