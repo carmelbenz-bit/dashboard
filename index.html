@@ -18,483 +18,487 @@
   /* ── Header ── */
   .top-bar {
     background: linear-gradient(135deg, #1e2a3a 0%, #2d4263 100%);
-    padding: 22px 40px;
+    padding: 20px 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
   }
-
-  .top-bar h1 {
-    color: #fff;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .top-bar h1 span { font-size: 24px; }
-
+  .top-bar h1 { color: #fff; font-size: 21px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
   .btn-add {
-    background: #c9a84c;
-    color: #1e2a3a;
-    border: none;
-    padding: 10px 22px;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.18s, transform 0.1s;
-    letter-spacing: 0.2px;
+    background: #c9a84c; color: #1e2a3a; border: none;
+    padding: 10px 22px; border-radius: 8px; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: background 0.15s;
   }
-  .btn-add:hover { background: #e0bc66; transform: translateY(-1px); }
-  .btn-add:active { transform: translateY(0); }
+  .btn-add:hover { background: #e0bc66; }
 
   /* ── Summary cards ── */
   .summary-row {
-    display: flex;
-    gap: 16px;
-    padding: 24px 40px 0;
-    max-width: 1000px;
-    margin: 0 auto;
+    display: flex; gap: 14px;
+    padding: 22px 40px 0;
+    max-width: 1060px; margin: 0 auto;
   }
-
   .card {
-    flex: 1;
-    background: #fff;
-    border-radius: 12px;
-    padding: 18px 16px 14px;
-    text-align: center;
+    flex: 1; background: #fff; border-radius: 12px;
+    padding: 16px 12px 12px; text-align: center;
     box-shadow: 0 1px 6px rgba(0,0,0,0.07);
     border-top: 4px solid transparent;
   }
-  .card .num {
-    font-size: 30px;
-    font-weight: 800;
-    line-height: 1.1;
-  }
-  .card .lbl {
-    font-size: 12px;
-    color: #888;
-    margin-top: 4px;
-  }
+  .card .num { font-size: 28px; font-weight: 800; line-height: 1.1; }
+  .card .lbl { font-size: 11px; color: #888; margin-top: 5px; }
+  .card.red    { border-top-color: #e53e3e; } .card.red    .num { color: #e53e3e; }
+  .card.orange { border-top-color: #d97706; } .card.orange .num { color: #d97706; }
+  .card.green  { border-top-color: #059669; } .card.green  .num { color: #059669; }
+  .card.blue   { border-top-color: #3b82f6; } .card.blue   .num { color: #3b82f6; }
 
-  .card.red   { border-top-color: #e53e3e; }
-  .card.red   .num { color: #e53e3e; }
-  .card.orange{ border-top-color: #d97706; }
-  .card.orange .num { color: #d97706; }
-  .card.green { border-top-color: #059669; }
-  .card.green .num { color: #059669; }
-  .card.blue  { border-top-color: #3b82f6; }
-  .card.blue  .num { color: #3b82f6; }
+  /* ── Table ── */
+  .table-section { max-width: 1060px; margin: 22px auto 48px; padding: 0 40px; }
+  .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); overflow: hidden; }
 
-  /* ── Table section ── */
-  .table-section {
-    max-width: 1000px;
-    margin: 24px auto 40px;
-    padding: 0 40px;
-  }
-
-  .table-wrap {
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-    overflow: hidden;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  thead tr {
-    background: #1e2a3a;
-  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: #1e2a3a; }
   thead th {
-    color: #c9a84c;
-    padding: 15px 22px;
-    text-align: right;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    white-space: nowrap;
+    color: #c9a84c; padding: 13px 18px;
+    text-align: right; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; white-space: nowrap;
   }
 
-  tbody tr {
-    border-bottom: 1px solid #eef0f4;
-    transition: background 0.12s;
+  /* Case header row */
+  tr.case-row { background: #eef1f9; }
+  tr.case-row td { padding: 12px 18px; border-bottom: 1px solid #dde3f2; }
+  .case-name-cell {
+    font-weight: 700; font-size: 15px; color: #1e2a3a;
+    display: flex; align-items: center; gap: 8px;
   }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: #f7f9ff; }
+  .case-icon { color: #4b6da8; font-size: 15px; }
 
-  tbody td {
-    padding: 16px 22px;
-    font-size: 14px;
-    vertical-align: middle;
+  /* Hearing date badge */
+  .hearing {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+    padding: 3px 10px; border-radius: 20px;
+    background: #f0f4ff; color: #3b5bdb; border: 1px solid #bac8ff;
   }
+  .hearing.soon-h { background: #fffbeb; color: #b45309; border-color: #fcd34d; }
+  .hearing.over-h { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+  .no-hearing { color: #c8ccd6; font-size: 13px; }
 
-  .case-name {
-    font-weight: 700;
-    color: #1e2a3a;
-    font-size: 15px;
+  /* Task rows */
+  tr.task-row { background: #fff; }
+  tr.task-row:hover { background: #f8faff; }
+  tr.task-row td { padding: 11px 18px; border-bottom: 1px solid #f0f2f8; font-size: 14px; }
+  .task-action {
+    padding-right: 28px; color: #374151;
+    display: flex; align-items: center; gap: 8px;
   }
+  .arrow { color: #b0b8cc; }
+  .no-date { color: #c0c4cc; font-style: italic; font-size: 13px; }
+  .date-val { color: #6b7280; font-size: 13px; white-space: nowrap; }
 
-  .action-text {
-    color: #374151;
-  }
-
-  .date-text {
-    color: #6b7280;
-    font-size: 13px;
-    white-space: nowrap;
-  }
-
-  /* ── Urgency badge ── */
+  /* Urgency badges */
   .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; white-space: nowrap;
   }
-  .badge.overdue { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
-  .badge.soon    { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
-  .badge.ok      { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+  .badge.over { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+  .badge.soon { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+  .badge.ok   { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+  .badge.none { color: #d1d5db; }
 
-  /* ── Row actions ── */
-  .row-actions { display: flex; gap: 8px; }
-
-  .btn-edit, .btn-del {
-    border: none;
-    border-radius: 6px;
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.15s;
+  /* Add-task row */
+  tr.add-row td {
+    padding: 7px 18px 7px 46px;
+    background: #f7f9ff;
+    border-bottom: 2px solid #e4e9f7;
   }
-  .btn-edit:hover, .btn-del:hover { opacity: 0.75; }
-  .btn-edit { background: #eff6ff; color: #1d4ed8; }
-  .btn-del  { background: #fef2f2; color: #dc2626; }
-
-  /* ── Empty state ── */
-  .empty {
-    text-align: center;
-    padding: 56px 20px;
-    color: #9ca3af;
+  .btn-add-task {
+    background: none; border: 1px dashed #97aad4;
+    color: #4b6da8; padding: 4px 14px; border-radius: 6px;
+    font-size: 13px; cursor: pointer; transition: all 0.15s;
   }
-  .empty .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .btn-add-task:hover { background: #eef1fb; border-color: #4b6da8; }
+
+  /* Spacer between cases */
+  tr.spacer td { height: 10px; background: #f4f6fb; padding: 0; }
+
+  /* Action buttons */
+  .btns { display: flex; gap: 6px; flex-wrap: nowrap; }
+  .btn-sm {
+    border: none; border-radius: 6px; padding: 5px 11px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: opacity 0.12s; white-space: nowrap;
+  }
+  .btn-sm:hover { opacity: 0.72; }
+  .be { background: #eff6ff; color: #1d4ed8; }
+  .bd { background: #fef2f2; color: #dc2626; }
+  .te { background: #f0fdf4; color: #166534; }
+  .td { background: #fef2f2; color: #dc2626; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
+  .empty .ei { font-size: 42px; margin-bottom: 12px; }
   .empty p { font-size: 15px; }
 
   /* ── Modal ── */
   .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(10,20,40,0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-    backdrop-filter: blur(2px);
+    position: fixed; inset: 0;
+    background: rgba(10,20,40,0.52);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; backdrop-filter: blur(2px);
   }
   .overlay.hidden { display: none; }
-
   .modal {
-    background: #fff;
-    border-radius: 16px;
-    padding: 36px 32px 28px;
-    width: 460px;
-    max-width: 95vw;
-    box-shadow: 0 12px 48px rgba(0,0,0,0.22);
-    animation: slideUp 0.18s ease;
+    background: #fff; border-radius: 16px; padding: 32px 30px 26px;
+    width: 460px; max-width: 95vw;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+    animation: up 0.17s ease;
   }
-
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 26px;
-  }
-  .modal-header h2 { font-size: 20px; color: #1e2a3a; font-weight: 700; }
-  .btn-close {
-    background: none; border: none; font-size: 20px;
-    color: #9ca3af; cursor: pointer; line-height: 1;
-  }
-  .btn-close:hover { color: #374151; }
-
-  .field { margin-bottom: 18px; }
-  .field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    color: #6b7280;
-    margin-bottom: 6px;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-  }
+  @keyframes up { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .mhdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+  .mhdr h2 { font-size: 18px; color: #1e2a3a; font-weight: 700; }
+  .btn-x { background: none; border: none; font-size: 19px; color: #9ca3af; cursor: pointer; line-height: 1; }
+  .btn-x:hover { color: #374151; }
+  .field { margin-bottom: 15px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; color: #6b7280; margin-bottom: 5px; }
+  .opt { font-size: 11px; color: #aaa; font-weight: 400; margin-right: 4px; }
   .field input {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 9px;
-    font-size: 14px;
-    font-family: inherit;
-    direction: rtl;
-    outline: none;
-    transition: border 0.15s, box-shadow 0.15s;
-    color: #1e2a3a;
+    width: 100%; padding: 10px 13px;
+    border: 1.5px solid #e5e7eb; border-radius: 9px;
+    font-size: 14px; font-family: inherit; direction: rtl;
+    outline: none; color: #1e2a3a; transition: border 0.15s;
   }
-  .field input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
-  }
-
-  .modal-footer {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 8px;
-  }
+  .field input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+  .mftr { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
   .btn-save {
-    background: #1e2a3a;
-    color: #c9a84c;
-    border: none;
-    padding: 11px 28px;
-    border-radius: 9px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s;
+    background: #1e2a3a; color: #c9a84c; border: none;
+    padding: 10px 26px; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer;
   }
   .btn-save:hover { background: #2d4263; }
   .btn-cancel {
-    background: #f3f4f6;
-    color: #374151;
-    border: none;
-    padding: 11px 20px;
-    border-radius: 9px;
-    font-size: 15px;
-    cursor: pointer;
-    font-weight: 600;
+    background: #f3f4f6; color: #374151; border: none;
+    padding: 10px 18px; border-radius: 9px; font-size: 15px; cursor: pointer; font-weight: 600;
   }
   .btn-cancel:hover { background: #e5e7eb; }
 
-  @media (max-width: 640px) {
-    .top-bar, .summary-row, .table-section { padding-right: 16px; padding-left: 16px; }
+  @media (max-width: 680px) {
+    .top-bar, .summary-row, .table-section { padding-right: 14px; padding-left: 14px; }
     .summary-row { flex-wrap: wrap; }
-    .card { min-width: calc(50% - 8px); }
-    thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+    .card { min-width: calc(50% - 7px); }
+    thead th:nth-child(2), tbody td:nth-child(2),
+    thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
   }
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="top-bar">
-  <h1><span>⚖️</span> ניהול תיקים</h1>
-  <button class="btn-add" onclick="openModal()">+ הוסף תיק</button>
+  <h1>⚖️ ניהול תיקים</h1>
+  <button class="btn-add" onclick="openAddCase()">+ הוסף תיק</button>
 </div>
 
-<!-- Summary cards -->
 <div class="summary-row">
-  <div class="card red">
-    <div class="num" id="cnt-overdue">0</div>
-    <div class="lbl">באיחור</div>
-  </div>
-  <div class="card orange">
-    <div class="num" id="cnt-soon">0</div>
-    <div class="lbl">השבוע</div>
-  </div>
-  <div class="card green">
-    <div class="num" id="cnt-ok">0</div>
-    <div class="lbl">תקין</div>
-  </div>
-  <div class="card blue">
-    <div class="num" id="cnt-total">0</div>
-    <div class="lbl">סה"כ תיקים</div>
-  </div>
+  <div class="card red">   <div class="num" id="cnt-over">0</div><div class="lbl">משימות באיחור</div></div>
+  <div class="card orange"><div class="num" id="cnt-soon">0</div><div class="lbl">משימות השבוע</div></div>
+  <div class="card green"> <div class="num" id="cnt-ok">0</div>  <div class="lbl">משימות תקינות</div></div>
+  <div class="card blue">  <div class="num" id="cnt-cases">0</div><div class="lbl">תיקים פתוחים</div></div>
 </div>
 
-<!-- Table -->
 <div class="table-section">
   <div class="table-wrap">
-    <table id="main-table">
+    <table id="tbl">
       <thead>
         <tr>
-          <th>שם התיק</th>
-          <th>פעולה הבאה</th>
+          <th>תיק / משימה</th>
+          <th>תאריך דיון</th>
           <th>מועד ביצוע</th>
           <th>דחיפות</th>
-          <th></th>
+          <th>פעולות</th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
     </table>
     <div id="empty" class="empty" style="display:none">
-      <div class="empty-icon">📂</div>
+      <div class="ei">📂</div>
       <p>אין תיקים עדיין — לחצי על <strong>+ הוסף תיק</strong> כדי להתחיל</p>
     </div>
   </div>
 </div>
 
 <!-- Modal -->
-<div id="overlay" class="overlay hidden" onclick="overlayClick(event)">
+<div id="overlay" class="overlay hidden" onclick="bgClick(event)">
   <div class="modal">
-    <div class="modal-header">
-      <h2 id="modal-title">הוספת תיק חדש</h2>
-      <button class="btn-close" onclick="closeModal()">✕</button>
+    <div class="mhdr">
+      <h2 id="m-title">כותרת</h2>
+      <button class="btn-x" onclick="closeModal()">✕</button>
     </div>
-    <div class="field">
+    <div id="f-name" class="field">
       <label>שם התיק</label>
       <input id="inp-name" type="text" placeholder="לדוגמה: כהן נ׳ לוי" />
     </div>
-    <div class="field">
-      <label>פעולה הבאה</label>
+    <div id="f-hearing" class="field">
+      <label>תאריך דיון <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-hearing" type="date" />
+    </div>
+    <div id="f-action" class="field">
+      <label>פעולה</label>
       <input id="inp-action" type="text" placeholder="לדוגמה: הגשת כתב הגנה" />
     </div>
-    <div class="field">
-      <label>מועד ביצוע</label>
+    <div id="f-date" class="field">
+      <label>מועד ביצוע <span class="opt">(אופציונלי)</span></label>
       <input id="inp-date" type="date" />
     </div>
-    <div class="modal-footer">
+    <div class="mftr">
       <button class="btn-cancel" onclick="closeModal()">ביטול</button>
-      <button class="btn-save" onclick="saveCase()">שמור</button>
+      <button class="btn-save"   onclick="saveModal()">שמור</button>
     </div>
   </div>
 </div>
 
 <script>
-  var cases = JSON.parse(localStorage.getItem('law-cases') || '[]');
-  var editId = null;
+// ── Data ──────────────────────────────────────────────────────────
+var STORE = 'law-cases-v2';
+var cases = loadData();
+var mode = null, mCaseId = null, mTaskId = null;
 
-  function render() {
-    var tbody = document.getElementById('tbody');
-    var empty = document.getElementById('empty');
-    var sorted = cases.slice().sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+function loadData() {
+  var raw = JSON.parse(localStorage.getItem(STORE) || 'null');
+  if (raw) return raw;
+  // Migrate old format (flat case with .action)
+  var old = JSON.parse(localStorage.getItem('law-cases') || '[]');
+  if (old.length && old[0].action !== undefined) {
+    var migrated = old.map(function(c) {
+      var tasks = [];
+      if (c.action) tasks.push({ id: uid(), action: c.action, date: c.date || null });
+      return { id: c.id, name: c.name, hearingDate: null, tasks: tasks };
+    });
+    localStorage.setItem(STORE, JSON.stringify(migrated));
+    return migrated;
+  }
+  return [];
+}
 
-    tbody.innerHTML = '';
+function persist() { localStorage.setItem(STORE, JSON.stringify(cases)); }
 
-    if (sorted.length === 0) {
-      empty.style.display = 'block';
-      document.getElementById('main-table').style.display = 'none';
-    } else {
-      empty.style.display = 'none';
-      document.getElementById('main-table').style.display = '';
+function uid() { return Date.now() + Math.floor(Math.random() * 9999); }
+
+// ── Render ────────────────────────────────────────────────────────
+function render() {
+  var tbody = document.getElementById('tbody');
+  var empty = document.getElementById('tbl');
+  var sorted = sortCases(cases);
+
+  document.getElementById('empty').style.display = sorted.length ? 'none' : 'block';
+  document.getElementById('tbl').style.display   = sorted.length ? ''     : 'none';
+
+  tbody.innerHTML = '';
+  var over = 0, soon = 0, ok = 0;
+
+  sorted.forEach(function(c, ci) {
+    // Spacer between cases
+    if (ci > 0) {
+      var sp = document.createElement('tr');
+      sp.className = 'spacer';
+      sp.innerHTML = '<td colspan="5"></td>';
+      tbody.appendChild(sp);
     }
 
-    var over=0, soon=0, ok=0;
-    sorted.forEach(function(c) {
-      var days = daysLeft(c.date);
-      if (days < 0) over++;
-      else if (days <= 7) soon++;
-      else ok++;
+    // ── Case header row
+    var cr = document.createElement('tr');
+    cr.className = 'case-row';
+    var hd = c.hearingDate
+      ? '<span class="hearing ' + hearingCls(c.hearingDate) + '">📅 ' + fmt(c.hearingDate) + '</span>'
+      : '<span class="no-hearing">—</span>';
+    cr.innerHTML =
+      '<td><div class="case-name-cell"><span class="case-icon">⚖</span>' + x(c.name) + '</div></td>' +
+      '<td>' + hd + '</td>' +
+      '<td></td><td></td>' +
+      '<td><div class="btns">' +
+        '<button class="btn-sm be" onclick="openEditCase(' + c.id + ')">ערוך תיק</button>' +
+        '<button class="btn-sm bd" onclick="delCase(' + c.id + ')">מחק</button>' +
+      '</div></td>';
+    tbody.appendChild(cr);
 
+    // ── Task rows
+    sortTasks(c.tasks).forEach(function(t) {
+      var days = t.date ? daysLeft(t.date) : null;
+      if (days !== null) {
+        if (days < 0) over++;
+        else if (days <= 7) soon++;
+        else ok++;
+      }
       var tr = document.createElement('tr');
+      tr.className = 'task-row';
       tr.innerHTML =
-        '<td class="case-name">' + esc(c.name) + '</td>' +
-        '<td class="action-text">' + esc(c.action) + '</td>' +
-        '<td class="date-text">' + fmtDate(c.date) + '</td>' +
-        '<td>' + badge(days) + '</td>' +
-        '<td><div class="row-actions">' +
-          '<button class="btn-edit" onclick="openEdit(' + c.id + ')">עריכה</button>' +
-          '<button class="btn-del"  onclick="del(' + c.id + ')">מחיקה</button>' +
+        '<td><div class="task-action"><span class="arrow">↳</span>' + x(t.action) + '</div></td>' +
+        '<td></td>' +
+        '<td>' + (t.date ? '<span class="date-val">' + fmt(t.date) + '</span>' : '<span class="no-date">ללא תאריך</span>') + '</td>' +
+        '<td>' + (days !== null ? badgeHtml(days) : '<span class="badge none">—</span>') + '</td>' +
+        '<td><div class="btns">' +
+          '<button class="btn-sm te" onclick="openEditTask(' + c.id + ',' + t.id + ')">ערוך</button>' +
+          '<button class="btn-sm td" onclick="delTask(' + c.id + ',' + t.id + ')">מחק</button>' +
         '</div></td>';
       tbody.appendChild(tr);
     });
 
-    document.getElementById('cnt-overdue').textContent = over;
-    document.getElementById('cnt-soon').textContent    = soon;
-    document.getElementById('cnt-ok').textContent      = ok;
-    document.getElementById('cnt-total').textContent   = sorted.length;
-  }
+    // ── Add task row
+    var ar = document.createElement('tr');
+    ar.className = 'add-row';
+    ar.innerHTML = '<td colspan="5"><button class="btn-add-task" onclick="openAddTask(' + c.id + ')">+ הוסף משימה לתיק ' + x(c.name) + '</button></td>';
+    tbody.appendChild(ar);
+  });
 
-  function daysLeft(d) {
-    var t = new Date(); t.setHours(0,0,0,0);
-    var x = new Date(d); x.setHours(0,0,0,0);
-    return Math.round((x-t)/86400000);
-  }
+  document.getElementById('cnt-over').textContent  = over;
+  document.getElementById('cnt-soon').textContent  = soon;
+  document.getElementById('cnt-ok').textContent    = ok;
+  document.getElementById('cnt-cases').textContent = sorted.length;
+}
 
-  function badge(days) {
-    if (days < 0)  return '<span class="badge overdue">⚠ איחור ' + Math.abs(days) + ' ימים</span>';
-    if (days === 0) return '<span class="badge overdue">⚠ היום!</span>';
-    if (days <= 7) return '<span class="badge soon">⏰ ' + days + ' ימים</span>';
-    return '<span class="badge ok">✓ ' + days + ' ימים</span>';
-  }
+// ── Sorting ───────────────────────────────────────────────────────
+function sortCases(arr) {
+  return arr.slice().sort(function(a, b) { return score(a) - score(b); });
+}
+function score(c) {
+  var dated = c.tasks.filter(function(t){ return t.date; });
+  if (!dated.length) return Infinity;
+  return Math.min.apply(null, dated.map(function(t){ return new Date(t.date).getTime(); }));
+}
+function sortTasks(tasks) {
+  return tasks.slice().sort(function(a, b) {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return new Date(a.date) - new Date(b.date);
+  });
+}
 
-  function fmtDate(s) {
-    var d = new Date(s);
-    return d.toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit', year:'numeric'});
-  }
+// ── Helpers ───────────────────────────────────────────────────────
+function daysLeft(d) {
+  var t = new Date(); t.setHours(0,0,0,0);
+  var v = new Date(d); v.setHours(0,0,0,0);
+  return Math.round((v - t) / 86400000);
+}
+function badgeHtml(days) {
+  if (days < 0)   return '<span class="badge over">⚠ איחור ' + Math.abs(days) + ' ימים</span>';
+  if (days === 0) return '<span class="badge over">⚠ היום!</span>';
+  if (days <= 7)  return '<span class="badge soon">⏰ ' + days + ' ימים</span>';
+  return '<span class="badge ok">✓ ' + days + ' ימים</span>';
+}
+function hearingCls(d) {
+  var days = daysLeft(d);
+  if (days < 0) return 'over-h';
+  if (days <= 14) return 'soon-h';
+  return '';
+}
+function fmt(s) {
+  return new Date(s).toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function x(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-  function esc(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+// ── Modal helpers ─────────────────────────────────────────────────
+function show(ids) {
+  ['f-name','f-hearing','f-action','f-date'].forEach(function(id) {
+    document.getElementById(id).style.display = ids.indexOf(id) >= 0 ? '' : 'none';
+  });
+}
+function openAddCase() {
+  mode = 'add-case';
+  document.getElementById('m-title').textContent = 'הוספת תיק חדש';
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-hearing').value = '';
+  show(['f-name','f-hearing']);
+  showModal(); document.getElementById('inp-name').focus();
+}
+function openEditCase(cid) {
+  var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  mode = 'edit-case'; mCaseId = cid;
+  document.getElementById('m-title').textContent = 'עריכת תיק';
+  document.getElementById('inp-name').value    = c.name;
+  document.getElementById('inp-hearing').value = c.hearingDate || '';
+  show(['f-name','f-hearing']);
+  showModal(); document.getElementById('inp-name').focus();
+}
+function openAddTask(cid) {
+  var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  mode = 'add-task'; mCaseId = cid;
+  document.getElementById('m-title').textContent = 'משימה חדשה — ' + c.name;
+  document.getElementById('inp-action').value = '';
+  document.getElementById('inp-date').value   = '';
+  show(['f-action','f-date']);
+  showModal(); document.getElementById('inp-action').focus();
+}
+function openEditTask(cid, tid) {
+  var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  var t = c.tasks.find(function(v){ return v.id===tid; }); if (!t) return;
+  mode = 'edit-task'; mCaseId = cid; mTaskId = tid;
+  document.getElementById('m-title').textContent = 'עריכת משימה';
+  document.getElementById('inp-action').value = t.action;
+  document.getElementById('inp-date').value   = t.date || '';
+  show(['f-action','f-date']);
+  showModal(); document.getElementById('inp-action').focus();
+}
+function showModal()  { document.getElementById('overlay').classList.remove('hidden'); }
+function closeModal() { document.getElementById('overlay').classList.add('hidden'); }
+function bgClick(e)   { if (e.target===document.getElementById('overlay')) closeModal(); }
 
-  function openModal() {
-    editId = null;
-    document.getElementById('modal-title').textContent = 'הוספת תיק חדש';
-    document.getElementById('inp-name').value = '';
-    document.getElementById('inp-action').value = '';
-    document.getElementById('inp-date').value = '';
-    document.getElementById('overlay').classList.remove('hidden');
-    document.getElementById('inp-name').focus();
-  }
+// ── Save ──────────────────────────────────────────────────────────
+function saveModal() {
+  if (mode === 'add-case')  { addCase();  }
+  if (mode === 'edit-case') { editCase(); }
+  if (mode === 'add-task')  { addTask();  }
+  if (mode === 'edit-task') { editTask(); }
+}
+function addCase() {
+  var name = document.getElementById('inp-name').value.trim();
+  if (!name) { alert('נא להזין שם תיק'); return; }
+  cases.push({ id: uid(), name: name, hearingDate: document.getElementById('inp-hearing').value || null, tasks: [] });
+  persist(); closeModal(); render();
+}
+function editCase() {
+  var name = document.getElementById('inp-name').value.trim();
+  if (!name) { alert('נא להזין שם תיק'); return; }
+  cases = cases.map(function(c) {
+    return c.id===mCaseId ? Object.assign({},c,{name:name, hearingDate:document.getElementById('inp-hearing').value||null}) : c;
+  });
+  persist(); closeModal(); render();
+}
+function addTask() {
+  var action = document.getElementById('inp-action').value.trim();
+  if (!action) { alert('נא להזין פעולה'); return; }
+  cases = cases.map(function(c) {
+    if (c.id!==mCaseId) return c;
+    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null}])});
+  });
+  persist(); closeModal(); render();
+}
+function editTask() {
+  var action = document.getElementById('inp-action').value.trim();
+  if (!action) { alert('נא להזין פעולה'); return; }
+  cases = cases.map(function(c) {
+    if (c.id!==mCaseId) return c;
+    return Object.assign({},c,{tasks:c.tasks.map(function(t){
+      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null} : t;
+    })});
+  });
+  persist(); closeModal(); render();
+}
+function delCase(cid) {
+  var c = cases.find(function(v){ return v.id===cid; });
+  if (!c||!confirm('למחוק את התיק "'+c.name+'" וכל המשימות?')) return;
+  cases = cases.filter(function(v){ return v.id!==cid; });
+  persist(); render();
+}
+function delTask(cid,tid) {
+  if (!confirm('למחוק את המשימה?')) return;
+  cases = cases.map(function(c) {
+    return c.id!==cid ? c : Object.assign({},c,{tasks:c.tasks.filter(function(t){return t.id!==tid;})});
+  });
+  persist(); render();
+}
 
-  function openEdit(id) {
-    var c = cases.find(function(x){ return x.id===id; });
-    if (!c) return;
-    editId = id;
-    document.getElementById('modal-title').textContent = 'עריכת תיק';
-    document.getElementById('inp-name').value   = c.name;
-    document.getElementById('inp-action').value = c.action;
-    document.getElementById('inp-date').value   = c.date;
-    document.getElementById('overlay').classList.remove('hidden');
-    document.getElementById('inp-name').focus();
-  }
-
-  function closeModal() {
-    document.getElementById('overlay').classList.add('hidden');
-  }
-
-  function overlayClick(e) {
-    if (e.target === document.getElementById('overlay')) closeModal();
-  }
-
-  function saveCase() {
-    var name   = document.getElementById('inp-name').value.trim();
-    var action = document.getElementById('inp-action').value.trim();
-    var date   = document.getElementById('inp-date').value;
-    if (!name || !action || !date) { alert('נא למלא את כל השדות'); return; }
-    if (editId !== null) {
-      cases = cases.map(function(c){ return c.id===editId ? {id:c.id,name:name,action:action,date:date} : c; });
-    } else {
-      cases.push({id: Date.now(), name:name, action:action, date:date});
-    }
-    localStorage.setItem('law-cases', JSON.stringify(cases));
-    closeModal();
-    render();
-  }
-
-  function del(id) {
-    var c = cases.find(function(x){ return x.id===id; });
-    if (!c || !confirm('למחוק את התיק "' + c.name + '"?')) return;
-    cases = cases.filter(function(x){ return x.id!==id; });
-    localStorage.setItem('law-cases', JSON.stringify(cases));
-    render();
-  }
-
-  render();
+render();
 </script>
 </body>
 </html>
