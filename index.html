@@ -251,7 +251,21 @@
     </div>
     <div id="f-time" class="field">
       <label>שעה <span class="opt">(אופציונלי)</span></label>
-      <input id="inp-time" type="time" />
+      <div style="display:flex;gap:8px;">
+        <select id="inp-time-h" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="">-- שעה --</option>
+          <option>08</option><option>09</option><option>10</option><option>11</option>
+          <option>12</option><option>13</option><option>14</option><option>15</option>
+          <option>16</option><option>17</option><option>18</option><option>19</option>
+          <option>20</option>
+        </select>
+        <select id="inp-time-m" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="00">00</option>
+          <option value="15">15</option>
+          <option value="30">30</option>
+          <option value="45">45</option>
+        </select>
+      </div>
     </div>
     <div id="f-court" class="field">
       <label>שם בית משפט <span class="opt">(אופציונלי)</span></label>
@@ -459,7 +473,8 @@ function openAddCase() {
   document.getElementById('m-title').textContent = 'הוספת תיק חדש';
   document.getElementById('inp-name').value = '';
   document.getElementById('inp-hearing').value = '';
-  document.getElementById('inp-time').value = '';
+  document.getElementById('inp-time-h').value = '';
+  document.getElementById('inp-time-m').value = '00';
   document.getElementById('inp-court').value = '';
   document.getElementById('inp-judge').value = '';
   document.getElementById('inp-materials').value = '';
@@ -480,7 +495,9 @@ function openEditHearing(cid) {
   mode = 'edit-hearing'; mCaseId = cid;
   document.getElementById('m-title').textContent = 'פרטי דיון — ' + c.name;
   document.getElementById('inp-hearing').value   = h.date || '';
-  document.getElementById('inp-time').value      = h.time || '';
+  var tp = h.time ? h.time.split(':') : ['','00'];
+  document.getElementById('inp-time-h').value = tp[0] || '';
+  document.getElementById('inp-time-m').value = tp[1] || '00';
   document.getElementById('inp-court').value     = h.court || '';
   document.getElementById('inp-judge').value     = h.judge || '';
   document.getElementById('inp-materials').value = h.materials || '';
@@ -521,7 +538,7 @@ function saveModal() {
 function readHearingFromModal() {
   return {
     date:      document.getElementById('inp-hearing').value   || null,
-    time:      document.getElementById('inp-time').value      || null,
+    time:      document.getElementById('inp-time-h').value ? (document.getElementById('inp-time-h').value + ':' + document.getElementById('inp-time-m').value) : null,
     court:     document.getElementById('inp-court').value.trim()     || null,
     judge:     document.getElementById('inp-judge').value.trim()     || null,
     materials: document.getElementById('inp-materials').value.trim() || null
