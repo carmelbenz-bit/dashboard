@@ -72,6 +72,9 @@
   }
   .case-name-link { cursor: pointer; }
   .case-name-link:hover { color: #2d4263; text-decoration: underline; }
+  .fee-link { font-size: 13px; text-decoration: none; color: #6b7280; flex-shrink: 0; }
+  .fee-link:hover { color: #1d4ed8; }
+  .fee-file-status { font-size: 12px; color: #059669; margin-bottom: 6px; }
   .case-icon { color: #4b6da8; font-size: 15px; }
 
   /* Hearing date badge */
@@ -283,6 +286,11 @@
       <label>שופט/ת <span class="opt">(אופציונלי)</span></label>
       <input id="inp-case-judge" type="text" placeholder="לדוגמה: כב׳ השופטת ישראלי" />
     </div>
+    <div id="f-fee-file" class="field">
+      <label>הסכם שכ"ט <span class="opt">(אופציונלי)</span></label>
+      <div id="fee-file-status" class="fee-file-status"></div>
+      <input id="inp-fee-file" type="file" accept=".pdf,.doc,.docx,.odt" onchange="onFeeFileChange(event)" />
+    </div>
     <div id="f-hearing-section"><span class="section-label">פרטי דיון</span></div>
     <div id="f-hearing" class="field">
       <label>תאריך דיון <span class="opt">(אופציונלי)</span></label>
@@ -347,6 +355,15 @@
 var STORE = 'law-cases-v3';
 var cases = loadData();
 var mode = null, mCaseId = null, mTaskId = null;
+var pendingFeeFile = null; // {name, data} = new file; null = keep existing
+
+function onFeeFileChange(e) {
+  var file = e.target.files[0];
+  if (!file) { pendingFeeFile = null; return; }
+  var reader = new FileReader();
+  reader.onload = function(ev) { pendingFeeFile = { name: file.name, data: ev.target.result }; };
+  reader.readAsDataURL(file);
+}
 
 function emptyHearing() {
   return { date: null, time: null, court: null, judge: null, materials: null };
@@ -409,7 +426,9 @@ function render() {
     cr.className = 'case-row';
     var hd = renderHearing(c.hearing);
     cr.innerHTML =
-      '<td><div class="case-name-cell"><span class="case-icon">⚖</span><span class="case-name-link" onclick="openEditCase(' + c.id + ')">' + x(c.name) + '</span></div></td>' +
+      '<td><div class="case-name-cell"><span class="case-icon">⚖</span><span class="case-name-link" onclick="openEditCase(' + c.id + ')">' + x(c.name) + '</span>' +
+        (c.feeFile ? '<a class="fee-link" href="' + c.feeFile.data + '" download="' + x(c.feeFile.name) + '" title="הסכם שכ&quot;ט: ' + x(c.feeFile.name) + '">📎</a>' : '') +
+      '</div></td>' +
       '<td><div style="display:flex;align-items:flex-start;gap:6px;">' + hd + '<button class="hearing-edit-btn" onclick="openEditHearing(' + c.id + ')" title="עריכת דיון">✏</button></div></td>' +
       '<td></td><td></td>' +
       '<td><div class="btns">' +
@@ -524,7 +543,7 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
+var ALL_FIELDS = ['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -555,7 +574,10 @@ function openEditCase(cid) {
   document.getElementById('inp-client-email').value  = c.clientEmail  || '';
   document.getElementById('inp-case-court').value    = c.caseCourtName || '';
   document.getElementById('inp-case-judge').value    = c.caseJudge    || '';
-  show(['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge']);
+  pendingFeeFile = null;
+  document.getElementById('inp-fee-file').value = '';
+  document.getElementById('fee-file-status').innerHTML = c.feeFile ? '📎 ' + x(c.feeFile.name) + ' (קיים)' : '';
+  show(['f-name','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file']);
   showModal(); document.getElementById('inp-name').focus();
 }
 function openEditHearing(cid) {
@@ -634,7 +656,8 @@ function editCase() {
       clientPhone: document.getElementById('inp-client-phone').value.trim()|| null,
       clientEmail:   document.getElementById('inp-client-email').value.trim()  || null,
       caseCourtName: document.getElementById('inp-case-court').value.trim()    || null,
-      caseJudge:     document.getElementById('inp-case-judge').value.trim()    || null
+      caseJudge:     document.getElementById('inp-case-judge').value.trim()    || null,
+      feeFile:       pendingFeeFile !== null ? pendingFeeFile : (c.feeFile || null)
     });
   });
   persist(); closeModal(); render();
