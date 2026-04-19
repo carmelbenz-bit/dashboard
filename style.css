@@ -1,0 +1,315 @@
+/* --- איפוס בסיסי --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+/* --- מיכל ראשי --- */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* --- כותרת עליונה --- */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a1a2e;
+  color: white;
+  padding: 20px 28px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  font-size: 28px;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+header button {
+  background: #4f8ef7;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+header button:hover {
+  background: #3a7ae0;
+}
+
+/* --- שורת סיכום --- */
+.summary-bar {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  flex: 1;
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border-top: 4px solid transparent;
+}
+
+.summary-card span {
+  display: block;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.summary-card label {
+  font-size: 13px;
+  color: #666;
+}
+
+.summary-card.urgent  { border-top-color: #e53e3e; }
+.summary-card.urgent span { color: #e53e3e; }
+
+.summary-card.soon    { border-top-color: #dd6b20; }
+.summary-card.soon span { color: #dd6b20; }
+
+.summary-card.ok      { border-top-color: #38a169; }
+.summary-card.ok span { color: #38a169; }
+
+.summary-card.total   { border-top-color: #4f8ef7; }
+.summary-card.total span { color: #4f8ef7; }
+
+/* --- טבלה --- */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #1a1a2e;
+  color: white;
+}
+
+thead th {
+  padding: 14px 18px;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.15s;
+}
+
+tbody tr:hover {
+  background: #f8f9ff;
+}
+
+tbody td {
+  padding: 14px 18px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+/* --- תג ימים נותרים --- */
+.days-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.days-badge.overdue {
+  background: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #fed7d7;
+}
+
+.days-badge.soon {
+  background: #fffaf0;
+  color: #dd6b20;
+  border: 1px solid #fbd38d;
+}
+
+.days-badge.ok {
+  background: #f0fff4;
+  color: #276749;
+  border: 1px solid #9ae6b4;
+}
+
+/* --- כפתורי עריכה/מחיקה --- */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit, .btn-delete {
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-edit {
+  background: #ebf4ff;
+  color: #2b6cb0;
+}
+
+.btn-edit:hover {
+  background: #bee3f8;
+}
+
+.btn-delete {
+  background: #fff5f5;
+  color: #e53e3e;
+}
+
+.btn-delete:hover {
+  background: #fed7d7;
+}
+
+/* --- מצב ריק --- */
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: #999;
+  font-size: 15px;
+}
+
+/* --- חלון הוספה/עריכה (Modal) --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  background: white;
+  border-radius: 14px;
+  padding: 32px;
+  width: 440px;
+  max-width: 95vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.modal h2 {
+  margin-bottom: 24px;
+  font-size: 20px;
+  color: #1a1a2e;
+}
+
+.modal label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 18px;
+  outline: none;
+  transition: border 0.2s;
+  font-family: inherit;
+  direction: rtl;
+}
+
+.modal input:focus {
+  border-color: #4f8ef7;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+
+.modal-buttons button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.modal-buttons button:first-child {
+  background: #4f8ef7;
+  color: white;
+}
+
+.modal-buttons button:first-child:hover {
+  background: #3a7ae0;
+}
+
+.btn-cancel {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.btn-cancel:hover {
+  background: #e0e0e0;
+}
+
+/* --- רספונסיבי לנייד --- */
+@media (max-width: 600px) {
+  .summary-bar {
+    flex-wrap: wrap;
+  }
+  .summary-card {
+    min-width: calc(50% - 7px);
+  }
+  thead th:nth-child(4),
+  tbody td:nth-child(4) {
+    display: none;
+  }
+}
