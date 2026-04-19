@@ -229,7 +229,11 @@
   .btn-icon-edit:hover { background: #f1f5f9; color: #374151; border-color: #e2e8f0; }
   .btn-icon-del  { background: transparent; color: #f87171; }
   .btn-icon-del:hover  { background: #fef2f2; border-color: #fecaca; }
-  .task-files-status { font-size: 12px; color: #059669; margin-bottom: 6px; line-height: 1.6; }
+  .task-files-status { font-size: 12px; margin-bottom: 6px; }
+  .task-file-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px; background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 4px; }
+  .task-file-item span { color: #374151; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .task-file-item button { background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 13px; padding: 0 2px; flex-shrink: 0; line-height: 1; }
+  .task-file-item button:hover { color: #dc2626; }
 
   /* Urgency badges */
   .badge {
@@ -580,13 +584,30 @@ function onFeeFileChange(e) {
 }
 function onTaskFilesChange(e) {
   var files = Array.from(e.target.files);
-  if (!files.length) { pendingTaskFiles = null; return; }
-  pendingTaskFiles = new Array(files.length);
-  files.forEach(function(file, i) {
+  if (!files.length) return;
+  var loaded = 0;
+  files.forEach(function(file) {
     var reader = new FileReader();
-    reader.onload = function(ev) { pendingTaskFiles[i] = { name: file.name, data: ev.target.result }; };
+    reader.onload = function(ev) {
+      pendingTaskFiles.push({ name: file.name, data: ev.target.result });
+      loaded++;
+      if (loaded === files.length) renderTaskFilesStatus();
+    };
     reader.readAsDataURL(file);
   });
+  e.target.value = '';
+}
+function removeTaskFile(i) {
+  pendingTaskFiles.splice(i, 1);
+  renderTaskFilesStatus();
+}
+function renderTaskFilesStatus() {
+  var el = document.getElementById('task-files-status');
+  if (!el) return;
+  if (!pendingTaskFiles || !pendingTaskFiles.length) { el.innerHTML = ''; return; }
+  el.innerHTML = pendingTaskFiles.map(function(f, i) {
+    return '<div class="task-file-item"><span>📎 ' + x(f.name) + '</span><button type="button" onclick="removeTaskFile(' + i + ')" title="הסר">✕</button></div>';
+  }).join('');
 }
 
 function emptyHearing() {
@@ -1046,7 +1067,7 @@ function openAddTask(cid) {
   document.getElementById('inp-date').value   = '';
   pendingTaskFiles = [];
   document.getElementById('inp-task-files').value = '';
-  document.getElementById('task-files-status').innerHTML = '';
+  renderTaskFilesStatus();
   show(['f-owner','f-action','f-date','f-task-files']);
   showModal(); document.getElementById('inp-action').focus();
 }
@@ -1059,12 +1080,9 @@ function openEditTask(cid, tid) {
   document.querySelector('input[name="task-owner"][value="' + ownerVal + '"]').checked = true;
   document.getElementById('inp-action').value = t.action;
   document.getElementById('inp-date').value   = t.date || '';
-  pendingTaskFiles = null;
+  pendingTaskFiles = (t.files || []).slice();
   document.getElementById('inp-task-files').value = '';
-  var existing = t.files && t.files.length;
-  document.getElementById('task-files-status').innerHTML = existing
-    ? t.files.map(function(f){ return '📎 ' + x(f.name); }).join('<br>') + (existing ? '<br><span style="color:#aaa;font-size:11px">בחירת קבצים חדשים תחליף את הקיימים</span>' : '')
-    : '';
+  renderTaskFilesStatus();
   show(['f-owner','f-action','f-date','f-task-files']);
   showModal(); document.getElementById('inp-action').focus();
 }
@@ -1160,7 +1178,7 @@ function editTask() {
     if (c.id!==mCaseId) return c;
   var owner = document.querySelector('input[name="task-owner"]:checked').value;
     return Object.assign({},c,{tasks:c.tasks.map(function(t){
-      var files = pendingTaskFiles !== null ? pendingTaskFiles.filter(Boolean) : (t.files || []);
+      var files = pendingTaskFiles.filter(Boolean);
       return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files} : t;
     })});
   });
