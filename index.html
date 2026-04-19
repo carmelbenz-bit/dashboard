@@ -141,6 +141,7 @@
   .bd { background: #fef2f2; color: #dc2626; }
   .te { background: #f0fdf4; color: #166534; }
   .td { background: #fef2f2; color: #dc2626; }
+  .bh { background: #f5f0ff; color: #6d28d9; }
 
   /* Empty state */
   .empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
@@ -351,6 +352,7 @@ function render() {
       '<td></td><td></td>' +
       '<td><div class="btns">' +
         '<button class="btn-sm be" onclick="openEditCase(' + c.id + ')">ערוך תיק</button>' +
+        '<button class="btn-sm bh" onclick="openEditHearing(' + c.id + ')">עריכת דיון</button>' +
         '<button class="btn-sm bd" onclick="delCase(' + c.id + ')">מחק</button>' +
       '</div></td>';
     tbody.appendChild(cr);
@@ -466,17 +468,24 @@ function openAddCase() {
 }
 function openEditCase(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
-  var h = c.hearing || emptyHearing();
   mode = 'edit-case'; mCaseId = cid;
-  document.getElementById('m-title').textContent = 'עריכת תיק — ' + c.name;
-  document.getElementById('inp-name').value      = c.name;
+  document.getElementById('m-title').textContent = 'עריכת שם תיק';
+  document.getElementById('inp-name').value = c.name;
+  show(['f-name']);
+  showModal(); document.getElementById('inp-name').focus();
+}
+function openEditHearing(cid) {
+  var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  var h = c.hearing || emptyHearing();
+  mode = 'edit-hearing'; mCaseId = cid;
+  document.getElementById('m-title').textContent = 'פרטי דיון — ' + c.name;
   document.getElementById('inp-hearing').value   = h.date || '';
   document.getElementById('inp-time').value      = h.time || '';
   document.getElementById('inp-court').value     = h.court || '';
   document.getElementById('inp-judge').value     = h.judge || '';
   document.getElementById('inp-materials').value = h.materials || '';
-  show(['f-name','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials']);
-  showModal(); document.getElementById('inp-name').focus();
+  show(['f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials']);
+  showModal(); document.getElementById('inp-hearing').focus();
 }
 function openAddTask(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
@@ -503,10 +512,11 @@ function bgClick(e)   { if (e.target===document.getElementById('overlay')) close
 
 // ── Save ──────────────────────────────────────────────────────────
 function saveModal() {
-  if (mode === 'add-case')  { addCase();  }
-  if (mode === 'edit-case') { editCase(); }
-  if (mode === 'add-task')  { addTask();  }
-  if (mode === 'edit-task') { editTask(); }
+  if (mode === 'add-case')     { addCase();      }
+  if (mode === 'edit-case')    { editCase();     }
+  if (mode === 'edit-hearing') { editHearing();  }
+  if (mode === 'add-task')     { addTask();      }
+  if (mode === 'edit-task')    { editTask();     }
 }
 function readHearingFromModal() {
   return {
@@ -527,7 +537,13 @@ function editCase() {
   var name = document.getElementById('inp-name').value.trim();
   if (!name) { alert('נא להזין שם תיק'); return; }
   cases = cases.map(function(c) {
-    return c.id===mCaseId ? Object.assign({},c,{name:name, hearing:readHearingFromModal()}) : c;
+    return c.id===mCaseId ? Object.assign({},c,{name:name}) : c;
+  });
+  persist(); closeModal(); render();
+}
+function editHearing() {
+  cases = cases.map(function(c) {
+    return c.id===mCaseId ? Object.assign({},c,{hearing:readHearingFromModal()}) : c;
   });
   persist(); closeModal(); render();
 }
