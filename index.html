@@ -212,13 +212,10 @@
   tr.task-done td { background: #F0FDF4 !important; border-bottom-color: #D1FAE5 !important; }
   tr.task-done:hover td { background: #ECFDF5 !important; }
 
-  .task-card { display: flex; align-items: center; padding: 14px 20px; gap: 12px; min-height: 56px; }
-  .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-  .task-card-meta {
-    display: flex; flex-direction: column; align-items: flex-end;
-    gap: 5px; flex-shrink: 0; min-width: 120px; text-align: end;
-  }
-  .task-card-actions { display: flex; align-items: center; gap: 3px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s; }
+  .task-card { display: grid; grid-template-columns: 1fr 140px 72px; align-items: center; padding: 14px 20px; gap: 24px; min-height: 72px; }
+  .task-card-body { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .task-card-meta { display: flex; flex-direction: column; gap: 6px; }
+  .task-card-actions { display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0; transition: opacity 0.15s; }
   tr.task-row:hover .task-card-actions,
   tr.task-other:hover .task-card-actions { opacity: 1; }
   tr.task-done .task-card-actions { opacity: 1; }
