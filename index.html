@@ -414,6 +414,7 @@
 <div class="view-tabs">
   <button class="view-tab vt-active" data-view="cases"    onclick="switchView('cases')">תיקים</button>
   <button class="view-tab"           data-view="hearings" onclick="switchView('hearings')">לוח דיונים</button>
+  <button class="view-tab"           data-view="meetings" onclick="switchView('meetings')">לוח פגישות</button>
 </div>
 
 <div class="summary-row">
@@ -463,6 +464,10 @@
 
 <div id="view-hearings" style="display:none">
   <div class="hearings-board"><div id="hb-list"></div></div>
+</div>
+
+<div id="view-meetings" style="display:none">
+  <div class="hearings-board"><div id="mb-list"></div></div>
 </div>
 
 <!-- Modal -->
@@ -1447,11 +1452,14 @@ function switchView(v) {
   document.querySelector('.summary-row').style.display  = isCases ? '' : 'none';
   document.querySelector('.search-wrap').style.display  = isCases ? '' : 'none';
   document.querySelector('.table-section').style.display = isCases ? '' : 'none';
-  document.getElementById('view-hearings').style.display = isCases ? 'none' : '';
+  document.getElementById('view-hearings').style.display = v === 'hearings' ? '' : 'none';
+  document.getElementById('view-meetings').style.display = v === 'meetings' ? '' : 'none';
   document.querySelectorAll('.view-tab').forEach(function(btn) {
     btn.classList.toggle('vt-active', btn.dataset.view === v);
   });
-  if (isCases) render(); else renderHearingsBoard();
+  if (v === 'cases')         render();
+  else if (v === 'hearings') renderHearingsBoard();
+  else if (v === 'meetings') renderMeetingsBoard();
 }
 function allHearings() {
   var list = [];
@@ -1487,6 +1495,56 @@ function renderHearingsBoard() {
           '<div class="hb-case-name">' + x(h.caseName) + '</div>' +
           (details ? '<div class="hb-details">' + x(details) + '</div>' : '') +
         '</div>' +
+      '</div>';
+    }).join('');
+    return '<div class="hb-date-group">' +
+      '<div class="hb-date-header' + (isToday ? ' hb-today' : '') + '">' +
+        fmt(date) + (isToday ? '<span class="hb-today-tag">היום</span>' : '') +
+      '</div>' +
+      items +
+    '</div>';
+  }).join('');
+}
+
+// ── Meetings Board ────────────────────────────────────────────────
+function allMeetings() {
+  var list = [];
+  cases.forEach(function(c) {
+    (c.meetings || []).forEach(function(m) {
+      if (!m.date) return;
+      list.push({ caseName: c.name, caseId: c.id, title: m.title, date: m.date, time: m.time || null, link: m.link || null });
+    });
+  });
+  list.sort(function(a, b) {
+    if (a.date !== b.date) return new Date(a.date) - new Date(b.date);
+    return (a.time || '00:00').localeCompare(b.time || '00:00');
+  });
+  return list;
+}
+function renderMeetingsBoard() {
+  var list = allMeetings();
+  var el = document.getElementById('mb-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="hb-empty"><div class="ei">📋</div><p>אין פגישות — הוסיפי פגישה לתיק כדי לראות אותה כאן</p></div>';
+    return;
+  }
+  var todayStr = new Date().toISOString().slice(0, 10);
+  var groups = {}, order = [];
+  list.forEach(function(m) {
+    if (!groups[m.date]) { groups[m.date] = []; order.push(m.date); }
+    groups[m.date].push(m);
+  });
+  var icoLink = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+  el.innerHTML = order.map(function(date) {
+    var isToday = date === todayStr;
+    var items = groups[date].map(function(m) {
+      return '<div class="hb-item">' +
+        '<div class="hb-time">' + (m.time || '—') + '</div>' +
+        '<div class="hb-body">' +
+          '<div class="hb-case-name">' + x(m.title) + '</div>' +
+          '<div class="hb-details">' + x(m.caseName) + '</div>' +
+        '</div>' +
+        (m.link ? '<a class="meeting-link-btn" href="' + x(m.link) + '" target="_blank" rel="noopener">' + icoLink + ' פתח</a>' : '') +
       '</div>';
     }).join('');
     return '<div class="hb-date-group">' +
