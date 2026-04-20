@@ -402,6 +402,20 @@
   .hb-details { font-size: 12px; color: #94A3B8; }
   .hb-empty { text-align: center; padding: 60px 20px; color: #9ca3af; }
   .hb-empty .ei { font-size: 42px; margin-bottom: 12px; }
+
+  /* ── Recommendation panel ── */
+  .reco-panel { max-width: 1060px; margin: 14px auto 0; padding: 0 40px; }
+  .reco-box { background: #fff; border: 1px solid #E7ECF3; border-top: 3px solid #3B82F6; border-radius: 14px; padding: 14px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .reco-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .reco-title { font-size: 11.5px; font-weight: 700; color: #3B82F6; letter-spacing: 0.4px; }
+  .reco-capacity { font-size: 11px; color: #94A3B8; margin-inline-start: auto; }
+  .reco-items { display: flex; flex-direction: column; gap: 5px; }
+  .reco-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 8px; background: #F8FAFF; border: 1px solid #EEF2FF; }
+  .reco-task-name { flex: 1; font-size: 13px; font-weight: 600; color: #1B2A4A; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+  .reco-task-name:hover { color: #3B82F6; }
+  .reco-case-name { font-size: 11px; color: #94A3B8; white-space: nowrap; flex-shrink: 0; }
+  .reco-dur { font-size: 11px; color: #94A3B8; white-space: nowrap; flex-shrink: 0; }
+  .task-dur { font-size: 11.5px; color: #94A3B8; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -436,6 +450,7 @@
     <div class="card-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
   </div>
 </div>
+<div id="reco-panel" class="reco-panel" style="display:none"></div>
 <div class="filter-notice" id="filter-notice" style="display:none">
   <span class="filter-chip" id="filter-chip-text"></span>
 </div>
@@ -579,6 +594,22 @@
       <label>קבצים מצורפים <span class="opt">(אופציונלי)</span></label>
       <div id="task-files-status" class="task-files-status"></div>
       <input id="inp-task-files" type="file" multiple accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png" onchange="onTaskFilesChange(event)" />
+    </div>
+    <div id="f-est-duration" class="field">
+      <label>משך משוער <span class="opt">(אופציונלי)</span></label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="inp-dur-h" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          <option value="6">6</option><option value="7">7</option><option value="8">8</option>
+        </select>
+        <span style="font-size:13px;color:#6b7280;flex-shrink:0;">שע׳</span>
+        <select id="inp-dur-m" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="0">00</option><option value="15">15</option>
+          <option value="30">30</option><option value="45">45</option>
+        </select>
+        <span style="font-size:13px;color:#6b7280;flex-shrink:0;">ד׳</span>
+      </div>
     </div>
     <div id="f-mtg-title" class="field">
       <label>כותרת הפגישה</label>
@@ -961,6 +992,7 @@ function render() {
           '<div class="task-card-meta">' +
             dateMetaHtml +
             (badgeCol ? badgeCol : '') +
+            (t.estimatedMinutes ? '<span class="task-dur">⏱ ' + formatDuration(t.estimatedMinutes) + '</span>' : '') +
           '</div>' +
           '<div class="task-card-actions">' +
             '<button class="' + doneCls + '" onclick="toggleTaskDone(' + c.id + ',' + t.id + ')" title="' + doneTitle + '">' + icoCheck + '</button>' +
@@ -985,6 +1017,7 @@ function render() {
   document.getElementById('cnt-soon').textContent  = soon;
   document.getElementById('cnt-ok').textContent    = todayCnt;
   document.getElementById('cnt-cases').textContent = cases.length;
+  renderRecommendations();
 }
 
 // ── Sorting ───────────────────────────────────────────────────────
@@ -1155,12 +1188,17 @@ document.addEventListener('click', function() {
 function fmt(s) {
   return new Date(s).toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit', year:'numeric'});
 }
+function formatDuration(min) {
+  if (!min) return null;
+  var h = Math.floor(min / 60), m = min % 60;
+  return h + ':' + (m < 10 ? '0' : '') + m;
+}
 function x(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files','f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link'];
+var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files','f-est-duration','f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -1237,7 +1275,9 @@ function openAddTask(cid) {
   pendingTaskFiles = [];
   document.getElementById('inp-task-files').value = '';
   renderTaskFilesStatus();
-  show(['f-owner','f-action','f-date','f-task-files']);
+  document.getElementById('inp-dur-h').value = '0';
+  document.getElementById('inp-dur-m').value = '0';
+  show(['f-owner','f-action','f-date','f-task-files','f-est-duration']);
   showModal(); document.getElementById('inp-action').focus();
 }
 function openEditTask(cid, tid) {
@@ -1252,7 +1292,11 @@ function openEditTask(cid, tid) {
   pendingTaskFiles = (t.files || []).slice();
   document.getElementById('inp-task-files').value = '';
   renderTaskFilesStatus();
-  show(['f-owner','f-action','f-date','f-task-files']);
+  var durH = t.estimatedMinutes ? Math.floor(t.estimatedMinutes / 60) : 0;
+  var durM = t.estimatedMinutes ? (t.estimatedMinutes % 60) : 0;
+  document.getElementById('inp-dur-h').value = String(durH);
+  document.getElementById('inp-dur-m').value = String(durM);
+  show(['f-owner','f-action','f-date','f-task-files','f-est-duration']);
   showModal(); document.getElementById('inp-action').focus();
 }
 function showModal()  { document.getElementById('overlay').classList.remove('hidden'); }
@@ -1331,26 +1375,34 @@ function delHearing(cid, hid) {
   });
   persist(); render();
 }
+function readEstimatedMinutes() {
+  var h = parseInt(document.getElementById('inp-dur-h').value) || 0;
+  var m = parseInt(document.getElementById('inp-dur-m').value) || 0;
+  var total = h * 60 + m;
+  return total > 0 ? total : null;
+}
 function addTask() {
   var action = document.getElementById('inp-action').value.trim();
   if (!action) { alert('נא להזין פעולה'); return; }
   var owner = document.querySelector('input[name="task-owner"]:checked').value;
+  var estMin = readEstimatedMinutes();
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
     var files = pendingTaskFiles ? pendingTaskFiles.filter(Boolean) : [];
-    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:false}])});
+    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:false, estimatedMinutes:estMin}])});
   });
   persist(); closeModal(); render();
 }
 function editTask() {
   var action = document.getElementById('inp-action').value.trim();
   if (!action) { alert('נא להזין פעולה'); return; }
+  var estMin = readEstimatedMinutes();
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
-  var owner = document.querySelector('input[name="task-owner"]:checked').value;
+    var owner = document.querySelector('input[name="task-owner"]:checked').value;
     return Object.assign({},c,{tasks:c.tasks.map(function(t){
       var files = pendingTaskFiles.filter(Boolean);
-      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:t.completed||false} : t;
+      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:t.completed||false, estimatedMinutes:estMin} : t;
     })});
   });
   persist(); closeModal(); render();
@@ -1448,6 +1500,76 @@ function delMeeting(cid, mid) {
   persist(); render();
 }
 
+// ── Recommendations ───────────────────────────────────────────────
+function recommendToday() {
+  var todayStr = new Date().toISOString().slice(0, 10);
+  var busyMinutes = 0;
+  cases.forEach(function(c) {
+    (c.hearings || []).forEach(function(h) { if (h.date === todayStr) busyMinutes += 60; });
+    (c.meetings  || []).forEach(function(m) { if (m.date === todayStr) busyMinutes += 60; });
+  });
+  var availableMinutes = Math.max(0, 360 - busyMinutes);
+  var candidates = [];
+  cases.forEach(function(c) {
+    (c.tasks || []).forEach(function(t) {
+      if (t.completed || t.owner === 'הצד השני') return;
+      var days = t.date ? daysLeft(t.date) : null;
+      var urgencyScore = days === null ? 50
+        : days < 0  ? 2000 + Math.abs(days) * 10
+        : days === 0 ? 1500
+        : Math.max(100, 1000 - days * 20);
+      candidates.push({ caseId: c.id, caseName: c.name, task: t, days: days, urgencyScore: urgencyScore });
+    });
+  });
+  candidates.sort(function(a, b) { return b.urgencyScore - a.urgencyScore; });
+  var used = 0;
+  candidates.forEach(function(item) {
+    var dur = item.task.estimatedMinutes || 0;
+    if (dur > 0 && used + dur <= availableMinutes) { item.finalScore = item.urgencyScore + 200; used += dur; }
+    else { item.finalScore = item.urgencyScore; }
+  });
+  candidates.sort(function(a, b) { return b.finalScore - a.finalScore; });
+  return { items: candidates.slice(0, 3), availableMinutes: availableMinutes, busyMinutes: busyMinutes };
+}
+function renderRecommendations() {
+  var el = document.getElementById('reco-panel');
+  if (!el) return;
+  var allOpen = [];
+  cases.forEach(function(c) {
+    (c.tasks || []).forEach(function(t) { if (!t.completed && t.owner !== 'הצד השני') allOpen.push(t); });
+  });
+  if (!allOpen.length) { el.style.display = 'none'; return; }
+  var result = recommendToday();
+  if (!result.items.length) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  var availH = Math.floor(result.availableMinutes / 60);
+  var availM = result.availableMinutes % 60;
+  var capacityTxt = 'זמן פנוי: ' + availH + ':' + (availM < 10 ? '0' : '') + availM +
+    (result.busyMinutes > 0 ? ' (אחרי ' + result.busyMinutes + ' ד׳ פגישות/דיונים)' : '');
+  var itemsHtml = result.items.map(function(item) {
+    var t = item.task;
+    var badge = '';
+    if (item.days !== null) {
+      if (item.days < 0)       badge = '<span class="badge over" style="font-size:10px;padding:1px 7px;">באיחור</span>';
+      else if (item.days === 0) badge = '<span class="badge over" style="font-size:10px;padding:1px 7px;">היום!</span>';
+      else if (item.days <= 7)  badge = '<span class="badge soon" style="font-size:10px;padding:1px 7px;">' + item.days + ' ימים</span>';
+    }
+    var dur = t.estimatedMinutes ? '<span class="reco-dur">⏱ ' + formatDuration(t.estimatedMinutes) + '</span>' : '';
+    return '<div class="reco-item">' +
+      '<span class="reco-task-name" onclick="openEditTask(' + item.caseId + ',' + t.id + ')">' + x(t.action) + '</span>' +
+      '<span class="reco-case-name">' + x(item.caseName) + '</span>' +
+      badge + dur +
+    '</div>';
+  }).join('');
+  el.innerHTML = '<div class="reco-box">' +
+    '<div class="reco-header">' +
+      '<span class="reco-title">🎯 מומלץ להיום</span>' +
+      '<span class="reco-capacity">' + capacityTxt + '</span>' +
+    '</div>' +
+    '<div class="reco-items">' + itemsHtml + '</div>' +
+  '</div>';
+}
+
 // ── Hearings Board ────────────────────────────────────────────────
 var currentView = 'cases';
 function switchView(v) {
@@ -1456,6 +1578,8 @@ function switchView(v) {
   document.querySelector('.summary-row').style.display  = isCases ? '' : 'none';
   document.querySelector('.search-wrap').style.display  = isCases ? '' : 'none';
   document.querySelector('.table-section').style.display = isCases ? '' : 'none';
+  document.getElementById('reco-panel').style.display   = isCases ? '' : 'none';
+  document.getElementById('filter-notice').style.display = isCases ? (cardFilter ? '' : 'none') : 'none';
   document.getElementById('view-hearings').style.display  = v === 'hearings'  ? '' : 'none';
   document.getElementById('view-meetings').style.display  = v === 'meetings'  ? '' : 'none';
   document.getElementById('view-deadlines').style.display = v === 'deadlines' ? '' : 'none';
