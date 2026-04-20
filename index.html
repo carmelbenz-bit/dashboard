@@ -883,7 +883,6 @@ function render() {
     mr.innerHTML = '<td colspan="4"><div class="meetings-section">' +
       '<div class="meetings-header">' +
         '<span class="meetings-label">פגישות' + (mtgList.length ? ' (' + mtgList.length + ')' : '') + '</span>' +
-        '<button class="btn-add-meeting" onclick="openAddMeeting(' + c.id + ')">+ פגישה</button>' +
       '</div>' +
       mtgItemsHtml +
     '</div></td>';
@@ -945,7 +944,10 @@ function render() {
     // ── Add task row
     var ar = document.createElement('tr');
     ar.className = 'add-row';
-    ar.innerHTML = '<td colspan="4"><button class="btn-add-task" onclick="openAddTask(' + c.id + ')">+ הוסף משימה לתיק ' + x(c.name) + '</button></td>';
+    ar.innerHTML = '<td colspan="4"><div style="display:flex;align-items:center;gap:10px;">' +
+      '<button class="btn-add-task" onclick="openAddTask(' + c.id + ')">+ הוסף משימה לתיק ' + x(c.name) + '</button>' +
+      '<button class="btn-add-meeting" onclick="openAddMeeting(' + c.id + ')">+ פגישה</button>' +
+    '</div></td>';
     tbody.appendChild(ar);
   });
 
