@@ -379,8 +379,9 @@
   .meeting-item-actions { display: flex; gap: 2px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s; }
   .meeting-item:hover .meeting-item-actions { opacity: 1; }
   .item-type-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; letter-spacing: 0.3px; }
-  .task-type-chip { background: #EFF6FF; color: #3B82F6; }
-  .mtg-type-chip  { background: #FAF5FF; color: #9333EA; }
+  .task-type-chip    { background: #EFF6FF; color: #3B82F6; }
+  .mtg-type-chip     { background: #FAF5FF; color: #9333EA; }
+  .hearing-type-chip { background: #FFF1F2; color: #E11D48; }
   .meeting-title-row { display: flex; align-items: center; gap: 6px; }
 
   /* ── View tabs ── */
@@ -414,7 +415,8 @@
 <div class="view-tabs">
   <button class="view-tab vt-active" data-view="cases"    onclick="switchView('cases')">תיקים</button>
   <button class="view-tab"           data-view="hearings" onclick="switchView('hearings')">לוח דיונים</button>
-  <button class="view-tab"           data-view="meetings" onclick="switchView('meetings')">לוח פגישות</button>
+  <button class="view-tab"           data-view="meetings"  onclick="switchView('meetings')">לוח פגישות</button>
+  <button class="view-tab"           data-view="deadlines" onclick="switchView('deadlines')">לוח מועדים</button>
 </div>
 
 <div class="summary-row">
@@ -468,6 +470,10 @@
 
 <div id="view-meetings" style="display:none">
   <div class="hearings-board"><div id="mb-list"></div></div>
+</div>
+
+<div id="view-deadlines" style="display:none">
+  <div class="hearings-board"><div id="dl-list"></div></div>
 </div>
 
 <!-- Modal -->
@@ -1452,14 +1458,16 @@ function switchView(v) {
   document.querySelector('.summary-row').style.display  = isCases ? '' : 'none';
   document.querySelector('.search-wrap').style.display  = isCases ? '' : 'none';
   document.querySelector('.table-section').style.display = isCases ? '' : 'none';
-  document.getElementById('view-hearings').style.display = v === 'hearings' ? '' : 'none';
-  document.getElementById('view-meetings').style.display = v === 'meetings' ? '' : 'none';
+  document.getElementById('view-hearings').style.display  = v === 'hearings'  ? '' : 'none';
+  document.getElementById('view-meetings').style.display  = v === 'meetings'  ? '' : 'none';
+  document.getElementById('view-deadlines').style.display = v === 'deadlines' ? '' : 'none';
   document.querySelectorAll('.view-tab').forEach(function(btn) {
     btn.classList.toggle('vt-active', btn.dataset.view === v);
   });
-  if (v === 'cases')         render();
-  else if (v === 'hearings') renderHearingsBoard();
-  else if (v === 'meetings') renderMeetingsBoard();
+  if (v === 'cases')          render();
+  else if (v === 'hearings')  renderHearingsBoard();
+  else if (v === 'meetings')  renderMeetingsBoard();
+  else if (v === 'deadlines') renderDeadlinesBoard();
 }
 function allHearings() {
   var list = [];
@@ -1545,6 +1553,74 @@ function renderMeetingsBoard() {
           '<div class="hb-details">' + x(m.caseName) + '</div>' +
         '</div>' +
         (m.link ? '<a class="meeting-link-btn" href="' + x(m.link) + '" target="_blank" rel="noopener">' + icoLink + ' פתח</a>' : '') +
+      '</div>';
+    }).join('');
+    return '<div class="hb-date-group">' +
+      '<div class="hb-date-header' + (isToday ? ' hb-today' : '') + '">' +
+        fmt(date) + (isToday ? '<span class="hb-today-tag">היום</span>' : '') +
+      '</div>' +
+      items +
+    '</div>';
+  }).join('');
+}
+
+// ── Deadlines Board ───────────────────────────────────────────────
+function allDeadlines() {
+  var icoTask    = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  var icoMtg     = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+  var icoHearing = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>';
+  var list = [];
+  cases.forEach(function(c) {
+    (c.tasks || []).forEach(function(t) {
+      if (!t.date || t.completed) return;
+      list.push({ type: 'task', chip: '<span class="item-type-chip task-type-chip">' + icoTask + ' משימה</span>', accent: '#BFDBFE',
+        caseName: c.name, title: t.action, date: t.date, time: null, details: null, link: null });
+    });
+    (c.meetings || []).forEach(function(m) {
+      if (!m.date) return;
+      list.push({ type: 'meeting', chip: '<span class="item-type-chip mtg-type-chip">' + icoMtg + ' פגישה</span>', accent: '#DDD6FE',
+        caseName: c.name, title: m.title, date: m.date, time: m.time || null, details: m.notes || null, link: m.link || null });
+    });
+    (c.hearings || []).forEach(function(h) {
+      if (!h.date) return;
+      var details = [h.court, h.judge].filter(Boolean).join(' · ') || null;
+      list.push({ type: 'hearing', chip: '<span class="item-type-chip hearing-type-chip">' + icoHearing + ' דיון</span>', accent: '#FECDD3',
+        caseName: c.name, title: h.court || 'דיון', date: h.date, time: h.time || null, details: details, link: null });
+    });
+  });
+  list.sort(function(a, b) {
+    if (a.date !== b.date) return new Date(a.date) - new Date(b.date);
+    return (a.time || '00:00').localeCompare(b.time || '00:00');
+  });
+  return list;
+}
+function renderDeadlinesBoard() {
+  var list = allDeadlines();
+  var el = document.getElementById('dl-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="hb-empty"><div class="ei">📌</div><p>אין פריטים עם תאריכות — הוסיפי משימות, פגישות או דיונים לתיקים</p></div>';
+    return;
+  }
+  var todayStr = new Date().toISOString().slice(0, 10);
+  var groups = {}, order = [];
+  list.forEach(function(item) {
+    if (!groups[item.date]) { groups[item.date] = []; order.push(item.date); }
+    groups[item.date].push(item);
+  });
+  var icoLink = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+  el.innerHTML = order.map(function(date) {
+    var isToday = date === todayStr;
+    var items = groups[date].map(function(item) {
+      return '<div class="hb-item" style="border-inline-start:2px solid ' + item.accent + ';">' +
+        '<div class="hb-time">' + (item.time || '—') + '</div>' +
+        '<div class="hb-body">' +
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+            item.chip +
+            '<span class="hb-case-name">' + x(item.title) + '</span>' +
+          '</div>' +
+          '<div class="hb-details">' + x(item.caseName) + (item.details ? ' · ' + x(item.details) : '') + '</div>' +
+        '</div>' +
+        (item.link ? '<a class="meeting-link-btn" href="' + x(item.link) + '" target="_blank" rel="noopener">' + icoLink + ' פתח</a>' : '') +
       '</div>';
     }).join('');
     return '<div class="hb-date-group">' +
