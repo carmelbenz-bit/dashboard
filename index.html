@@ -576,7 +576,21 @@
     </div>
     <div id="f-mtg-time" class="field">
       <label>שעה</label>
-      <input id="inp-mtg-time" type="time" />
+      <div style="display:flex;gap:8px;">
+        <select id="inp-mtg-time-m" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="00">00</option>
+          <option value="15">15</option>
+          <option value="30">30</option>
+          <option value="45">45</option>
+        </select>
+        <select id="inp-mtg-time-h" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="">-- שעה --</option>
+          <option>08</option><option>09</option><option>10</option><option>11</option>
+          <option>12</option><option>13</option><option>14</option><option>15</option>
+          <option>16</option><option>17</option><option>18</option><option>19</option>
+          <option>20</option>
+        </select>
+      </div>
     </div>
     <div id="f-mtg-notes" class="field">
       <label>הערות <span class="opt">(אופציונלי)</span></label>
@@ -1353,11 +1367,12 @@ function openAddMeeting(cid) {
   var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
   mode = 'add-meeting'; mCaseId = cid; mMeetingId = null;
   document.getElementById('m-title').textContent = 'פגישה חדשה — ' + c.name;
-  document.getElementById('inp-mtg-title').value = '';
-  document.getElementById('inp-mtg-date').value  = '';
-  document.getElementById('inp-mtg-time').value  = '';
-  document.getElementById('inp-mtg-notes').value = '';
-  document.getElementById('inp-mtg-link').value  = '';
+  document.getElementById('inp-mtg-title').value  = '';
+  document.getElementById('inp-mtg-date').value   = '';
+  document.getElementById('inp-mtg-time-h').value = '';
+  document.getElementById('inp-mtg-time-m').value = '00';
+  document.getElementById('inp-mtg-notes').value  = '';
+  document.getElementById('inp-mtg-link').value   = '';
   show(['f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link']);
   showModal(); document.getElementById('inp-mtg-title').focus();
 }
@@ -1366,18 +1381,22 @@ function openEditMeeting(cid, mid) {
   var m = (c.meetings||[]).find(function(v){ return v.id===mid; }); if (!m) return;
   mode = 'edit-meeting'; mCaseId = cid; mMeetingId = mid;
   document.getElementById('m-title').textContent = 'עריכת פגישה — ' + c.name;
-  document.getElementById('inp-mtg-title').value = m.title || '';
-  document.getElementById('inp-mtg-date').value  = m.date  || '';
-  document.getElementById('inp-mtg-time').value  = m.time  || '';
-  document.getElementById('inp-mtg-notes').value = m.notes || '';
-  document.getElementById('inp-mtg-link').value  = m.link  || '';
+  var mtp = m.time ? m.time.split(':') : ['', '00'];
+  document.getElementById('inp-mtg-title').value  = m.title || '';
+  document.getElementById('inp-mtg-date').value   = m.date  || '';
+  document.getElementById('inp-mtg-time-h').value = mtp[0] || '';
+  document.getElementById('inp-mtg-time-m').value = mtp[1] || '00';
+  document.getElementById('inp-mtg-notes').value  = m.notes || '';
+  document.getElementById('inp-mtg-link').value   = m.link  || '';
   show(['f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link']);
   showModal(); document.getElementById('inp-mtg-title').focus();
 }
 function readMeetingFromModal() {
   var title = document.getElementById('inp-mtg-title').value.trim();
   var date  = document.getElementById('inp-mtg-date').value;
-  var time  = document.getElementById('inp-mtg-time').value;
+  var timeH = document.getElementById('inp-mtg-time-h').value;
+  var timeM = document.getElementById('inp-mtg-time-m').value;
+  var time  = timeH ? (timeH + ':' + timeM) : '';
   var notes = document.getElementById('inp-mtg-notes').value.trim() || null;
   var link  = document.getElementById('inp-mtg-link').value.trim()  || null;
   if (!title) { alert('נא להזין כותרת לפגישה'); return null; }
