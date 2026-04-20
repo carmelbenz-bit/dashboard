@@ -418,6 +418,19 @@
   .task-dur { font-size: 11.5px; color: #94A3B8; white-space: nowrap; }
   .dur-unit-btn { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 7px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; color: #6b7280; font-family: inherit; transition: all 0.12s; }
   .dur-unit-btn.dur-unit-active { background: #1e2a3a; color: #fff; border-color: #1e2a3a; }
+
+  /* ── Calendar view ── */
+  .cal-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .cal-nav-btn { background: #fff; border: 1px solid #E7ECF3; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; color: #1B2A4A; font-family: inherit; transition: background 0.12s; }
+  .cal-nav-btn:hover { background: #F0F4FF; border-color: #C7D7FA; }
+  .cal-range-label { font-size: 14px; font-weight: 700; color: #1B2A4A; flex: 1; text-align: center; }
+  .btn-add-cal { background: #1B2A4A; color: #C9A84C; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .btn-add-cal:hover { background: #2d4263; }
+  .personal-type-chip { background: #FFF7ED; color: #C2410C; }
+  .blocked-type-chip  { background: #F1F5F9; color: #475569; }
+  .other-type-chip    { background: #F0FDF4; color: #15803D; }
+  .cal-item-actions { display: flex; gap: 2px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s; }
+  .hb-item:hover .cal-item-actions { opacity: 1; }
 </style>
 </head>
 <body>
@@ -432,6 +445,7 @@
   <button class="view-tab"           data-view="hearings" onclick="switchView('hearings')">לוח דיונים</button>
   <button class="view-tab"           data-view="meetings"  onclick="switchView('meetings')">לוח פגישות</button>
   <button class="view-tab"           data-view="deadlines" onclick="switchView('deadlines')">לוח מועדים</button>
+  <button class="view-tab"           data-view="calendar"  onclick="switchView('calendar')">לוח שנה</button>
 </div>
 
 <div class="summary-row">
@@ -490,6 +504,18 @@
 
 <div id="view-deadlines" style="display:none">
   <div class="hearings-board"><div id="dl-list"></div></div>
+</div>
+
+<div id="view-calendar" style="display:none">
+  <div class="hearings-board">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calNav(-1)">שבוע קודם</button>
+      <span class="cal-range-label" id="cal-range-label"></span>
+      <button class="cal-nav-btn" onclick="calNav(1)">שבוע הבא</button>
+      <button class="btn-add-cal" onclick="openAddCalEvent()">+ אירוע פרטי</button>
+    </div>
+    <div id="cal-list"></div>
+  </div>
 </div>
 
 <!-- Modal -->
@@ -660,6 +686,54 @@
       <label>קישור לפגישה <span class="opt">(אופציונלי)</span></label>
       <input id="inp-mtg-link" type="url" placeholder="https://..." dir="ltr" style="text-align:left" />
     </div>
+    <div id="f-cal-title" class="field">
+      <label>כותרת</label>
+      <input id="inp-cal-title" type="text" placeholder="לדוגמה: פגישת משפחה" />
+    </div>
+    <div id="f-cal-type" class="field">
+      <label>סוג</label>
+      <select id="inp-cal-type" style="width:100%;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+        <option value="personal">אישי</option>
+        <option value="blocked">זמן חסום</option>
+        <option value="other">אחר</option>
+      </select>
+    </div>
+    <div id="f-cal-date" class="field">
+      <label>תאריך</label>
+      <input id="inp-cal-date" type="date" />
+    </div>
+    <div id="f-cal-time-start" class="field">
+      <label>שעת התחלה <span class="opt">(אופציונלי)</span></label>
+      <div style="display:flex;gap:8px;">
+        <select id="inp-cal-ts-m" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="00">00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
+        </select>
+        <select id="inp-cal-ts-h" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="">-- שעה --</option>
+          <option>08</option><option>09</option><option>10</option><option>11</option>
+          <option>12</option><option>13</option><option>14</option><option>15</option>
+          <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+        </select>
+      </div>
+    </div>
+    <div id="f-cal-time-end" class="field">
+      <label>שעת סיום <span class="opt">(אופציונלי)</span></label>
+      <div style="display:flex;gap:8px;">
+        <select id="inp-cal-te-m" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="00">00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
+        </select>
+        <select id="inp-cal-te-h" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="">-- שעה --</option>
+          <option>08</option><option>09</option><option>10</option><option>11</option>
+          <option>12</option><option>13</option><option>14</option><option>15</option>
+          <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+        </select>
+      </div>
+    </div>
+    <div id="f-cal-notes" class="field">
+      <label>הערות <span class="opt">(אופציונלי)</span></label>
+      <textarea id="inp-cal-notes" placeholder="הערות חופשיות..."></textarea>
+    </div>
     <div class="mftr">
       <button class="btn-cancel" onclick="closeModal()">ביטול</button>
       <button class="btn-save"   onclick="saveModal()">שמור</button>
@@ -670,8 +744,11 @@
 <script>
 // ── Data ──────────────────────────────────────────────────────────
 var STORE = 'law-cases-v3';
+var CAL_STORE = 'cal-events-v1';
 var cases = loadData();
-var mode = null, mCaseId = null, mTaskId = null, mHearingId = null, mMeetingId = null;
+var calEvents = loadCalEvents();
+var mode = null, mCaseId = null, mTaskId = null, mHearingId = null, mMeetingId = null, mCalEventId = null;
+var calOffset = 0;
 var searchQuery = '';
 function onSearch() {
   searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
@@ -1231,7 +1308,7 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files','f-est-duration','f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link'];
+var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files','f-est-duration','f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link','f-cal-title','f-cal-type','f-cal-date','f-cal-time-start','f-cal-time-end','f-cal-notes'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -1352,8 +1429,10 @@ function saveModal() {
   if (mode === 'add-hearing')  { addHearing();   }
   if (mode === 'add-task')     { addTask();      }
   if (mode === 'edit-task')    { editTask();     }
-  if (mode === 'add-meeting')  { addMeeting();   }
-  if (mode === 'edit-meeting') { editMeeting();  }
+  if (mode === 'add-meeting')    { addMeeting();    }
+  if (mode === 'edit-meeting')   { editMeeting();   }
+  if (mode === 'add-cal-event')  { addCalEvent();   }
+  if (mode === 'edit-cal-event') { editCalEvent();  }
 }
 function readHearingFromModal() {
   return {
@@ -1553,6 +1632,16 @@ function recommendToday() {
     (c.hearings || []).forEach(function(h) { if (h.date === todayStr) busyMinutes += 60; });
     (c.meetings  || []).forEach(function(m) { if (m.date === todayStr) busyMinutes += 60; });
   });
+  calEvents.forEach(function(ev) {
+    if (ev.date !== todayStr || !ev.timeStart) return;
+    if (ev.timeEnd) {
+      var s = ev.timeStart.split(':').map(Number), e = ev.timeEnd.split(':').map(Number);
+      var dur = (e[0] * 60 + e[1]) - (s[0] * 60 + s[1]);
+      if (dur > 0) busyMinutes += dur;
+    } else {
+      busyMinutes += 60;
+    }
+  });
   var availableMinutes = Math.max(0, 360 - busyMinutes);
   var candidates = [];
   cases.forEach(function(c) {
@@ -1616,6 +1705,163 @@ function renderRecommendations() {
   '</div>';
 }
 
+// ── Calendar ──────────────────────────────────────────────────────
+function loadCalEvents() {
+  return JSON.parse(localStorage.getItem(CAL_STORE) || '[]');
+}
+function persistCalEvents() { localStorage.setItem(CAL_STORE, JSON.stringify(calEvents)); }
+
+function getCalRange() {
+  var start = new Date(); start.setHours(0,0,0,0);
+  start.setDate(start.getDate() + calOffset * 7);
+  var end = new Date(start); end.setDate(end.getDate() + 13);
+  function iso(d) { return d.toISOString().slice(0,10); }
+  return { startStr: iso(start), endStr: iso(end), startDate: start, endDate: end };
+}
+function calNav(dir) { calOffset += dir; renderCalendarView(); }
+
+function calTypeLabelStr(t) {
+  return t === 'personal' ? 'אישי' : t === 'blocked' ? 'חסום' : 'אחר';
+}
+function calTypeAccent(t) {
+  return t === 'personal' ? '#FED7AA' : t === 'blocked' ? '#CBD5E1' : '#BBF7D0';
+}
+
+function allCalendarItems(fromStr, toStr) {
+  var icoCalSvg = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+  var base = allDeadlines().filter(function(item) {
+    return item.date >= fromStr && item.date <= toStr;
+  });
+  calEvents.forEach(function(ev) {
+    if (!ev.date || ev.date < fromStr || ev.date > toStr) return;
+    base.push({
+      type: 'cal',
+      chip: '<span class="item-type-chip ' + (ev.type === 'personal' ? 'personal-type-chip' : ev.type === 'blocked' ? 'blocked-type-chip' : 'other-type-chip') + '">' + icoCalSvg + ' ' + calTypeLabelStr(ev.type) + '</span>',
+      accent: calTypeAccent(ev.type),
+      caseName: null, title: ev.title, date: ev.date,
+      time: ev.timeStart || null, timeEnd: ev.timeEnd || null,
+      details: ev.notes || null, link: null,
+      calId: ev.id, calType: ev.type
+    });
+  });
+  base.sort(function(a, b) {
+    if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+    return (a.time || '00:00').localeCompare(b.time || '00:00');
+  });
+  return base;
+}
+
+function renderCalendarView() {
+  var range = getCalRange();
+  var items = allCalendarItems(range.startStr, range.endStr);
+  var el = document.getElementById('cal-list');
+  var labelEl = document.getElementById('cal-range-label');
+  var opts = { day: 'numeric', month: 'long', year: 'numeric' };
+  labelEl.textContent = range.startDate.toLocaleDateString('he-IL', opts) + ' — ' + range.endDate.toLocaleDateString('he-IL', opts);
+  var todayStr = new Date().toISOString().slice(0, 10);
+  if (!items.length) {
+    el.innerHTML = '<div class="hb-empty"><div class="ei">📅</div><p>אין פריטים בטווח זה</p></div>';
+    return;
+  }
+  var icoEdit  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+  var icoTrash = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+  var icoLink  = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+  var groups = {}, order = [];
+  items.forEach(function(item) {
+    if (!groups[item.date]) { groups[item.date] = []; order.push(item.date); }
+    groups[item.date].push(item);
+  });
+  el.innerHTML = order.map(function(date) {
+    var isToday = date === todayStr;
+    var rows = groups[date].map(function(item) {
+      var timeStr = item.time ? (item.time + (item.timeEnd ? ' — ' + item.timeEnd : '')) : '—';
+      var details = (item.caseName ? x(item.caseName) : '') + (item.details ? (item.caseName ? ' · ' : '') + x(item.details) : '');
+      var calActions = item.calId
+        ? '<div class="cal-item-actions">' +
+            '<button class="btn-icon-edit" onclick="openEditCalEvent(\'' + item.calId + '\')" title="ערוך">' + icoEdit + '</button>' +
+            '<button class="btn-icon-del"  onclick="delCalEvent(\'' + item.calId + '\')" title="מחק">' + icoTrash + '</button>' +
+          '</div>'
+        : '';
+      return '<div class="hb-item" style="border-inline-start:2px solid ' + item.accent + ';">' +
+        '<div class="hb-time">' + timeStr + '</div>' +
+        '<div class="hb-body">' +
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' + item.chip + '<span class="hb-case-name">' + x(item.title) + '</span></div>' +
+          (details ? '<div class="hb-details">' + details + '</div>' : '') +
+        '</div>' +
+        (item.link ? '<a class="meeting-link-btn" href="' + x(item.link) + '" target="_blank" rel="noopener">' + icoLink + ' פתח</a>' : '') +
+        calActions +
+      '</div>';
+    }).join('');
+    return '<div class="hb-date-group">' +
+      '<div class="hb-date-header' + (isToday ? ' hb-today' : '') + '">' + fmt(date) + (isToday ? '<span class="hb-today-tag">היום</span>' : '') + '</div>' +
+      rows +
+    '</div>';
+  }).join('');
+}
+
+function openAddCalEvent() {
+  mode = 'add-cal-event'; mCalEventId = null;
+  document.getElementById('m-title').textContent = 'אירוע חדש';
+  document.getElementById('inp-cal-title').value = '';
+  document.getElementById('inp-cal-type').value  = 'personal';
+  document.getElementById('inp-cal-date').value  = '';
+  document.getElementById('inp-cal-ts-h').value  = '';
+  document.getElementById('inp-cal-ts-m').value  = '00';
+  document.getElementById('inp-cal-te-h').value  = '';
+  document.getElementById('inp-cal-te-m').value  = '00';
+  document.getElementById('inp-cal-notes').value = '';
+  show(['f-cal-title','f-cal-type','f-cal-date','f-cal-time-start','f-cal-time-end','f-cal-notes']);
+  showModal(); document.getElementById('inp-cal-title').focus();
+}
+function openEditCalEvent(id) {
+  var ev = calEvents.find(function(e) { return e.id == id; }); if (!ev) return;
+  mode = 'edit-cal-event'; mCalEventId = id;
+  document.getElementById('m-title').textContent = 'עריכת אירוע';
+  document.getElementById('inp-cal-title').value = ev.title || '';
+  document.getElementById('inp-cal-type').value  = ev.type  || 'personal';
+  document.getElementById('inp-cal-date').value  = ev.date  || '';
+  var ts = ev.timeStart ? ev.timeStart.split(':') : ['', '00'];
+  var te = ev.timeEnd   ? ev.timeEnd.split(':')   : ['', '00'];
+  document.getElementById('inp-cal-ts-h').value  = ts[0] || '';
+  document.getElementById('inp-cal-ts-m').value  = ts[1] || '00';
+  document.getElementById('inp-cal-te-h').value  = te[0] || '';
+  document.getElementById('inp-cal-te-m').value  = te[1] || '00';
+  document.getElementById('inp-cal-notes').value = ev.notes || '';
+  show(['f-cal-title','f-cal-type','f-cal-date','f-cal-time-start','f-cal-time-end','f-cal-notes']);
+  showModal(); document.getElementById('inp-cal-title').focus();
+}
+function readCalEventFromModal() {
+  var title = document.getElementById('inp-cal-title').value.trim();
+  var date  = document.getElementById('inp-cal-date').value;
+  var type  = document.getElementById('inp-cal-type').value;
+  var tsH   = document.getElementById('inp-cal-ts-h').value;
+  var tsM   = document.getElementById('inp-cal-ts-m').value;
+  var teH   = document.getElementById('inp-cal-te-h').value;
+  var teM   = document.getElementById('inp-cal-te-m').value;
+  var notes = document.getElementById('inp-cal-notes').value.trim() || null;
+  if (!title) { alert('נא להזין כותרת'); return null; }
+  if (!date)  { alert('נא להזין תאריך'); return null; }
+  return { title: title, date: date, type: type,
+    timeStart: tsH ? (tsH + ':' + tsM) : null,
+    timeEnd:   teH ? (teH + ':' + teM) : null,
+    notes: notes };
+}
+function addCalEvent() {
+  var ev = readCalEventFromModal(); if (!ev) return;
+  calEvents.push(Object.assign({ id: uid() }, ev));
+  persistCalEvents(); closeModal(); renderCalendarView();
+}
+function editCalEvent() {
+  var ev = readCalEventFromModal(); if (!ev) return;
+  calEvents = calEvents.map(function(e) { return e.id == mCalEventId ? Object.assign({ id: mCalEventId }, ev) : e; });
+  persistCalEvents(); closeModal(); renderCalendarView();
+}
+function delCalEvent(id) {
+  if (!confirm('למחוק את האירוע?')) return;
+  calEvents = calEvents.filter(function(e) { return e.id != id; });
+  persistCalEvents(); renderCalendarView();
+}
+
 // ── Hearings Board ────────────────────────────────────────────────
 var currentView = 'cases';
 function switchView(v) {
@@ -1629,6 +1875,7 @@ function switchView(v) {
   document.getElementById('view-hearings').style.display  = v === 'hearings'  ? '' : 'none';
   document.getElementById('view-meetings').style.display  = v === 'meetings'  ? '' : 'none';
   document.getElementById('view-deadlines').style.display = v === 'deadlines' ? '' : 'none';
+  document.getElementById('view-calendar').style.display  = v === 'calendar'  ? '' : 'none';
   document.querySelectorAll('.view-tab').forEach(function(btn) {
     btn.classList.toggle('vt-active', btn.dataset.view === v);
   });
@@ -1636,6 +1883,7 @@ function switchView(v) {
   else if (v === 'hearings')  renderHearingsBoard();
   else if (v === 'meetings')  renderMeetingsBoard();
   else if (v === 'deadlines') renderDeadlinesBoard();
+  else if (v === 'calendar')  renderCalendarView();
 }
 function allHearings() {
   var list = [];
