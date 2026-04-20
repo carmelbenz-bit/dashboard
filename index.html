@@ -363,6 +363,22 @@
     .card .num { font-size: 1.8rem; }
   }
 
+  /* ── Meetings ── */
+  tr.meetings-row td { padding: 0; background: #FAFBFD; border-top: none; border-inline-start: 3px solid #C084FC; border-inline-end: 1px solid #E7ECF3; border-bottom: 1px solid #E7ECF3; }
+  .meetings-section { padding: 10px 20px 12px; }
+  .meetings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .meetings-label { font-size: 11px; font-weight: 700; color: #9CA3AF; letter-spacing: 0.5px; text-transform: uppercase; }
+  .btn-add-meeting { background: none; border: 1px dashed #C084FC; color: #9333EA; padding: 2px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .btn-add-meeting:hover { background: #FAF5FF; border-color: #9333EA; }
+  .meeting-item { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 8px; border: 1px solid #EDE9FE; background: #FAFAFF; margin-bottom: 4px; }
+  .meeting-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .meeting-title { font-size: 13px; font-weight: 600; color: #1B2A4A; }
+  .meeting-datetime { font-size: 11.5px; color: #7C89A0; }
+  .meeting-link-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: #9333EA; text-decoration: none; padding: 2px 8px; border-radius: 5px; border: 1px solid #EDE9FE; background: #FAF5FF; transition: background 0.12s; flex-shrink: 0; white-space: nowrap; }
+  .meeting-link-btn:hover { background: #F3E8FF; text-decoration: none; }
+  .meeting-item-actions { display: flex; gap: 2px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s; }
+  .meeting-item:hover .meeting-item-actions { opacity: 1; }
+
   /* ── View tabs ── */
   .view-tabs { max-width: 1060px; margin: 16px auto 0; padding: 0 40px; display: flex; gap: 4px; }
   .view-tab { background: none; border: none; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; color: #7C89A0; font-family: inherit; transition: background 0.12s, color 0.12s; }
@@ -550,6 +566,26 @@
       <div id="task-files-status" class="task-files-status"></div>
       <input id="inp-task-files" type="file" multiple accept=".pdf,.doc,.docx,.odt,.jpg,.jpeg,.png" onchange="onTaskFilesChange(event)" />
     </div>
+    <div id="f-mtg-title" class="field">
+      <label>כותרת הפגישה</label>
+      <input id="inp-mtg-title" type="text" placeholder="לדוגמה: שיחת הכנה עם לקוח" />
+    </div>
+    <div id="f-mtg-date" class="field">
+      <label>תאריך</label>
+      <input id="inp-mtg-date" type="date" />
+    </div>
+    <div id="f-mtg-time" class="field">
+      <label>שעה</label>
+      <input id="inp-mtg-time" type="time" />
+    </div>
+    <div id="f-mtg-notes" class="field">
+      <label>הערות <span class="opt">(אופציונלי)</span></label>
+      <textarea id="inp-mtg-notes" placeholder="הערות חופשיות..."></textarea>
+    </div>
+    <div id="f-mtg-link" class="field">
+      <label>קישור לפגישה <span class="opt">(אופציונלי)</span></label>
+      <input id="inp-mtg-link" type="url" placeholder="https://..." dir="ltr" style="text-align:left" />
+    </div>
     <div class="mftr">
       <button class="btn-cancel" onclick="closeModal()">ביטול</button>
       <button class="btn-save"   onclick="saveModal()">שמור</button>
@@ -561,7 +597,7 @@
 // ── Data ──────────────────────────────────────────────────────────
 var STORE = 'law-cases-v3';
 var cases = loadData();
-var mode = null, mCaseId = null, mTaskId = null, mHearingId = null;
+var mode = null, mCaseId = null, mTaskId = null, mHearingId = null, mMeetingId = null;
 var searchQuery = '';
 function onSearch() {
   searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
@@ -680,7 +716,7 @@ function loadData() {
   var raw = JSON.parse(localStorage.getItem(STORE) || 'null');
   if (raw) {
     var migrated = raw.map(toHearingsArray).map(function(c) {
-      return Object.assign({}, c, { tasks: (c.tasks||[]).map(function(t) {
+      return Object.assign({}, c, { meetings: c.meetings || [], tasks: (c.tasks||[]).map(function(t) {
         return t.completed === undefined ? Object.assign({}, t, {completed:false}) : t;
       })});
     });
@@ -818,6 +854,40 @@ function render() {
         '</div>' +
       '</div></td>';
     tbody.appendChild(cr);
+
+    // ── Meetings section
+    var mr = document.createElement('tr');
+    mr.className = 'meetings-row';
+    var icoMtgEdit  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+    var icoMtgTrash = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    var icoMtgLink  = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+    var mtgList = (c.meetings || []).slice().sort(function(a, b) {
+      if (!a.date && !b.date) return 0;
+      if (!a.date) return 1; if (!b.date) return -1;
+      return new Date(a.date + 'T' + (a.time || '00:00')) - new Date(b.date + 'T' + (b.time || '00:00'));
+    });
+    var mtgItemsHtml = mtgList.map(function(m) {
+      var dt = fmt(m.date) + (m.time ? ' · ' + m.time : '');
+      return '<div class="meeting-item">' +
+        '<div class="meeting-info">' +
+          '<span class="meeting-title">' + x(m.title) + '</span>' +
+          '<span class="meeting-datetime">' + dt + (m.notes ? ' · ' + x(m.notes) : '') + '</span>' +
+        '</div>' +
+        (m.link ? '<a class="meeting-link-btn" href="' + x(m.link) + '" target="_blank" rel="noopener">' + icoMtgLink + ' פתח</a>' : '') +
+        '<div class="meeting-item-actions">' +
+          '<button class="btn-icon-edit" onclick="openEditMeeting(' + c.id + ',' + m.id + ')" title="ערוך">' + icoMtgEdit + '</button>' +
+          '<button class="btn-icon-del"  onclick="delMeeting(' + c.id + ',' + m.id + ')"    title="מחק">'  + icoMtgTrash + '</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    mr.innerHTML = '<td colspan="4"><div class="meetings-section">' +
+      '<div class="meetings-header">' +
+        '<span class="meetings-label">פגישות' + (mtgList.length ? ' (' + mtgList.length + ')' : '') + '</span>' +
+        '<button class="btn-add-meeting" onclick="openAddMeeting(' + c.id + ')">+ פגישה</button>' +
+      '</div>' +
+      mtgItemsHtml +
+    '</div></td>';
+    tbody.appendChild(mr);
 
     // ── Task rows
     var taskList = taskFilterMap ? (taskFilterMap[c.id] || [])
@@ -1058,7 +1128,7 @@ function x(s) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────────────
-var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files'];
+var ALL_FIELDS = ['f-name','f-handler','f-proc-num','f-client-name','f-client-phone','f-client-email','f-case-court','f-case-judge','f-fee-file','f-notes','f-hearing-section','f-hearing','f-time','f-court','f-judge','f-materials','f-owner','f-action','f-date','f-task-files','f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link'];
 function show(ids) {
   ALL_FIELDS.forEach(function(id) {
     var el = document.getElementById(id);
@@ -1165,6 +1235,8 @@ function saveModal() {
   if (mode === 'add-hearing')  { addHearing();   }
   if (mode === 'add-task')     { addTask();      }
   if (mode === 'edit-task')    { editTask();     }
+  if (mode === 'add-meeting')  { addMeeting();   }
+  if (mode === 'edit-meeting') { editMeeting();  }
 }
 function readHearingFromModal() {
   return {
@@ -1270,6 +1342,71 @@ function delTask(cid,tid) {
   if (!confirm('למחוק את המשימה?')) return;
   cases = cases.map(function(c) {
     return c.id!==cid ? c : Object.assign({},c,{tasks:c.tasks.filter(function(t){return t.id!==tid;})});
+  });
+  persist(); render();
+}
+
+// ── Meetings ──────────────────────────────────────────────────────
+function openAddMeeting(cid) {
+  var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  mode = 'add-meeting'; mCaseId = cid; mMeetingId = null;
+  document.getElementById('m-title').textContent = 'פגישה חדשה — ' + c.name;
+  document.getElementById('inp-mtg-title').value = '';
+  document.getElementById('inp-mtg-date').value  = '';
+  document.getElementById('inp-mtg-time').value  = '';
+  document.getElementById('inp-mtg-notes').value = '';
+  document.getElementById('inp-mtg-link').value  = '';
+  show(['f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link']);
+  showModal(); document.getElementById('inp-mtg-title').focus();
+}
+function openEditMeeting(cid, mid) {
+  var c = cases.find(function(v){ return v.id===cid; }); if (!c) return;
+  var m = (c.meetings||[]).find(function(v){ return v.id===mid; }); if (!m) return;
+  mode = 'edit-meeting'; mCaseId = cid; mMeetingId = mid;
+  document.getElementById('m-title').textContent = 'עריכת פגישה — ' + c.name;
+  document.getElementById('inp-mtg-title').value = m.title || '';
+  document.getElementById('inp-mtg-date').value  = m.date  || '';
+  document.getElementById('inp-mtg-time').value  = m.time  || '';
+  document.getElementById('inp-mtg-notes').value = m.notes || '';
+  document.getElementById('inp-mtg-link').value  = m.link  || '';
+  show(['f-mtg-title','f-mtg-date','f-mtg-time','f-mtg-notes','f-mtg-link']);
+  showModal(); document.getElementById('inp-mtg-title').focus();
+}
+function readMeetingFromModal() {
+  var title = document.getElementById('inp-mtg-title').value.trim();
+  var date  = document.getElementById('inp-mtg-date').value;
+  var time  = document.getElementById('inp-mtg-time').value;
+  var notes = document.getElementById('inp-mtg-notes').value.trim() || null;
+  var link  = document.getElementById('inp-mtg-link').value.trim()  || null;
+  if (!title) { alert('נא להזין כותרת לפגישה'); return null; }
+  if (!date)  { alert('נא להזין תאריך');         return null; }
+  if (!time)  { alert('נא להזין שעה');            return null; }
+  if (link && !/^https?:\/\/.+/.test(link)) { alert('הקישור אינו תקין — יש להזין כתובת URL מלאה (לדוגמה: https://...)'); return null; }
+  return { title: title, date: date, time: time, notes: notes, link: link };
+}
+function addMeeting() {
+  var m = readMeetingFromModal(); if (!m) return;
+  cases = cases.map(function(c) {
+    if (c.id !== mCaseId) return c;
+    return Object.assign({}, c, { meetings: (c.meetings||[]).concat([Object.assign({ id: uid() }, m)]) });
+  });
+  persist(); closeModal(); render();
+}
+function editMeeting() {
+  var m = readMeetingFromModal(); if (!m) return;
+  cases = cases.map(function(c) {
+    if (c.id !== mCaseId) return c;
+    return Object.assign({}, c, { meetings: (c.meetings||[]).map(function(v) {
+      return v.id === mMeetingId ? Object.assign({ id: mMeetingId }, m) : v;
+    })});
+  });
+  persist(); closeModal(); render();
+}
+function delMeeting(cid, mid) {
+  if (!confirm('למחוק את הפגישה?')) return;
+  cases = cases.map(function(c) {
+    if (c.id !== cid) return c;
+    return Object.assign({}, c, { meetings: (c.meetings||[]).filter(function(v){ return v.id !== mid; }) });
   });
   persist(); render();
 }
