@@ -891,10 +891,10 @@ function render() {
           '<div class="meeting-title-row">' +
             '<span class="item-type-chip mtg-type-chip"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> פגישה</span>' +
             '<span class="meeting-title">' + x(m.title) + '</span>' +
+            (m.link ? '<a class="meeting-link-btn" href="' + x(m.link) + '" target="_blank" rel="noopener">' + icoMtgLink + ' פתח</a>' : '') +
           '</div>' +
           '<span class="meeting-datetime">' + dt + (m.notes ? ' · ' + x(m.notes) : '') + '</span>' +
         '</div>' +
-        (m.link ? '<a class="meeting-link-btn" href="' + x(m.link) + '" target="_blank" rel="noopener">' + icoMtgLink + ' פתח</a>' : '') +
         '<div class="meeting-item-actions">' +
           '<button class="btn-icon-edit" onclick="openEditMeeting(' + c.id + ',' + m.id + ')" title="ערוך">' + icoMtgEdit + '</button>' +
           '<button class="btn-icon-del"  onclick="delMeeting(' + c.id + ',' + m.id + ')"    title="מחק">'  + icoMtgTrash + '</button>' +
