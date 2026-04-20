@@ -416,6 +416,8 @@
   .reco-case-name { font-size: 11px; color: #94A3B8; white-space: nowrap; flex-shrink: 0; }
   .reco-dur { font-size: 11px; color: #94A3B8; white-space: nowrap; flex-shrink: 0; }
   .task-dur { font-size: 11.5px; color: #94A3B8; white-space: nowrap; }
+  .dur-unit-btn { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 7px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; color: #6b7280; font-family: inherit; transition: all 0.12s; }
+  .dur-unit-btn.dur-unit-active { background: #1e2a3a; color: #fff; border-color: #1e2a3a; }
 </style>
 </head>
 <body>
@@ -597,7 +599,11 @@
     </div>
     <div id="f-est-duration" class="field">
       <label>משך משוער <span class="opt">(אופציונלי)</span></label>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <button type="button" id="dur-unit-hours" class="dur-unit-btn dur-unit-active" onclick="setDurUnit('hours')">שעות</button>
+        <button type="button" id="dur-unit-days"  class="dur-unit-btn"                onclick="setDurUnit('days')">ימי עבודה</button>
+      </div>
+      <div id="dur-hours-row" style="display:flex;gap:8px;align-items:center;">
         <select id="inp-dur-h" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
           <option value="0">0</option><option value="1">1</option><option value="2">2</option>
           <option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -609,6 +615,15 @@
           <option value="30">30</option><option value="45">45</option>
         </select>
         <span style="font-size:13px;color:#6b7280;flex-shrink:0;">ד׳</span>
+      </div>
+      <div id="dur-days-row" style="display:none;align-items:center;gap:8px;">
+        <select id="inp-dur-days" style="flex:1;padding:10px 13px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:inherit;color:#1e2a3a;outline:none;background:#fff;">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        <span style="font-size:13px;color:#6b7280;flex-shrink:0;">ימי עבודה</span>
       </div>
     </div>
     <div id="f-mtg-title" class="field">
@@ -723,6 +738,7 @@ function setTaskSort(val) {
 }
 var pendingFeeFile = null; // {name, data} = new file; null = keep existing
 var pendingTaskFiles = null; // array of {name,data} = new files; null = keep existing
+var durUnit = 'hours'; // 'hours' | 'days'
 
 function onFeeFileChange(e) {
   var file = e.target.files[0];
@@ -992,7 +1008,7 @@ function render() {
           '<div class="task-card-meta">' +
             dateMetaHtml +
             (badgeCol ? badgeCol : '') +
-            (t.estimatedMinutes ? '<span class="task-dur">⏱ ' + formatDuration(t.estimatedMinutes) + '</span>' : '') +
+            (taskDurationStr(t) ? '<span class="task-dur">⏱ ' + taskDurationStr(t) + '</span>' : '') +
           '</div>' +
           '<div class="task-card-actions">' +
             '<button class="' + doneCls + '" onclick="toggleTaskDone(' + c.id + ',' + t.id + ')" title="' + doneTitle + '">' + icoCheck + '</button>' +
@@ -1188,10 +1204,27 @@ document.addEventListener('click', function() {
 function fmt(s) {
   return new Date(s).toLocaleDateString('he-IL', {day:'2-digit', month:'2-digit', year:'numeric'});
 }
-function formatDuration(min) {
-  if (!min) return null;
-  var h = Math.floor(min / 60), m = min % 60;
-  return h + ':' + (m < 10 ? '0' : '') + m;
+function setDurUnit(unit) {
+  durUnit = unit;
+  document.getElementById('dur-hours-row').style.display = unit === 'hours' ? '' : 'none';
+  document.getElementById('dur-days-row').style.display  = unit === 'days'  ? 'flex' : 'none';
+  document.getElementById('dur-unit-hours').classList.toggle('dur-unit-active', unit === 'hours');
+  document.getElementById('dur-unit-days').classList.toggle('dur-unit-active', unit === 'days');
+}
+function taskDurationStr(t) {
+  if (t.estimatedDays) {
+    return t.estimatedDays === 1 ? 'יום 1' : t.estimatedDays + ' ימים';
+  }
+  if (t.estimatedMinutes) {
+    var h = Math.floor(t.estimatedMinutes / 60), m = t.estimatedMinutes % 60;
+    if (m === 0) return h + 'h';
+    return (h + m / 60).toFixed(1).replace(/\.0$/, '') + 'h';
+  }
+  return null;
+}
+function taskEffectiveMinutes(t) {
+  if (t.estimatedDays) return t.estimatedDays * 360;
+  return t.estimatedMinutes || 0;
 }
 function x(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1275,8 +1308,10 @@ function openAddTask(cid) {
   pendingTaskFiles = [];
   document.getElementById('inp-task-files').value = '';
   renderTaskFilesStatus();
+  setDurUnit('hours');
   document.getElementById('inp-dur-h').value = '0';
   document.getElementById('inp-dur-m').value = '0';
+  document.getElementById('inp-dur-days').value = '1';
   show(['f-owner','f-action','f-date','f-task-files','f-est-duration']);
   showModal(); document.getElementById('inp-action').focus();
 }
@@ -1292,10 +1327,16 @@ function openEditTask(cid, tid) {
   pendingTaskFiles = (t.files || []).slice();
   document.getElementById('inp-task-files').value = '';
   renderTaskFilesStatus();
-  var durH = t.estimatedMinutes ? Math.floor(t.estimatedMinutes / 60) : 0;
-  var durM = t.estimatedMinutes ? (t.estimatedMinutes % 60) : 0;
-  document.getElementById('inp-dur-h').value = String(durH);
-  document.getElementById('inp-dur-m').value = String(durM);
+  if (t.estimatedDays) {
+    setDurUnit('days');
+    document.getElementById('inp-dur-days').value = String(t.estimatedDays);
+  } else {
+    setDurUnit('hours');
+    var durH = t.estimatedMinutes ? Math.floor(t.estimatedMinutes / 60) : 0;
+    var durM = t.estimatedMinutes ? (t.estimatedMinutes % 60) : 0;
+    document.getElementById('inp-dur-h').value = String(durH);
+    document.getElementById('inp-dur-m').value = String(durM);
+  }
   show(['f-owner','f-action','f-date','f-task-files','f-est-duration']);
   showModal(); document.getElementById('inp-action').focus();
 }
@@ -1375,34 +1416,38 @@ function delHearing(cid, hid) {
   });
   persist(); render();
 }
-function readEstimatedMinutes() {
+function readDurationFromModal() {
+  if (durUnit === 'days') {
+    var d = parseInt(document.getElementById('inp-dur-days').value) || 0;
+    return { estimatedMinutes: null, estimatedDays: d > 0 ? d : null };
+  }
   var h = parseInt(document.getElementById('inp-dur-h').value) || 0;
   var m = parseInt(document.getElementById('inp-dur-m').value) || 0;
   var total = h * 60 + m;
-  return total > 0 ? total : null;
+  return { estimatedMinutes: total > 0 ? total : null, estimatedDays: null };
 }
 function addTask() {
   var action = document.getElementById('inp-action').value.trim();
   if (!action) { alert('נא להזין פעולה'); return; }
   var owner = document.querySelector('input[name="task-owner"]:checked').value;
-  var estMin = readEstimatedMinutes();
+  var dur = readDurationFromModal();
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
     var files = pendingTaskFiles ? pendingTaskFiles.filter(Boolean) : [];
-    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:false, estimatedMinutes:estMin}])});
+    return Object.assign({},c,{tasks: c.tasks.concat([{id:uid(), action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:false, estimatedMinutes:dur.estimatedMinutes, estimatedDays:dur.estimatedDays}])});
   });
   persist(); closeModal(); render();
 }
 function editTask() {
   var action = document.getElementById('inp-action').value.trim();
   if (!action) { alert('נא להזין פעולה'); return; }
-  var estMin = readEstimatedMinutes();
+  var dur = readDurationFromModal();
   cases = cases.map(function(c) {
     if (c.id!==mCaseId) return c;
     var owner = document.querySelector('input[name="task-owner"]:checked').value;
     return Object.assign({},c,{tasks:c.tasks.map(function(t){
       var files = pendingTaskFiles.filter(Boolean);
-      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:t.completed||false, estimatedMinutes:estMin} : t;
+      return t.id===mTaskId ? {id:t.id, action:action, date:document.getElementById('inp-date').value||null, owner:owner, files:files, completed:t.completed||false, estimatedMinutes:dur.estimatedMinutes, estimatedDays:dur.estimatedDays} : t;
     })});
   });
   persist(); closeModal(); render();
@@ -1524,7 +1569,7 @@ function recommendToday() {
   candidates.sort(function(a, b) { return b.urgencyScore - a.urgencyScore; });
   var used = 0;
   candidates.forEach(function(item) {
-    var dur = item.task.estimatedMinutes || 0;
+    var dur = taskEffectiveMinutes(item.task);
     if (dur > 0 && used + dur <= availableMinutes) { item.finalScore = item.urgencyScore + 200; used += dur; }
     else { item.finalScore = item.urgencyScore; }
   });
@@ -1554,7 +1599,8 @@ function renderRecommendations() {
       else if (item.days === 0) badge = '<span class="badge over" style="font-size:10px;padding:1px 7px;">היום!</span>';
       else if (item.days <= 7)  badge = '<span class="badge soon" style="font-size:10px;padding:1px 7px;">' + item.days + ' ימים</span>';
     }
-    var dur = t.estimatedMinutes ? '<span class="reco-dur">⏱ ' + formatDuration(t.estimatedMinutes) + '</span>' : '';
+    var durStr = taskDurationStr(t);
+    var dur = durStr ? '<span class="reco-dur">⏱ ' + durStr + '</span>' : '';
     return '<div class="reco-item">' +
       '<span class="reco-task-name" onclick="openEditTask(' + item.caseId + ',' + t.id + ')">' + x(t.action) + '</span>' +
       '<span class="reco-case-name">' + x(item.caseName) + '</span>' +
