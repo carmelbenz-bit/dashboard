@@ -183,8 +183,13 @@ function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
     )
   }
 
-  const nextHearing = hearings[0]
-  const hasMoreHearings = hearings.length > 1
+  const sortedHearings = [...hearings].sort((a, b) => {
+    const [dayA, monthA, yearA] = a.date.split(".").map(Number)
+    const [dayB, monthB, yearB] = b.date.split(".").map(Number)
+    return new Date(yearA, monthA - 1, dayA).getTime() - new Date(yearB, monthB - 1, dayB).getTime()
+  })
+  const nextHearing = sortedHearings[0]
+  const hasMoreHearings = sortedHearings.length > 1
 
   return (
     <div className="flex items-center gap-2">
@@ -195,10 +200,10 @@ function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
         <span className="text-sidebar-foreground/40 mx-1">|</span>
         <Clock className="h-3.5 w-3.5 text-sidebar-foreground/60" />
         <span className="text-sm font-medium text-sidebar-foreground">{nextHearing.time}</span>
-        <button onClick={() => onEditHearing?.(0)} className="p-0.5 text-sidebar-foreground/40 hover:text-sidebar-foreground/80 transition-colors mr-1">
+        <button onClick={() => onEditHearing?.(hearings.indexOf(sortedHearings[0]))} className="p-0.5 text-sidebar-foreground/40 hover:text-sidebar-foreground/80 transition-colors mr-1">
           <Pencil className="h-3 w-3" />
         </button>
-        <button onClick={() => onDeleteHearing?.(0)} className="p-0.5 text-sidebar-foreground/40 hover:text-red-400 transition-colors">
+        <button onClick={() => onDeleteHearing?.(hearings.indexOf(sortedHearings[0]))} className="p-0.5 text-sidebar-foreground/40 hover:text-red-400 transition-colors">
           <Trash2 className="h-3 w-3" />
         </button>
       </div>
@@ -211,7 +216,7 @@ function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
               size="sm"
               className="h-7 px-2 text-xs bg-amber-500/20 text-amber-200 hover:bg-amber-500/30 hover:text-amber-100"
             >
-              +{hearings.length - 1} דיונים נוספים
+              +{sortedHearings.length - 1} דיונים נוספים
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-0" align="end">
@@ -219,19 +224,21 @@ function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
               <h4 className="font-semibold text-sm">כל הדיונים בתיק</h4>
             </div>
             <div className="p-2 space-y-1 max-h-60 overflow-y-auto">
-              {hearings.map((hearing, index) => (
+              {sortedHearings.map((hearing, sortedIndex) => {
+                const originalIndex = hearings.indexOf(hearing)
+                return (
                 <div
-                  key={index}
+                  key={sortedIndex}
                   className={cn(
                     "flex items-center justify-between p-2 rounded-lg text-sm",
-                    index === 0 ? "bg-primary/10 border border-primary/20" : "hover:bg-muted/50"
+                    sortedIndex === 0 ? "bg-primary/10 border border-primary/20" : "hover:bg-muted/50"
                   )}
                 >
                   <div className="flex items-center gap-1">
-                    <button onClick={() => { onEditHearing?.(index); setIsOpen(false) }} className="p-1 text-muted-foreground hover:text-primary transition-colors">
+                    <button onClick={() => { onEditHearing?.(originalIndex); setIsOpen(false) }} className="p-1 text-muted-foreground hover:text-primary transition-colors">
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
-                    <button onClick={() => { onDeleteHearing?.(index); setIsOpen(false) }} className="p-1 text-muted-foreground hover:text-red-500 transition-colors">
+                    <button onClick={() => { onDeleteHearing?.(originalIndex); setIsOpen(false) }} className="p-1 text-muted-foreground hover:text-red-500 transition-colors">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -246,7 +253,8 @@ function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
                     </div>
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </PopoverContent>
         </Popover>
