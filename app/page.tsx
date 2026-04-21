@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Header } from "@/components/dashboard/header"
 import { NavigationTabs } from "@/components/dashboard/navigation-tabs"
 import { StatCards, type TaskFilter } from "@/components/dashboard/stat-cards"
@@ -133,7 +133,19 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchFilterOption, setSearchFilterOption] = useState<TaskFilterOption>("all")
   const [sortOption, setSortOption] = useState<SortOption>("dateAsc")
-  const [cases, setCases] = useState(initialCases)
+  const [cases, setCases] = useState<Record<string, CaseData[]>>(() => {
+    if (typeof window === "undefined") return initialCases
+    try {
+      const saved = localStorage.getItem("dashboard-cases")
+      return saved ? JSON.parse(saved) : initialCases
+    } catch {
+      return initialCases
+    }
+  })
+
+  useEffect(() => {
+    localStorage.setItem("dashboard-cases", JSON.stringify(cases))
+  }, [cases])
   const [activeTab, setActiveTab] = useState("cases")
   const [isAddCaseModalOpen, setIsAddCaseModalOpen] = useState(false)
   const [isAddHearingModalOpen, setIsAddHearingModalOpen] = useState(false)
