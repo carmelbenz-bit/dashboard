@@ -115,6 +115,10 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
     updateField("files", formData.files.filter((_, i) => i !== index))
   }
 
+  const removeExistingFile = (index: number) => {
+    updateField("existingFiles", (formData.existingFiles || []).filter((_, i) => i !== index))
+  }
+
   const handleClose = () => {
     setFormData({
       assignee: "שלי",
@@ -252,6 +256,22 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
                 </span>
               </div>
             </div>
+            {(formData.existingFiles || []).length > 0 && (
+              <div className="space-y-1 mt-2">
+                {(formData.existingFiles || []).map((file, index) => (
+                  <div key={index} className="flex items-center justify-between py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => removeExistingFile(index)}
+                      className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm text-slate-600 truncate flex-1 text-right mr-2">{file.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             {formData.files.length > 0 && (
               <div className="space-y-1 mt-2">
                 {formData.files.map((file, index) => (
@@ -259,7 +279,7 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
                     <button
                       type="button"
                       onClick={() => removeFile(index)}
-                      className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                      className="p-1 text-slate-400 hover:text-red-500 transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </button>
