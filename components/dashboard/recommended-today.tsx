@@ -1,6 +1,7 @@
 "use client"
 
-import { Sparkles, Clock } from "lucide-react"
+import { useState } from "react"
+import { Sparkles, Clock, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface RecommendedTask {
@@ -41,12 +42,20 @@ function getUrgencyLabel(daysRemaining: number | null, urgency: string): { text:
 }
 
 export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, onCompleteTask }: RecommendedTodayProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
   return (
     <div className="bg-white rounded-2xl border border-t-4 border-t-primary border-slate-200 overflow-hidden">
       <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-        <div className="flex items-center gap-2 text-primary">
-          <Sparkles className="h-5 w-5" />
-          <span className="font-semibold">מומלץ להיום</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+          >
+            <Sparkles className="h-5 w-5" />
+            <span className="font-semibold">מומלץ להיום</span>
+            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </button>
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <Clock className="h-4 w-4" />
@@ -55,7 +64,7 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
         </div>
       </div>
 
-      <div className="divide-y divide-slate-100">
+      {!isCollapsed && <div className="divide-y divide-slate-100">
         {tasks.map((task) => {
           const urgencyLabel = getUrgencyLabel(task.daysRemaining, task.urgency)
           return (
@@ -97,7 +106,7 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
             <p>אין משימות מומלצות להיום</p>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   )
 }
