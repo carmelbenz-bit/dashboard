@@ -1,9 +1,9 @@
 "use client"
 
-import { Clock, MapPin, User, FileText, ExternalLink } from "lucide-react"
+import { Clock, MapPin, User, FileText, ExternalLink, CheckSquare } from "lucide-react"
 import type { CaseData } from "./case-card"
 
-type EventType = "hearing" | "meeting"
+type EventType = "hearing" | "meeting" | "task"
 
 interface CalendarEvent {
   type: EventType
@@ -16,6 +16,8 @@ interface CalendarEvent {
   location?: string
   notes?: string
   link?: string
+  completed?: boolean
+  assignee?: string
 }
 
 interface DatesBoardProps {
@@ -47,6 +49,20 @@ export function DatesBoard({ cases }: DatesBoardProps) {
           location: meeting.location,
           notes: meeting.notes,
           link: meeting.link,
+          completed: meeting.completed,
+        })
+      })
+      caseData.tasks.forEach((task) => {
+        if (!task.dueDate) return
+        allEvents.push({
+          type: "task",
+          date: task.dueDate,
+          time: "",
+          caseName: caseData.name,
+          title: task.title,
+          completed: task.completed,
+          assignee: task.tags?.[0],
+          notes: task.notes,
         })
       })
     })
@@ -77,19 +93,20 @@ export function DatesBoard({ cases }: DatesBoardProps) {
   }
 
   const getDateBadgeStyle = (events: CalendarEvent[]) => {
-    const hasHearings = events.some((e) => e.type === "hearing")
-    const hasMeetings = events.some((e) => e.type === "meeting")
-    if (hasHearings && hasMeetings)
-      return "bg-slate-100 border-slate-300 text-slate-700 [&_.day-num]:text-slate-700 [&_.day-name]:text-slate-500"
-    if (hasHearings)
+    const types = new Set(events.map((e) => e.type))
+    if (types.size > 1)
+      return "bg-slate-100 border-slate-300 [&_.day-num]:text-slate-700 [&_.day-name]:text-slate-500"
+    if (types.has("hearing"))
       return "bg-primary/10 border-primary/20 [&_.day-num]:text-primary [&_.day-name]:text-primary/80"
-    return "bg-purple-100 border-purple-200 [&_.day-num]:text-purple-600 [&_.day-name]:text-purple-600/80"
+    if (types.has("meeting"))
+      return "bg-purple-100 border-purple-200 [&_.day-num]:text-purple-600 [&_.day-name]:text-purple-600/80"
+    return "bg-emerald-50 border-emerald-200 [&_.day-num]:text-emerald-700 [&_.day-name]:text-emerald-600/80"
   }
 
   if (allEvents.length === 0) {
     return (
       <div className="text-center py-16">
-        <p className="text-muted-foreground text-lg">אין דיונים או פגישות מתוכננים</p>
+        <p className="text-muted-foreground text-lg">אין אירועים מתוכננים</p>
       </div>
     )
   }
@@ -109,8 +126,8 @@ export function DatesBoard({ cases }: DatesBoardProps) {
             </div>
 
             <div className="flex-1 space-y-3">
-              {events.map((event, index) => (
-                event.type === "hearing" ? (
+              {events.map((event, index) => {
+                if (event.type === "hearing") return (
                   <div
                     key={`h-${index}`}
                     className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all border-r-4 border-r-primary"
@@ -138,14 +155,16 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                       )}
                     </div>
                   </div>
-                ) : (
+                )
+
+                if (event.type === "meeting") return (
                   <div
                     key={`m-${index}`}
                     className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all border-r-4 border-r-purple-500"
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-semibold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">פגישה</span>
-                      <h3 className="font-semibold text-slate-800 text-lg">{event.title}</h3>
+                      <h3 className={`font-semibold text-lg ${event.completed ? "line-through text-slate-400" : "text-slate-800"}`}>{event.title}</h3>
                     </div>
                     <div className="flex items-center gap-2 text-slate-500 mb-3">
                       <FileText className="h-3.5 w-3.5" />
@@ -163,25 +182,46 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                         </div>
                       )}
                       {event.link && (
-                        <a
-                          href={event.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors"
-                        >
+                        <a href={event.link} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors">
                           <ExternalLink className="h-4 w-4" />
                           <span className="text-sm font-medium">הצטרף לפגישה</span>
                         </a>
                       )}
                     </div>
                     {event.notes && (
-                      <p className="text-sm text-slate-500 mt-3 pt-3 border-t border-slate-100">
-                        {event.notes}
-                      </p>
+                      <p className="text-sm text-slate-500 mt-3 pt-3 border-t border-slate-100">{event.notes}</p>
                     )}
                   </div>
                 )
-              ))}
+
+                return (
+                  <div
+                    key={`t-${index}`}
+                    className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all border-r-4 border-r-emerald-500"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">משימה</span>
+                      <h3 className={`font-semibold text-lg ${event.completed ? "line-through text-slate-400" : "text-slate-800"}`}>{event.title}</h3>
+                    </div>
+                    <div className="flex items-center gap-4 text-slate-500">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-3.5 w-3.5" />
+                        <span className="text-sm">{event.caseName}</span>
+                      </div>
+                      {event.assignee && (
+                        <div className="flex items-center gap-2">
+                          <CheckSquare className="h-3.5 w-3.5 text-emerald-600" />
+                          <span className="text-sm">{event.assignee}</span>
+                        </div>
+                      )}
+                    </div>
+                    {event.notes && (
+                      <p className="text-sm text-slate-500 mt-3 pt-3 border-t border-slate-100">{event.notes}</p>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
         )
