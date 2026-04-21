@@ -10,6 +10,7 @@ import { DateGroup } from "@/components/dashboard/date-group"
 import { HearingsBoard } from "@/components/dashboard/hearings-board"
 import { MeetingsBoard } from "@/components/dashboard/meetings-board"
 import { DeadlinesBoard } from "@/components/dashboard/deadlines-board"
+import { DatesBoard } from "@/components/dashboard/dates-board"
 import { AddCaseModal, type NewCaseData, type CaseForEdit } from "@/components/dashboard/add-case-modal"
 import { AddHearingModal, type NewHearingData } from "@/components/dashboard/add-hearing-modal"
 import { AddMeetingModal, type NewMeetingData, type MeetingForEdit } from "@/components/dashboard/add-meeting-modal"
@@ -760,6 +761,7 @@ export default function DashboardPage() {
 
         {activeTab === "hearings" && <HearingsBoard cases={cases} />}
         {activeTab === "meetings" && <MeetingsBoard cases={cases} />}
+        {activeTab === "dates" && <DatesBoard cases={cases} />}
         {activeTab === "deadlines" && <DeadlinesBoard cases={cases} />}
       </main>
 
