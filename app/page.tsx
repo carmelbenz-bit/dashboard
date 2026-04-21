@@ -15,6 +15,7 @@ import { AddCaseModal, type NewCaseData, type CaseForEdit } from "@/components/d
 import { AddHearingModal, type NewHearingData, type HearingForEdit } from "@/components/dashboard/add-hearing-modal"
 import { AddMeetingModal, type NewMeetingData, type MeetingForEdit } from "@/components/dashboard/add-meeting-modal"
 import { AddTaskModal, type NewTaskData, type TaskForEdit } from "@/components/dashboard/add-task-modal"
+import { AuthGuard } from "@/components/auth/auth-guard"
 import type { CaseData } from "@/components/dashboard/case-card"
 
 // Sample data
@@ -739,6 +740,7 @@ export default function DashboardPage() {
   }
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-background">
       <Header onAddCase={handleAddCase} />
 
@@ -865,5 +867,6 @@ export default function DashboardPage() {
         editingTask={editingTask}
       />
     </div>
+    </AuthGuard>
   )
 }

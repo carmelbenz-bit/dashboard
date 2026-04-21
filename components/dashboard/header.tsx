@@ -1,13 +1,22 @@
 "use client"
 
-import { Scale, Plus, Bell, User } from "lucide-react"
+import { Scale, Plus, Bell, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { supabase } from "@/lib/supabase"
 
 interface HeaderProps {
   onAddCase: () => void
 }
 
 export function Header({ onAddCase }: HeaderProps) {
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.replace("/login")
+  }
+
   return (
     <header className="bg-sidebar text-sidebar-foreground">
       <div className="container mx-auto px-4 py-4">
@@ -35,8 +44,10 @@ export function Header({ onAddCase }: HeaderProps) {
               variant="ghost"
               size="icon"
               className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+              onClick={handleLogout}
+              title="יציאה"
             >
-              <User className="h-5 w-5" />
+              <LogOut className="h-5 w-5" />
             </Button>
 
             <Button
