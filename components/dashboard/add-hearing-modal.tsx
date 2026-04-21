@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -28,22 +28,41 @@ export interface NewHearingData {
   materials: string
 }
 
+export interface HearingForEdit {
+  index: number
+  date: string
+  time: string
+  court?: string
+  notes?: string
+}
+
 interface AddHearingModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (data: NewHearingData) => void
   caseName: string
+  editingHearing?: HearingForEdit | null
 }
 
-export function AddHearingModal({ isOpen, onClose, onSave, caseName }: AddHearingModalProps) {
-  const [formData, setFormData] = useState<NewHearingData>({
-    date: "",
-    hour: "",
-    minute: "00",
-    court: "",
-    judge: "",
-    materials: "",
-  })
+export function AddHearingModal({ isOpen, onClose, onSave, caseName, editingHearing }: AddHearingModalProps) {
+  const getInitialFormData = (): NewHearingData => {
+    if (editingHearing) {
+      const [hour, minute] = editingHearing.time?.split(":") || ["", "00"]
+      let dateForInput = ""
+      if (editingHearing.date) {
+        const [day, month, year] = editingHearing.date.split(".")
+        dateForInput = `${year}-${month}-${day}`
+      }
+      return { date: dateForInput, hour, minute: minute || "00", court: editingHearing.court || "", judge: "", materials: editingHearing.notes || "" }
+    }
+    return { date: "", hour: "", minute: "00", court: "", judge: "", materials: "" }
+  }
+
+  const [formData, setFormData] = useState<NewHearingData>(getInitialFormData)
+
+  useEffect(() => {
+    setFormData(getInitialFormData())
+  }, [editingHearing])
 
   const handleClose = () => {
     setFormData({ date: "", hour: "", minute: "00", court: "", judge: "", materials: "" })
@@ -67,7 +86,7 @@ export function AddHearingModal({ isOpen, onClose, onSave, caseName }: AddHearin
       <DialogContent className="sm:max-w-[440px] p-0 gap-0 bg-white rounded-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="p-6 pb-4 border-b border-slate-100">
           <DialogTitle className="text-lg font-semibold text-slate-800 text-center">
-            דיון חדש — {caseName}
+            {editingHearing ? "עריכת דיון" : "דיון חדש"} — {caseName}
           </DialogTitle>
         </DialogHeader>
 

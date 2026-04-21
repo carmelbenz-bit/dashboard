@@ -101,6 +101,8 @@ interface CaseCardProps {
   onAddTask: () => void
   onDeleteCase: () => void
   onAddHearing: () => void
+  onEditHearing?: (hearingIndex: number) => void
+  onDeleteHearing?: (hearingIndex: number) => void
   onAddMeeting: () => void
   onEditMeeting?: (meetingId: string) => void
   onDeleteMeeting?: (meetingId: string) => void
@@ -165,7 +167,11 @@ function TaskTag({ tag }: { tag: string }) {
   )
 }
 
-function HearingsDisplay({ hearings }: { hearings: Hearing[] }) {
+function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
+  hearings: Hearing[]
+  onEditHearing?: (index: number) => void
+  onDeleteHearing?: (index: number) => void
+}) {
   const [isOpen, setIsOpen] = useState(false)
 
   if (hearings.length === 0) {
@@ -189,6 +195,12 @@ function HearingsDisplay({ hearings }: { hearings: Hearing[] }) {
         <span className="text-sidebar-foreground/40 mx-1">|</span>
         <Clock className="h-3.5 w-3.5 text-sidebar-foreground/60" />
         <span className="text-sm font-medium text-sidebar-foreground">{nextHearing.time}</span>
+        <button onClick={() => onEditHearing?.(0)} className="p-0.5 text-sidebar-foreground/40 hover:text-sidebar-foreground/80 transition-colors mr-1">
+          <Pencil className="h-3 w-3" />
+        </button>
+        <button onClick={() => onDeleteHearing?.(0)} className="p-0.5 text-sidebar-foreground/40 hover:text-red-400 transition-colors">
+          <Trash2 className="h-3 w-3" />
+        </button>
       </div>
 
       {hasMoreHearings && (
@@ -202,7 +214,7 @@ function HearingsDisplay({ hearings }: { hearings: Hearing[] }) {
               +{hearings.length - 1} דיונים נוספים
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-72 p-0" align="end">
+          <PopoverContent className="w-80 p-0" align="end">
             <div className="p-3 border-b border-border bg-muted/50">
               <h4 className="font-semibold text-sm">כל הדיונים בתיק</h4>
             </div>
@@ -215,13 +227,23 @@ function HearingsDisplay({ hearings }: { hearings: Hearing[] }) {
                     index === 0 ? "bg-primary/10 border border-primary/20" : "hover:bg-muted/50"
                   )}
                 >
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{hearing.date}</span>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => { onEditHearing?.(index); setIsOpen(false) }} className="p-1 text-muted-foreground hover:text-primary transition-colors">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={() => { onDeleteHearing?.(index); setIsOpen(false) }} className="p-1 text-muted-foreground hover:text-red-500 transition-colors">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>{hearing.time}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>{hearing.time}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">{hearing.date}</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -233,7 +255,7 @@ function HearingsDisplay({ hearings }: { hearings: Hearing[] }) {
   )
 }
 
-export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, onAddTask, onDeleteCase, onAddHearing, onAddMeeting, onEditMeeting, onDeleteMeeting, onCompleteMeeting, onEditCase }: CaseCardProps) {
+export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, onAddTask, onDeleteCase, onAddHearing, onEditHearing, onDeleteHearing, onAddMeeting, onEditMeeting, onDeleteMeeting, onCompleteMeeting, onEditCase }: CaseCardProps) {
   const [isExpanded, setIsExpanded] = useState(true)
 
   return (
@@ -321,7 +343,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
               </Popover>
             )}
 
-            <HearingsDisplay hearings={caseData.hearings} />
+            <HearingsDisplay hearings={caseData.hearings} onEditHearing={onEditHearing} onDeleteHearing={onDeleteHearing} />
 
             <AlertDialog>
               <AlertDialogTrigger asChild>

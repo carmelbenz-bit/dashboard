@@ -12,7 +12,7 @@ import { MeetingsBoard } from "@/components/dashboard/meetings-board"
 import { DeadlinesBoard } from "@/components/dashboard/deadlines-board"
 import { DatesBoard } from "@/components/dashboard/dates-board"
 import { AddCaseModal, type NewCaseData, type CaseForEdit } from "@/components/dashboard/add-case-modal"
-import { AddHearingModal, type NewHearingData } from "@/components/dashboard/add-hearing-modal"
+import { AddHearingModal, type NewHearingData, type HearingForEdit } from "@/components/dashboard/add-hearing-modal"
 import { AddMeetingModal, type NewMeetingData, type MeetingForEdit } from "@/components/dashboard/add-meeting-modal"
 import { AddTaskModal, type NewTaskData, type TaskForEdit } from "@/components/dashboard/add-task-modal"
 import type { CaseData } from "@/components/dashboard/case-card"
@@ -150,6 +150,7 @@ export default function DashboardPage() {
   const [isAddCaseModalOpen, setIsAddCaseModalOpen] = useState(false)
   const [isAddHearingModalOpen, setIsAddHearingModalOpen] = useState(false)
   const [selectedCaseForHearing, setSelectedCaseForHearing] = useState<{ id: string; name: string } | null>(null)
+  const [editingHearing, setEditingHearing] = useState<HearingForEdit | null>(null)
   const [isAddMeetingModalOpen, setIsAddMeetingModalOpen] = useState(false)
   const [selectedCaseForMeeting, setSelectedCaseForMeeting] = useState<{ id: string; name: string } | null>(null)
   const [editingMeeting, setEditingMeeting] = useState<MeetingForEdit | null>(null)
@@ -505,7 +506,7 @@ export default function DashboardPage() {
       ? `${hearingData.hour}:${hearingData.minute}`
       : "09:00"
     if (!hearingDate) return
-    const newHearing = {
+    const updatedHearing = {
       date: hearingDate,
       time: hearingTime,
       court: hearingData.court,
@@ -516,8 +517,40 @@ export default function DashboardPage() {
       Object.keys(newCases).forEach((date) => {
         newCases[date] = newCases[date].map((c) => {
           if (c.id === selectedCaseForHearing.id) {
-            return { ...c, hearings: [...c.hearings, newHearing] }
+            if (editingHearing !== null) {
+              const newHearings = [...c.hearings]
+              newHearings[editingHearing.index] = updatedHearing
+              return { ...c, hearings: newHearings }
+            }
+            return { ...c, hearings: [...c.hearings, updatedHearing] }
           }
+          return c
+        })
+      })
+      return newCases
+    })
+    setEditingHearing(null)
+  }
+
+  const handleEditHearing = (caseId: string, hearingIndex: number) => {
+    let foundCase: CaseData | undefined
+    Object.values(cases).forEach((dateCases) => {
+      dateCases.forEach((c) => { if (c.id === caseId) foundCase = c })
+    })
+    if (!foundCase) return
+    const hearing = foundCase.hearings[hearingIndex]
+    if (!hearing) return
+    setSelectedCaseForHearing({ id: caseId, name: foundCase.name })
+    setEditingHearing({ index: hearingIndex, date: hearing.date, time: hearing.time, court: hearing.court, notes: hearing.notes })
+    setIsAddHearingModalOpen(true)
+  }
+
+  const handleDeleteHearing = (caseId: string, hearingIndex: number) => {
+    setCases((prev) => {
+      const newCases = { ...prev }
+      Object.keys(newCases).forEach((date) => {
+        newCases[date] = newCases[date].map((c) => {
+          if (c.id === caseId) return { ...c, hearings: c.hearings.filter((_, i) => i !== hearingIndex) }
           return c
         })
       })
@@ -760,6 +793,8 @@ export default function DashboardPage() {
                     onAddTask={handleAddTask}
                     onDeleteCase={handleDeleteCase}
                     onAddHearing={handleAddHearing}
+                    onEditHearing={handleEditHearing}
+                    onDeleteHearing={handleDeleteHearing}
                     onAddMeeting={handleAddMeeting}
                     onEditMeeting={handleEditMeeting}
                     onDeleteMeeting={handleDeleteMeeting}
@@ -791,9 +826,10 @@ export default function DashboardPage() {
       />
       <AddHearingModal
         isOpen={isAddHearingModalOpen}
-        onClose={() => { setIsAddHearingModalOpen(false); setSelectedCaseForHearing(null) }}
+        onClose={() => { setIsAddHearingModalOpen(false); setSelectedCaseForHearing(null); setEditingHearing(null) }}
         onSave={handleSaveNewHearing}
         caseName={selectedCaseForHearing?.name || ""}
+        editingHearing={editingHearing}
       />
       <AddMeetingModal
         isOpen={isAddMeetingModalOpen}
