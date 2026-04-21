@@ -197,43 +197,66 @@
   .field textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
   .modal { max-height: 90vh; overflow-y: auto; }
 
-  /* Task rows — card layout */
+  /* Task rows — redesigned */
   tr.task-row td, tr.task-other td {
     padding: 0; background: #fff;
     border-top: none;
-    border-inline-start: 3px solid transparent;
+    border-inline-start: none;
     border-inline-end: 1px solid #E7ECF3;
     border-bottom: 1px solid #E7ECF3;
   }
   tr.task-row:hover td { background: #F7F9FF; }
-  tr.task-other td { background: #FAFBFD; border-inline-end: 3px solid #CBD5E1; }
-  tr.task-other:hover td { background: #F1F4F8; }
+  tr.task-other td { background: #FFFCF5; }
+  tr.task-other:hover td { background: #FFF8EC; }
   tr.task-done td { background: #F0FDF4 !important; border-bottom-color: #D1FAE5 !important; }
   tr.task-done:hover td { background: #ECFDF5 !important; }
 
-  .task-card { display: flex; align-items: stretch; min-height: 72px; }
-  .task-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 14px 20px; }
-  .task-card-meta { display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 14px 16px; min-width: 130px; border-inline-start: 1px solid #E7ECF3; }
-  .task-card-actions { display: flex; align-items: center; gap: 4px; padding: 8px 12px; opacity: 0; transition: opacity 0.15s; }
-  tr.task-row:hover .task-card-actions,
-  tr.task-other:hover .task-card-actions { opacity: 1; }
-  tr.task-done .task-card-actions { opacity: 1; }
-  .task-title-done { text-decoration: line-through; color: #94A3B8 !important; }
-  .task-done-badge { font-size: 9.5px; font-weight: 600; padding: 1px 6px; border-radius: 20px; background: #DCFCE7; color: #16A34A; border: 1px solid #BBF7D0; white-space: nowrap; flex-shrink: 0; }
-  .task-line-1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .task-line-3 { display: flex; flex-wrap: wrap; gap: 4px; }
-  .task-meta-date-val { font-size: 12.5px; font-weight: 500; color: #1B2A4A; white-space: nowrap; }
-  .task-meta-date-val.no-date { color: #94A3B8; font-style: italic; font-weight: 400; font-size: 12px; }
+  .task-card { display: flex; align-items: stretch; min-height: 60px; }
 
-  .task-title-link { font-weight: 600; font-size: 14px; color: #1B2A4A; cursor: pointer; line-height: 1.35; }
-  .task-title-link:hover { color: #3B82F6; text-decoration: none; }
-  .task-title-other { color: #94A3B8; font-style: italic; font-weight: 400; }
-  .tc-assignee-badge { font-size: 9.5px; font-weight: 500; padding: 1px 6px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
-  .tc-assignee-mine  { background: #EFF6FF; color: #3B82F6; border: 1px solid #BFDBFE; }
-  .tc-assignee-other { background: #F5F7FB; color: #7C89A0; border: 1px solid #E7ECF3; }
-  .tc-attachments { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tc-attachment { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #b0b8c8; text-decoration: none; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #f9fafc; border: 1px solid #edf0f6; border-radius: 6px; padding: 1px 7px; }
-  .tc-attachment:hover { color: #4b6da8; border-color: #c5d0f7; background: #f0f4ff; text-decoration: none; }
+  /* urgency bar */
+  .tc-bar { width: 4px; flex-shrink: 0; align-self: stretch; }
+  .tc-bar-over { background: #EF4444; }
+  .tc-bar-soon { background: #F59E0B; }
+  .tc-bar-ok   { background: #10B981; }
+  .tc-bar-none { background: #E2E8F0; }
+  .tc-bar-done { background: #BBF7D0; }
+
+  /* body */
+  .tc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 10px 18px; }
+  .tc-line-1 { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .tc-line-2 { display: flex; align-items: center; }
+
+  /* owner badge */
+  .tc-owner-badge { font-size: 9px; font-weight: 600; padding: 1px 7px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; letter-spacing: 0.1px; }
+  .tc-owner-mine  { background: #EFF6FF; color: #3B82F6; border: 1px solid #BFDBFE; }
+  .tc-owner-other { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+
+  /* title */
+  .tc-title { font-weight: 600; font-size: 13.5px; color: #1B2A4A; cursor: pointer; line-height: 1.35; }
+  .tc-title:hover { color: #3B82F6; }
+  .tc-title-done { text-decoration: line-through; color: #94A3B8 !important; }
+  .tc-done-badge { font-size: 9px; font-weight: 500; padding: 1px 7px; border-radius: 20px; background: #DCFCE7; color: #16A34A; border: 1px solid #BBF7D0; white-space: nowrap; flex-shrink: 0; }
+
+  /* date line */
+  .tc-date-text { font-size: 12px; font-weight: 400; line-height: 1.4; }
+  .tc-date-over { color: #DC2626; }
+  .tc-date-soon { color: #B45309; }
+  .tc-date-ok   { color: #6B7280; }
+  .tc-no-date   { font-size: 12px; color: #C4CAD4; font-style: italic; }
+  .tc-dur-txt   { font-size: 11.5px; color: #C4CAD4; }
+  .tc-clip { display: inline-flex; align-items: center; color: #C4CAD4; flex-shrink: 0; }
+
+  /* actions */
+  .tc-actions { display: flex; align-items: center; gap: 3px; padding: 8px 10px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; }
+  tr.task-row:hover .tc-actions,
+  tr.task-other:hover .tc-actions { opacity: 1; }
+  tr.task-done .tc-actions { opacity: 1; }
+
+  .task-files-status { font-size: 12px; margin-bottom: 6px; }
+  .task-file-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px; background: #F5F7FB; border: 1px solid #E7ECF3; border-radius: 6px; margin-bottom: 4px; }
+  .task-file-item span { color: #1B2A4A; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .task-file-item button { background: none; border: none; cursor: pointer; color: #94A3B8; font-size: 13px; padding: 0 2px; flex-shrink: 0; line-height: 1; }
+  .task-file-item button:hover { color: #EF4444; }
 
   .btn-icon-edit, .btn-icon-del, .btn-icon-done {
     display: inline-flex; align-items: center; justify-content: center;
@@ -248,13 +271,8 @@
   .btn-icon-done:hover { background: #F0FDF4; color: #16A34A; border-color: #BBF7D0; }
   .btn-icon-done.is-done { color: #16A34A; border-color: #BBF7D0; background: #F0FDF4; }
   .btn-icon-done.is-done:hover { background: #DCFCE7; }
-  .task-files-status { font-size: 12px; margin-bottom: 6px; }
-  .task-file-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px; background: #F5F7FB; border: 1px solid #E7ECF3; border-radius: 6px; margin-bottom: 4px; }
-  .task-file-item span { color: #1B2A4A; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .task-file-item button { background: none; border: none; cursor: pointer; color: #94A3B8; font-size: 13px; padding: 0 2px; flex-shrink: 0; line-height: 1; }
-  .task-file-item button:hover { color: #EF4444; }
 
-  /* Urgency badges */
+  /* Urgency badges — used in recommendation panel */
   .badge {
     display: inline-flex; align-items: center; gap: 3px;
     padding: 2px 9px; border-radius: 20px;
@@ -1057,20 +1075,25 @@ function render() {
       var tr = document.createElement('tr');
       tr.className = (isOther ? 'task-row task-other' : 'task-row') + (t.completed ? ' task-done' : '');
       var openEdit = 'openEditTask(' + c.id + ',' + t.id + ')';
-      var titleCls = 'task-title-link' + (isOther ? ' task-title-other' : '') + (t.completed ? ' task-title-done' : '');
-      var attachHtml = (t.files && t.files.length)
-        ? '<div class="tc-attachments">' + t.files.map(function(f){
-            return '<a class="tc-attachment" href="' + f.data + '" download="' + x(f.name) + '" title="' + x(f.name) + '">' +
-              '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>' +
-              x(f.name) + '</a>';
-          }).join('') + '</div>' : '';
-      var assigneeBadge = isOther
-        ? '<span class="tc-assignee-badge tc-assignee-other">הצד השני</span>'
-        : '<span class="tc-assignee-badge tc-assignee-mine">שלי</span>';
-      var dateMetaHtml = t.date
-        ? '<span class="task-meta-date-val">' + fmt(t.date) + '</span>'
-        : '<span class="task-meta-date-val no-date">ללא תאריך</span>';
-      var badgeCol = days !== null ? badgeHtml(days) : '';
+      var barCls = t.completed ? 'tc-bar-done'
+        : days === null ? 'tc-bar-none'
+        : days < 0 ? 'tc-bar-over'
+        : days <= 7 ? 'tc-bar-soon'
+        : 'tc-bar-ok';
+      var ownerBadge = isOther
+        ? '<span class="tc-owner-badge tc-owner-other">צד שכנגד</span>'
+        : '<span class="tc-owner-badge tc-owner-mine">שלי</span>';
+      var dateLine;
+      if (days === null) { dateLine = '<span class="tc-no-date">ללא מועד</span>'; }
+      else if (days < 0)  { dateLine = '<span class="tc-date-text tc-date-over">איחור ' + Math.abs(days) + ' ימים · ' + fmt(t.date) + '</span>'; }
+      else if (days === 0){ dateLine = '<span class="tc-date-text tc-date-over">היום · ' + fmt(t.date) + '</span>'; }
+      else if (days === 1){ dateLine = '<span class="tc-date-text tc-date-soon">מחר · ' + fmt(t.date) + '</span>'; }
+      else if (days <= 7) { dateLine = '<span class="tc-date-text tc-date-soon">עוד ' + days + ' ימים · ' + fmt(t.date) + '</span>'; }
+      else                { dateLine = '<span class="tc-date-text tc-date-ok">עוד ' + days + ' ימים · ' + fmt(t.date) + '</span>'; }
+      var durTxt = taskDurationStr(t) ? '<span class="tc-dur-txt"> · ⏱ ' + taskDurationStr(t) + '</span>' : '';
+      var icoClip = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>';
+      var clipIcon = (t.files && t.files.length) ? '<span class="tc-clip" title="' + t.files.length + ' קבצים">' + icoClip + '</span>' : '';
+      var titleCls = 'tc-title' + (t.completed ? ' tc-title-done' : '');
       var icoEdit  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
       var icoTrash = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
       var icoCheck = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -1078,16 +1101,17 @@ function render() {
       var doneTitle = t.completed ? 'סמן כלא הושלם' : 'סמן כהושלם';
       tr.innerHTML =
         '<td colspan="4"><div class="task-card">' +
-          '<div class="task-card-body">' +
-            '<div class="task-line-1"><span class="item-type-chip task-type-chip"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> משימה</span><span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' + assigneeBadge + (t.completed ? '<span class="task-done-badge">הושלם</span>' : '') + '</div>' +
-            (attachHtml ? '<div class="task-line-3">' + attachHtml + '</div>' : '') +
+          '<div class="tc-bar ' + barCls + '"></div>' +
+          '<div class="tc-body">' +
+            '<div class="tc-line-1">' +
+              ownerBadge +
+              '<span class="' + titleCls + '" onclick="' + openEdit + '">' + x(t.action) + '</span>' +
+              (t.completed ? '<span class="tc-done-badge">הושלם</span>' : '') +
+            '</div>' +
+            '<div class="tc-line-2">' + dateLine + durTxt + '</div>' +
           '</div>' +
-          '<div class="task-card-meta">' +
-            dateMetaHtml +
-            (badgeCol ? badgeCol : '') +
-            (taskDurationStr(t) ? '<span class="task-dur">⏱ ' + taskDurationStr(t) + '</span>' : '') +
-          '</div>' +
-          '<div class="task-card-actions">' +
+          '<div class="tc-actions">' +
+            clipIcon +
             '<button class="' + doneCls + '" onclick="toggleTaskDone(' + c.id + ',' + t.id + ')" title="' + doneTitle + '">' + icoCheck + '</button>' +
             '<button class="btn-icon-edit" onclick="' + openEdit + '" title="ערוך">' + icoEdit + '</button>' +
             '<button class="btn-icon-del"  onclick="delTask(' + c.id + ',' + t.id + ')" title="מחק">' + icoTrash + '</button>' +
