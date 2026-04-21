@@ -715,7 +715,7 @@ export default function DashboardPage() {
 
         {activeTab === "cases" && (
           <>
-            {taskFilter === "all" && (
+            {taskFilter === "all" && !searchQuery && searchFilterOption === "all" && (
               <RecommendedToday
                 tasks={recommendedTasks}
                 freeTime={freeTimeStr}
