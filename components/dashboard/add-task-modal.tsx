@@ -41,6 +41,7 @@ export interface TaskForEdit {
   tags: string[]
   files?: { name: string; url: string }[]
   notes?: string
+  estimatedDuration?: string
 }
 
 interface AddTaskModalProps {

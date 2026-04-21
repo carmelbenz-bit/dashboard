@@ -56,6 +56,7 @@ export interface Task {
   files?: TaskFile[]
   notes?: string
   completed?: boolean
+  estimatedDuration?: string
 }
 
 export interface Hearing {

@@ -1,6 +1,6 @@
 "use client"
 
-import { Clock, MapPin, User, FileText, ExternalLink, CheckSquare } from "lucide-react"
+import { Clock, MapPin, User, FileText, ExternalLink, Timer } from "lucide-react"
 import type { CaseData } from "./case-card"
 
 type EventType = "hearing" | "meeting" | "task"
@@ -18,6 +18,7 @@ interface CalendarEvent {
   link?: string
   completed?: boolean
   assignee?: string
+  estimatedDuration?: string
 }
 
 interface DatesBoardProps {
@@ -63,6 +64,7 @@ export function DatesBoard({ cases }: DatesBoardProps) {
           completed: task.completed,
           assignee: task.tags?.[0],
           notes: task.notes,
+          estimatedDuration: task.estimatedDuration,
         })
       })
     })
@@ -104,6 +106,20 @@ export function DatesBoard({ cases }: DatesBoardProps) {
   }
 
   const isMine = (assignee?: string) => assignee === "שלי"
+
+  const getTimeRemaining = (dateStr: string): { text: string; className: string } => {
+    const [day, month, year] = dateStr.split(".").map(Number)
+    const due = new Date(year, month - 1, day)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    due.setHours(0, 0, 0, 0)
+    const diff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    if (diff < 0) return { text: `באיחור ${Math.abs(diff)} ימים`, className: "text-red-600 bg-red-50 border-red-200" }
+    if (diff === 0) return { text: "היום", className: "text-red-600 bg-red-50 border-red-200" }
+    if (diff === 1) return { text: "מחר", className: "text-orange-600 bg-orange-50 border-orange-200" }
+    if (diff <= 7) return { text: `עוד ${diff} ימים`, className: "text-amber-700 bg-amber-50 border-amber-200" }
+    return { text: `עוד ${diff} ימים`, className: "text-slate-600 bg-slate-50 border-slate-200" }
+  }
 
   if (allEvents.length === 0) {
     return (
@@ -194,6 +210,7 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                 )
 
                 const mine = isMine(event.assignee)
+                const timeRemaining = getTimeRemaining(event.date)
                 return (
                   <div
                     key={`t-${index}`}
@@ -217,6 +234,15 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                         <FileText className="h-3.5 w-3.5" />
                         <span className="text-sm">{event.caseName}</span>
                       </div>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${timeRemaining.className}`}>
+                        {timeRemaining.text}
+                      </span>
+                      {event.estimatedDuration && (
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                          <Timer className="h-3.5 w-3.5" />
+                          <span className="text-xs">{event.estimatedDuration}</span>
+                        </div>
+                      )}
                     </div>
                     {event.notes && (
                       <p className="text-sm text-slate-500 mt-3 pt-3 border-t border-slate-100">{event.notes}</p>

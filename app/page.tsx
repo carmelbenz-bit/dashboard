@@ -340,6 +340,7 @@ export default function DashboardPage() {
             tags: task.tags,
             files: task.files,
             notes: task.notes,
+            estimatedDuration: task.estimatedDuration,
           }
         }
       })
@@ -447,6 +448,20 @@ export default function DashboardPage() {
       ...taskFiles,
     ]
 
+    let estimatedDuration: string | undefined
+    if (taskData.assignee === "שלי") {
+      if (taskData.durationType === "hours") {
+        const h = parseInt(taskData.durationHours) || 0
+        const m = taskData.durationMinutes
+        if (h > 0 && m !== "00") estimatedDuration = `${h} שע' ${m} ד'`
+        else if (h > 0) estimatedDuration = `${h} שע'`
+        else if (m !== "00") estimatedDuration = `${m} ד'`
+      } else {
+        const d = parseInt(taskData.durationDays) || 0
+        if (d > 0) estimatedDuration = `${d} ימי עבודה`
+      }
+    }
+
     const newTask = {
       id: editingTask ? editingTask.id : `task-${Date.now()}`,
       title: taskData.title,
@@ -456,6 +471,7 @@ export default function DashboardPage() {
       tags: [taskData.assignee],
       files: allFiles.length > 0 ? allFiles : undefined,
       notes: taskData.notes || undefined,
+      estimatedDuration,
     }
 
     setCases((prevCases) => {
