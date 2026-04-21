@@ -274,6 +274,7 @@ export default function DashboardPage() {
         court: foundCase.court,
         clientName: foundCase.client,
         files: foundCase.files,
+        notes: foundCase.notes,
       })
       setIsAddCaseModalOpen(true)
     }
@@ -293,6 +294,7 @@ export default function DashboardPage() {
                 client: newCaseData.clientName || c.client,
                 lawyer: newCaseData.lawyer || c.lawyer,
                 files: newCaseData.files || c.files,
+                notes: newCaseData.notes,
               }
             }
             return c
@@ -311,6 +313,7 @@ export default function DashboardPage() {
         lawyer: newCaseData.lawyer || "",
         tasks: [],
         files: newCaseData.files || [],
+        notes: newCaseData.notes,
       }
       setCases((prevCases) => {
         const dateKey = "ללא תאריך"

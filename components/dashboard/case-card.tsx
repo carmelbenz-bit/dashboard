@@ -91,6 +91,7 @@ export interface CaseData {
   lawyer: string
   tasks: Task[]
   files?: CaseFile[]
+  notes?: string
 }
 
 interface CaseCardProps {
@@ -293,6 +294,9 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                 <FileText className="h-5 w-5 text-primary" />
                 {caseData.name}
               </h3>
+              {caseData.notes && (
+                <p className="text-sm text-sidebar-foreground/50 mt-0.5 font-normal">{caseData.notes}</p>
+              )}
               <div className="flex items-center gap-4 mt-1 text-sm text-sidebar-foreground/70">
                 <span className="flex items-center gap-1">
                   <Building2 className="h-4 w-4" />
