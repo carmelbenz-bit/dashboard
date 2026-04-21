@@ -336,40 +336,46 @@ export default function DashboardPage() {
   }
 
   const handleDeleteTask = (taskId: string) => {
-    const newCases = { ...cases }
-    Object.keys(newCases).forEach((date) => {
-      newCases[date] = newCases[date].map((c) => ({
-        ...c,
-        tasks: c.tasks.filter((t) => t.id !== taskId),
-      }))
+    setCases((prev) => {
+      const newCases = { ...prev }
+      Object.keys(newCases).forEach((date) => {
+        newCases[date] = newCases[date].map((c) => ({
+          ...c,
+          tasks: c.tasks.filter((t) => t.id !== taskId),
+        }))
+      })
+      return newCases
     })
-    setCases(newCases)
   }
 
   const handleCompleteTask = (taskId: string, completed: boolean) => {
-    const newCases = { ...cases }
-    Object.keys(newCases).forEach((date) => {
-      newCases[date] = newCases[date].map((c) => ({
-        ...c,
-        tasks: c.tasks.map((t) =>
-          t.id === taskId ? { ...t, completed } : t
-        ),
-      }))
+    setCases((prev) => {
+      const newCases = { ...prev }
+      Object.keys(newCases).forEach((date) => {
+        newCases[date] = newCases[date].map((c) => ({
+          ...c,
+          tasks: c.tasks.map((t) =>
+            t.id === taskId ? { ...t, completed } : t
+          ),
+        }))
+      })
+      return newCases
     })
-    setCases(newCases)
   }
 
   const handleCompleteMeeting = (meetingId: string, completed: boolean) => {
-    const newCases = { ...cases }
-    Object.keys(newCases).forEach((date) => {
-      newCases[date] = newCases[date].map((c) => ({
-        ...c,
-        meetings: c.meetings?.map((m) =>
-          m.id === meetingId ? { ...m, completed } : m
-        ),
-      }))
+    setCases((prev) => {
+      const newCases = { ...prev }
+      Object.keys(newCases).forEach((date) => {
+        newCases[date] = newCases[date].map((c) => ({
+          ...c,
+          meetings: c.meetings?.map((m) =>
+            m.id === meetingId ? { ...m, completed } : m
+          ),
+        }))
+      })
+      return newCases
     })
-    setCases(newCases)
   }
 
   const handleAddTask = (caseId: string) => {
