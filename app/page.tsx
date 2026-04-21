@@ -16,6 +16,7 @@ import { AddHearingModal, type NewHearingData, type HearingForEdit } from "@/com
 import { AddMeetingModal, type NewMeetingData, type MeetingForEdit } from "@/components/dashboard/add-meeting-modal"
 import { AddTaskModal, type NewTaskData, type TaskForEdit } from "@/components/dashboard/add-task-modal"
 import { AuthGuard } from "@/components/auth/auth-guard"
+import { supabase } from "@/lib/supabase"
 import type { CaseData } from "@/components/dashboard/case-card"
 
 // Sample data
@@ -134,19 +135,29 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchFilterOption, setSearchFilterOption] = useState<TaskFilterOption>("all")
   const [sortOption, setSortOption] = useState<SortOption>("dateAsc")
-  const [cases, setCases] = useState<Record<string, CaseData[]>>(() => {
-    if (typeof window === "undefined") return initialCases
-    try {
-      const saved = localStorage.getItem("dashboard-cases")
-      return saved ? JSON.parse(saved) : initialCases
-    } catch {
-      return initialCases
-    }
-  })
+  const [userId, setUserId] = useState<string | null>(null)
+  const [dataLoaded, setDataLoaded] = useState(false)
+  const [cases, setCases] = useState<Record<string, CaseData[]>>(initialCases)
 
   useEffect(() => {
-    localStorage.setItem("dashboard-cases", JSON.stringify(cases))
-  }, [cases])
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        const uid = session.user.id
+        setUserId(uid)
+        try {
+          const saved = localStorage.getItem(`dashboard-cases-${uid}`)
+          if (saved) setCases(JSON.parse(saved))
+        } catch {}
+        setDataLoaded(true)
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    if (userId && dataLoaded) {
+      localStorage.setItem(`dashboard-cases-${userId}`, JSON.stringify(cases))
+    }
+  }, [cases, userId, dataLoaded])
   const [activeTab, setActiveTab] = useState("cases")
   const [isAddCaseModalOpen, setIsAddCaseModalOpen] = useState(false)
   const [isAddHearingModalOpen, setIsAddHearingModalOpen] = useState(false)
