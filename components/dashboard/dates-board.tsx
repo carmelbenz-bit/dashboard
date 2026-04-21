@@ -103,6 +103,8 @@ export function DatesBoard({ cases }: DatesBoardProps) {
     return "bg-emerald-50 border-emerald-200 [&_.day-num]:text-emerald-700 [&_.day-name]:text-emerald-600/80"
   }
 
+  const isMine = (assignee?: string) => assignee === "שלי"
+
   if (allEvents.length === 0) {
     return (
       <div className="text-center py-16">
@@ -132,11 +134,11 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                     key={`h-${index}`}
                     className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all border-r-4 border-r-primary"
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">דיון</span>
                       <h3 className="font-semibold text-slate-800 text-lg">{event.caseName}</h3>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-wrap items-center gap-4">
                       <div className="flex items-center gap-2 text-slate-600">
                         <Clock className="h-4 w-4 text-primary" />
                         <span className="text-sm">{event.time}</span>
@@ -148,7 +150,7 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                         </div>
                       )}
                       {event.judge && (
-                        <div className="flex items-center gap-2 text-slate-600 col-span-2">
+                        <div className="flex items-center gap-2 text-slate-600">
                           <User className="h-4 w-4 text-primary" />
                           <span className="text-sm">{event.judge}</span>
                         </div>
@@ -195,26 +197,34 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                   </div>
                 )
 
+                const mine = isMine(event.assignee)
                 return (
                   <div
                     key={`t-${index}`}
-                    className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all border-r-4 border-r-emerald-500"
+                    className={`bg-white border border-slate-200 rounded-xl p-4 shadow-sm transition-all border-r-4 ${
+                      mine
+                        ? "hover:border-emerald-300 border-r-emerald-500"
+                        : "hover:border-slate-400 border-r-slate-400"
+                    }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">משימה</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                          mine
+                            ? "text-emerald-700 bg-emerald-50"
+                            : "text-slate-600 bg-slate-100"
+                        }`}>
+                          {mine ? "משימה שלי" : "הצד השני"}
+                        </span>
+                        {event.completed && (
+                          <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">הושלם</span>
+                        )}
+                      </div>
                       <h3 className={`font-semibold text-lg ${event.completed ? "line-through text-slate-400" : "text-slate-800"}`}>{event.title}</h3>
                     </div>
-                    <div className="flex items-center gap-4 text-slate-500">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-3.5 w-3.5" />
-                        <span className="text-sm">{event.caseName}</span>
-                      </div>
-                      {event.assignee && (
-                        <div className="flex items-center gap-2">
-                          <CheckSquare className="h-3.5 w-3.5 text-emerald-600" />
-                          <span className="text-sm">{event.assignee}</span>
-                        </div>
-                      )}
+                    <div className="flex items-center gap-2 text-slate-500">
+                      <FileText className="h-3.5 w-3.5" />
+                      <span className="text-sm">{event.caseName}</span>
                     </div>
                     {event.notes && (
                       <p className="text-sm text-slate-500 mt-3 pt-3 border-t border-slate-100">{event.notes}</p>

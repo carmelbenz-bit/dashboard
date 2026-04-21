@@ -83,8 +83,8 @@ export function HearingsBoard({ cases }: HearingsBoardProps) {
                   key={`${hearing.caseName}-${index}`}
                   className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all"
                 >
-                  <h3 className="font-semibold text-slate-800 text-lg mb-3">{hearing.caseName}</h3>
-                  <div className="grid grid-cols-2 gap-3">
+                  <h3 className="font-semibold text-slate-800 text-lg mb-1 text-right">{hearing.caseName}</h3>
+                  <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-2 text-slate-600">
                       <Clock className="h-4 w-4 text-primary" />
                       <span className="text-sm">{hearing.time}</span>
@@ -96,7 +96,7 @@ export function HearingsBoard({ cases }: HearingsBoardProps) {
                       </div>
                     )}
                     {hearing.judge && (
-                      <div className="flex items-center gap-2 text-slate-600 col-span-2">
+                      <div className="flex items-center gap-2 text-slate-600">
                         <User className="h-4 w-4 text-primary" />
                         <span className="text-sm">{hearing.judge}</span>
                       </div>
