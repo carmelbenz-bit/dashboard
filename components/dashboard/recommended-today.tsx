@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Sparkles, Clock, ChevronUp, ChevronDown } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Sparkles, Clock, ChevronUp, ChevronDown, GripVertical } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface RecommendedTask {
@@ -44,6 +44,8 @@ function getUrgencyLabel(daysRemaining: number | null, urgency: string): { text:
 export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, onCompleteTask }: RecommendedTodayProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [orderedIds, setOrderedIds] = useState<string[]>(() => tasks.map(t => t.id))
+  const dragIndex = useRef<number | null>(null)
+  const dragOverIndex = useRef<number | null>(null)
 
   useEffect(() => {
     setOrderedIds(tasks.map(t => t.id))
@@ -53,18 +55,24 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
     .map(id => tasks.find(t => t.id === id))
     .filter(Boolean) as RecommendedTask[]
 
-  const moveUp = (index: number) => {
-    if (index === 0) return
-    const next = [...orderedIds]
-    ;[next[index - 1], next[index]] = [next[index], next[index - 1]]
-    setOrderedIds(next)
+  const handleDragStart = (index: number) => {
+    dragIndex.current = index
   }
 
-  const moveDown = (index: number) => {
-    if (index === orderedIds.length - 1) return
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    dragOverIndex.current = index
+  }
+
+  const handleDrop = () => {
+    if (dragIndex.current === null || dragOverIndex.current === null) return
+    if (dragIndex.current === dragOverIndex.current) return
     const next = [...orderedIds]
-    ;[next[index], next[index + 1]] = [next[index + 1], next[index]]
+    const [moved] = next.splice(dragIndex.current, 1)
+    next.splice(dragOverIndex.current, 0, moved)
     setOrderedIds(next)
+    dragIndex.current = null
+    dragOverIndex.current = null
   }
 
   return (
@@ -93,25 +101,14 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
           return (
             <div
               key={task.id}
-              className="group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-slate-50"
+              draggable
+              onDragStart={() => handleDragStart(index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDrop={handleDrop}
+              className="group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-slate-50 cursor-default"
             >
               <div className="flex items-center gap-3">
-                <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => moveUp(index)}
-                    disabled={index === 0}
-                    className="text-slate-300 hover:text-slate-500 disabled:opacity-0 leading-none"
-                  >
-                    <ChevronUp className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={() => moveDown(index)}
-                    disabled={index === orderedTasks.length - 1}
-                    className="text-slate-300 hover:text-slate-500 disabled:opacity-0 leading-none"
-                  >
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+                <GripVertical className="h-4 w-4 text-slate-300 group-hover:text-slate-400 cursor-grab active:cursor-grabbing flex-shrink-0 transition-colors" />
                 <button
                   onClick={() => onCompleteTask(task.id, true)}
                   className="w-5 h-5 rounded-full border-2 border-slate-300 hover:border-emerald-400 flex items-center justify-center flex-shrink-0 transition-colors"
