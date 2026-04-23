@@ -180,6 +180,21 @@ export default function DashboardPage() {
         const { data } = await supabase.from("cases").select("*").order("created_at", { ascending: true })
         if (data && data.length > 0) {
           setCases({ all: data.map(rowToCase) })
+        } else {
+          // migrate from localStorage if Supabase is empty
+          try {
+            const saved = localStorage.getItem(`dashboard-cases-${uid}`)
+            if (saved) {
+              const local: Record<string, CaseData[]> = JSON.parse(saved)
+              const allLocal = Object.values(local).flat()
+              if (allLocal.length > 0) {
+                setCases({ all: allLocal })
+                for (const c of allLocal) {
+                  await supabase.from("cases").upsert(caseToRow(c, uid))
+                }
+              }
+            }
+          } catch {}
         }
         dbReady.current = true
       }
