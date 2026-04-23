@@ -33,6 +33,7 @@ export interface TaskForEdit {
   id: string
   title: string
   dueDate: string | null
+  time?: string
   tags: string[]
   files?: { name: string; url: string }[]
   notes?: string
@@ -57,12 +58,13 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
         const [day, month, year] = editingTask.dueDate.split(".")
         dateForInput = `${year}-${month}-${day}`
       }
+      const [editHour, editMinute] = editingTask.time?.split(":") || ["", ""]
       return {
         assignee: assignee as "שלי" | "הצד השני",
         title: editingTask.title,
         dueDate: dateForInput,
-        dueHour: "",
-        dueMinute: "",
+        dueHour: editHour || "",
+        dueMinute: editMinute || "",
         files: [],
         existingFiles: editingTask.files || [],
         notes: editingTask.notes || "",

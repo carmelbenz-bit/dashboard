@@ -51,6 +51,7 @@ export interface Task {
   id: string
   title: string
   dueDate: string | null
+  time?: string
   urgency: "overdue" | "soon" | "normal" | "none"
   daysInfo: string
   tags: string[]
@@ -513,6 +514,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                       <span className={cn("text-sm", task.dueDate ? "text-foreground" : "text-muted-foreground/50")}>
                         {task.dueDate || "—"}
                       </span>
+                      {task.time && <span className="text-xs text-slate-400 block">{task.time}</span>}
                     </div>
                     <div className="col-span-2 flex justify-center">
                       <UrgencyBadge urgency={task.urgency} daysInfo={task.daysInfo} />
@@ -553,7 +555,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                       </div>
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5">
                         {assigneeTag && <AssigneeBadge assignee={assigneeTag as "שלי" | "הצד השני"} />}
-                        {task.dueDate && <span className="text-xs text-slate-400">{task.dueDate}</span>}
+                        {task.dueDate && <span className="text-xs text-slate-400">{task.dueDate}{task.time ? ` ${task.time}` : ""}</span>}
                         {task.urgency !== "none" && task.daysInfo && <UrgencyBadge urgency={task.urgency} daysInfo={task.daysInfo} />}
                       </div>
                       {task.notes && <p className="text-xs text-muted-foreground mt-1">{task.notes}</p>}

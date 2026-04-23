@@ -402,6 +402,7 @@ export default function DashboardPage() {
             id: task.id,
             title: task.title,
             dueDate: task.dueDate,
+            time: task.time,
             tags: task.tags,
             files: task.files,
             notes: task.notes,
@@ -528,10 +529,17 @@ export default function DashboardPage() {
       }
     }
 
+    const taskTime = taskData.dueHour && taskData.dueMinute
+      ? `${taskData.dueHour}:${taskData.dueMinute}`
+      : taskData.dueHour
+        ? `${taskData.dueHour}:00`
+        : undefined
+
     const newTask = {
       id: editingTask ? editingTask.id : `task-${Date.now()}`,
       title: taskData.title,
       dueDate: taskDate,
+      time: taskTime,
       urgency,
       daysInfo,
       tags: [taskData.assignee],
