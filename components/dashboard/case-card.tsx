@@ -16,7 +16,8 @@ import {
   Briefcase,
   ExternalLink,
   Download,
-  Paperclip
+  Paperclip,
+  Tag
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -93,6 +94,7 @@ export interface CaseData {
   tasks: Task[]
   files?: CaseFile[]
   notes?: string
+  status?: string
 }
 
 interface CaseCardProps {
@@ -110,6 +112,7 @@ interface CaseCardProps {
   onDeleteMeeting?: (meetingId: string) => void
   onCompleteMeeting?: (meetingId: string, completed: boolean) => void
   onEditCase: () => void
+  onUpdateStatus?: (status: string) => void
 }
 
 function UrgencyBadge({ urgency, daysInfo }: { urgency: Task["urgency"], daysInfo: string }) {
@@ -265,8 +268,10 @@ function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
   )
 }
 
-export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, onAddTask, onDeleteCase, onAddHearing, onEditHearing, onDeleteHearing, onAddMeeting, onEditMeeting, onDeleteMeeting, onCompleteMeeting, onEditCase }: CaseCardProps) {
+export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, onAddTask, onDeleteCase, onAddHearing, onEditHearing, onDeleteHearing, onAddMeeting, onEditMeeting, onDeleteMeeting, onCompleteMeeting, onEditCase, onUpdateStatus }: CaseCardProps) {
   const [isExpanded, setIsExpanded] = useState(true)
+  const [statusInput, setStatusInput] = useState(caseData.status || "")
+  const [statusOpen, setStatusOpen] = useState(false)
 
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
@@ -297,6 +302,9 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
               </h3>
               {caseData.notes && (
                 <p className="text-sm text-sidebar-foreground/50 mt-0.5 font-normal">{caseData.notes}</p>
+              )}
+              {caseData.status && (
+                <p className="text-sm text-sidebar-foreground/60 mt-0.5 font-normal italic">{caseData.status}</p>
               )}
               <div className="flex items-center gap-4 mt-1 text-sm text-sidebar-foreground/70">
                 <span className="flex items-center gap-1">
@@ -672,6 +680,54 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
               <Plus className="h-4 w-4" />
               דיון
             </Button>
+            <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 text-slate-500 hover:text-amber-600 hover:bg-amber-50"
+                >
+                  <Tag className="h-4 w-4" />
+                  סטטוס
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-4" align="start" dir="rtl">
+                <p className="text-sm font-medium text-slate-700 mb-2">סטטוס תיק</p>
+                <input
+                  type="text"
+                  value={statusInput}
+                  onChange={(e) => setStatusInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      onUpdateStatus?.(statusInput)
+                      setStatusOpen(false)
+                    }
+                  }}
+                  placeholder="לדוגמה: ממתין למתן פסק דין"
+                  className="w-full text-sm text-right bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  autoFocus
+                />
+                <div className="flex gap-2 mt-3">
+                  <Button
+                    size="sm"
+                    className="bg-primary hover:bg-primary/90 text-white"
+                    onClick={() => { onUpdateStatus?.(statusInput); setStatusOpen(false) }}
+                  >
+                    שמור
+                  </Button>
+                  {caseData.status && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-slate-400 hover:text-red-500"
+                      onClick={() => { setStatusInput(""); onUpdateStatus?.(""); setStatusOpen(false) }}
+                    >
+                      נקה
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       )}

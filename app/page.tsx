@@ -519,6 +519,18 @@ export default function DashboardPage() {
     setCases(newCases)
   }
 
+  const handleUpdateStatus = (caseId: string, status: string) => {
+    setCases((prev) => {
+      const newCases = { ...prev }
+      Object.keys(newCases).forEach((date) => {
+        newCases[date] = newCases[date].map((c) =>
+          c.id === caseId ? { ...c, status: status || undefined } : c
+        )
+      })
+      return newCases
+    })
+  }
+
   const handleAddHearing = (caseId: string, caseName: string) => {
     setSelectedCaseForHearing({ id: caseId, name: caseName })
     setIsAddHearingModalOpen(true)
@@ -827,6 +839,7 @@ export default function DashboardPage() {
                     onAddHearing={handleAddHearing}
                     onEditHearing={handleEditHearing}
                     onDeleteHearing={handleDeleteHearing}
+                    onUpdateStatus={handleUpdateStatus}
                     onAddMeeting={handleAddMeeting}
                     onEditMeeting={handleEditMeeting}
                     onDeleteMeeting={handleDeleteMeeting}

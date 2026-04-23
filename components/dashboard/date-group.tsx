@@ -17,6 +17,7 @@ interface DateGroupProps {
   onDeleteMeeting: (caseId: string, meetingId: string) => void
   onCompleteMeeting: (meetingId: string, completed: boolean) => void
   onEditCase: (caseId: string) => void
+  onUpdateStatus: (caseId: string, status: string) => void
 }
 
 export function DateGroup({
@@ -33,7 +34,8 @@ export function DateGroup({
   onEditMeeting,
   onDeleteMeeting,
   onCompleteMeeting,
-  onEditCase
+  onEditCase,
+  onUpdateStatus
 }: DateGroupProps) {
   return (
     <div className="space-y-4">
@@ -54,6 +56,7 @@ export function DateGroup({
           onDeleteMeeting={(meetingId) => onDeleteMeeting(caseData.id, meetingId)}
           onCompleteMeeting={onCompleteMeeting}
           onEditCase={() => onEditCase(caseData.id)}
+          onUpdateStatus={(status) => onUpdateStatus(caseData.id, status)}
         />
       ))}
     </div>
