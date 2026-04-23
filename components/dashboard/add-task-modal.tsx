@@ -143,8 +143,12 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-white p-0 gap-0">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
+      <DialogContent
+        className="sm:max-w-md bg-white p-0 gap-0"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader className="p-6 pb-4 border-b border-slate-100">
           <DialogTitle className="text-lg font-semibold text-slate-800 text-center">
             {editingTask ? "עריכת משימה" : "משימה חדשה"} — {caseName}

@@ -78,8 +78,12 @@ export function AddHearingModal({ isOpen, onClose, onSave, caseName, editingHear
   const minutes = ["00", "15", "30", "45"]
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-[440px] p-0 gap-0 bg-white rounded-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
+      <DialogContent
+        className="sm:max-w-[440px] p-0 gap-0 bg-white rounded-2xl max-h-[90vh] overflow-y-auto"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader className="p-6 pb-4 border-b border-slate-100">
           <DialogTitle className="text-lg font-semibold text-slate-800 text-center">
             {editingHearing ? "עריכת דיון" : "דיון חדש"} — {caseName}
