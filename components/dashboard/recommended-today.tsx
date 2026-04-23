@@ -20,6 +20,7 @@ interface RecommendedTodayProps {
   meetingsTime: string
   onEditTask: (taskId: string) => void
   onCompleteTask: (taskId: string, completed: boolean) => void
+  storageKey?: string
 }
 
 function getUrgencyLabel(daysRemaining: number | null, urgency: string): { text: string; className: string } {
@@ -41,15 +42,33 @@ function getUrgencyLabel(daysRemaining: number | null, urgency: string): { text:
   return { text: `${daysRemaining} ימים`, className: "bg-slate-100 text-slate-600 border-slate-200" }
 }
 
-export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, onCompleteTask }: RecommendedTodayProps) {
+export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, onCompleteTask, storageKey }: RecommendedTodayProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [orderedIds, setOrderedIds] = useState<string[]>(() => tasks.map(t => t.id))
   const dragIndex = useRef<number | null>(null)
   const dragOverIndex = useRef<number | null>(null)
+  const taskIds = tasks.map(t => t.id).join(",")
 
   useEffect(() => {
-    setOrderedIds(tasks.map(t => t.id))
-  }, [tasks.map(t => t.id).join(",")])
+    if (!storageKey) { setOrderedIds(tasks.map(t => t.id)); return }
+    try {
+      const saved = localStorage.getItem(storageKey)
+      const savedOrder: string[] = saved ? JSON.parse(saved) : []
+      const currentIds = tasks.map(t => t.id)
+      const merged = [
+        ...savedOrder.filter(id => currentIds.includes(id)),
+        ...currentIds.filter(id => !savedOrder.includes(id)),
+      ]
+      setOrderedIds(merged)
+    } catch {
+      setOrderedIds(tasks.map(t => t.id))
+    }
+  }, [taskIds, storageKey])
+
+  const updateOrder = (next: string[]) => {
+    setOrderedIds(next)
+    if (storageKey) localStorage.setItem(storageKey, JSON.stringify(next))
+  }
 
   const orderedTasks = orderedIds
     .map(id => tasks.find(t => t.id === id))
@@ -70,7 +89,7 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
     const next = [...orderedIds]
     const [moved] = next.splice(dragIndex.current, 1)
     next.splice(dragOverIndex.current, 0, moved)
-    setOrderedIds(next)
+    updateOrder(next)
     dragIndex.current = null
     dragOverIndex.current = null
   }
