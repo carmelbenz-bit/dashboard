@@ -16,8 +16,9 @@ function base64urlDecode(str: string): Uint8Array {
   return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
 }
 
-function base64urlEncode(buf: ArrayBuffer): string {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+function base64urlEncode(buf: Uint8Array | ArrayBuffer): string {
+  const arr = buf instanceof Uint8Array ? buf : new Uint8Array(buf)
+  return btoa(String.fromCharCode(...arr))
     .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
 }
 
@@ -40,8 +41,8 @@ async function signVapidJwt(audience: string): Promise<string> {
   ).catch(async () => {
     // Fallback: try importing from the public key bytes + private scalar
     const pubRaw = base64urlDecode(VAPID_PUBLIC_KEY)
-    const x = base64urlEncode(pubRaw.slice(1, 33).buffer)
-    const y = base64urlEncode(pubRaw.slice(33, 65).buffer)
+    const x = base64urlEncode(pubRaw.slice(1, 33))
+    const y = base64urlEncode(pubRaw.slice(33, 65))
     return crypto.subtle.importKey(
       "jwk",
       { kty: "EC", crv: "P-256", d: VAPID_PRIVATE_KEY, x, y, key_ops: ["sign"] },
