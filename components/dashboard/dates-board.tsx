@@ -97,12 +97,12 @@ export function DatesBoard({ cases }: DatesBoardProps) {
   const getDateBadgeStyle = (events: CalendarEvent[]) => {
     const types = new Set(events.map((e) => e.type))
     if (types.size > 1)
-      return "bg-slate-100 border-slate-300 [&_.day-num]:text-slate-700 [&_.day-name]:text-slate-500"
+      return { box: "bg-slate-100 border-slate-300", num: "text-slate-700", sub: "text-slate-500", mobile: "bg-slate-100 border-slate-300 text-slate-700" }
     if (types.has("hearing"))
-      return "bg-primary/10 border-primary/20 [&_.day-num]:text-primary [&_.day-name]:text-primary/80"
+      return { box: "bg-primary/10 border-primary/20", num: "text-primary", sub: "text-primary/80", mobile: "bg-primary/10 border-primary/20 text-primary" }
     if (types.has("meeting"))
-      return "bg-purple-100 border-purple-200 [&_.day-num]:text-purple-600 [&_.day-name]:text-purple-600/80"
-    return "bg-emerald-50 border-emerald-200 [&_.day-num]:text-emerald-700 [&_.day-name]:text-emerald-600/80"
+      return { box: "bg-purple-100 border-purple-200", num: "text-purple-600", sub: "text-purple-600/80", mobile: "bg-purple-100 border-purple-200 text-purple-600" }
+    return { box: "bg-emerald-50 border-emerald-200", num: "text-emerald-700", sub: "text-emerald-600/80", mobile: "bg-emerald-50 border-emerald-200 text-emerald-700" }
   }
 
   const isMine = (assignee?: string) => assignee === "שלי"
@@ -130,41 +130,51 @@ export function DatesBoard({ cases }: DatesBoardProps) {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-5 max-w-4xl mx-auto">
       {Object.entries(eventsByDate).map(([date, events]) => {
         const { day, dayName, monthName, year } = formatDateDisplay(date)
+        const style = getDateBadgeStyle(events)
         return (
-          <div key={date} className="flex gap-6">
-            <div className="flex-shrink-0 w-24 text-center">
-              <div className={`rounded-2xl p-3 border ${getDateBadgeStyle(events)}`}>
-                <div className="day-num text-3xl font-bold">{day}</div>
-                <div className="day-name text-xs font-medium">{dayName}</div>
+          <div key={date} className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+            {/* Mobile: compact date strip */}
+            <div className="sm:hidden flex items-center gap-2 px-1">
+              <div className={`w-9 h-9 rounded-xl border flex items-center justify-center font-bold text-sm flex-shrink-0 ${style.mobile}`}>
+                {day}
+              </div>
+              <span className="text-sm font-semibold text-slate-700">{dayName}, {day} ב{monthName} {year}</span>
+            </div>
+
+            {/* Desktop: vertical date card */}
+            <div className="hidden sm:block flex-shrink-0 w-24 text-center">
+              <div className={`rounded-2xl p-3 border ${style.box}`}>
+                <div className={`text-3xl font-bold ${style.num}`}>{day}</div>
+                <div className={`text-xs font-medium ${style.sub}`}>{dayName}</div>
                 <div className="text-xs text-slate-500 mt-1">{monthName} {year}</div>
               </div>
             </div>
 
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 space-y-2 sm:space-y-3">
               {events.map((event, index) => {
                 if (event.type === "hearing") return (
                   <div
                     key={`h-${index}`}
-                    className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all border-r-4 border-r-primary"
+                    className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all border-r-4 border-r-primary"
                   >
-                    <h3 className="font-semibold text-slate-800 text-lg text-right mb-1">{event.caseName}</h3>
-                    <div className="flex flex-wrap items-center gap-4">
+                    <h3 className="font-semibold text-slate-800 text-base sm:text-lg text-right mb-1.5">{event.caseName}</h3>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                       <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">דיון</span>
-                      <div className="flex items-center gap-2 text-slate-600">
+                      <div className="flex items-center gap-1.5 text-slate-600">
                         <Clock className="h-4 w-4 text-primary" />
                         <span className="text-sm">{event.time}</span>
                       </div>
                       {event.court && (
-                        <div className="flex items-center gap-2 text-slate-600">
+                        <div className="flex items-center gap-1.5 text-slate-600">
                           <MapPin className="h-4 w-4 text-primary" />
                           <span className="text-sm">{event.court}</span>
                         </div>
                       )}
                       {event.judge && (
-                        <div className="flex items-center gap-2 text-slate-600">
+                        <div className="flex items-center gap-1.5 text-slate-600">
                           <User className="h-4 w-4 text-primary" />
                           <span className="text-sm">{event.judge}</span>
                         </div>
@@ -176,35 +186,35 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                 if (event.type === "meeting") return (
                   <div
                     key={`m-${index}`}
-                    className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all border-r-4 border-r-purple-500"
+                    className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all border-r-4 border-r-purple-500"
                   >
-                    <h3 className={`font-semibold text-lg text-right mb-1 ${event.completed ? "line-through text-slate-400" : "text-slate-800"}`}>{event.title}</h3>
-                    <div className="flex flex-wrap items-center gap-4">
+                    <h3 className={`font-semibold text-base sm:text-lg text-right mb-1 ${event.completed ? "line-through text-slate-400" : "text-slate-800"}`}>{event.title}</h3>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                       <span className="text-xs font-semibold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">פגישה</span>
-                      <div className="flex items-center gap-2 text-slate-500">
-                        <FileText className="h-3.5 w-3.5" />
+                      <div className="flex items-center gap-1.5 text-slate-500">
+                        <FileText className="h-3.5 w-3.5 flex-shrink-0" />
                         <span className="text-sm">{event.caseName}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-slate-600">
+                      <div className="flex items-center gap-1.5 text-slate-600">
                         <Clock className="h-4 w-4 text-purple-500" />
                         <span className="text-sm">{event.time}</span>
                       </div>
                       {event.location && (
-                        <div className="flex items-center gap-2 text-slate-600">
+                        <div className="flex items-center gap-1.5 text-slate-600">
                           <MapPin className="h-4 w-4 text-purple-500" />
                           <span className="text-sm">{event.location}</span>
                         </div>
                       )}
                       {event.link && (
                         <a href={event.link} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors">
+                          className="flex items-center gap-1.5 text-purple-600 hover:text-purple-700 transition-colors">
                           <ExternalLink className="h-4 w-4" />
-                          <span className="text-sm font-medium">הצטרף לפגישה</span>
+                          <span className="text-sm font-medium">הצטרף</span>
                         </a>
                       )}
                     </div>
                     {event.notes && (
-                      <p className="text-sm text-slate-500 mt-3 pt-3 border-t border-slate-100">{event.notes}</p>
+                      <p className="text-sm text-slate-500 mt-2 pt-2 border-t border-slate-100">{event.notes}</p>
                     )}
                   </div>
                 )
@@ -214,24 +224,20 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                 return (
                   <div
                     key={`t-${index}`}
-                    className={`bg-white border border-slate-200 rounded-xl p-4 shadow-sm transition-all border-r-4 ${
-                      mine
-                        ? "hover:border-emerald-300 border-r-emerald-500"
-                        : "hover:border-slate-400 border-r-slate-400"
+                    className={`bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm transition-all border-r-4 ${
+                      mine ? "hover:border-emerald-300 border-r-emerald-500" : "hover:border-slate-400 border-r-slate-400"
                     }`}
                   >
-                    <h3 className={`font-semibold text-lg text-right mb-1 ${event.completed ? "line-through text-slate-400" : "text-slate-800"}`}>{event.title}</h3>
-                    <div className="flex flex-wrap items-center gap-4">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        mine ? "text-emerald-700 bg-emerald-50" : "text-slate-600 bg-slate-100"
-                      }`}>
+                    <h3 className={`font-semibold text-base sm:text-lg text-right mb-1.5 ${event.completed ? "line-through text-slate-400" : "text-slate-800"}`}>{event.title}</h3>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${mine ? "text-emerald-700 bg-emerald-50" : "text-slate-600 bg-slate-100"}`}>
                         {mine ? "משימה שלי" : "הצד השני"}
                       </span>
                       {event.completed && (
                         <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">הושלם</span>
                       )}
-                      <div className="flex items-center gap-2 text-slate-500">
-                        <FileText className="h-3.5 w-3.5" />
+                      <div className="flex items-center gap-1.5 text-slate-500">
+                        <FileText className="h-3.5 w-3.5 flex-shrink-0" />
                         <span className="text-sm">{event.caseName}</span>
                       </div>
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${timeRemaining.className}`}>
@@ -245,7 +251,7 @@ export function DatesBoard({ cases }: DatesBoardProps) {
                       )}
                     </div>
                     {event.notes && (
-                      <p className="text-sm text-slate-500 mt-3 pt-3 border-t border-slate-100">{event.notes}</p>
+                      <p className="text-sm text-slate-500 mt-2 pt-2 border-t border-slate-100">{event.notes}</p>
                     )}
                   </div>
                 )

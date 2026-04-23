@@ -64,12 +64,21 @@ export function HearingsBoard({ cases }: HearingsBoardProps) {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-5 max-w-4xl mx-auto">
       {Object.entries(hearingsByDate).map(([date, hearings]) => {
         const { day, dayName, monthName, year } = formatDateDisplay(date)
         return (
-          <div key={date} className="flex gap-6">
-            <div className="flex-shrink-0 w-24 text-center">
+          <div key={date} className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+            {/* Mobile: compact date strip */}
+            <div className="sm:hidden flex items-center gap-2 px-1">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary text-sm flex-shrink-0">
+                {day}
+              </div>
+              <span className="text-sm font-semibold text-slate-700">{dayName}, {day} ב{monthName} {year}</span>
+            </div>
+
+            {/* Desktop: vertical date card */}
+            <div className="hidden sm:block flex-shrink-0 w-24 text-center">
               <div className="bg-primary/10 rounded-2xl p-3 border border-primary/20">
                 <div className="text-3xl font-bold text-primary">{day}</div>
                 <div className="text-xs text-primary/80 font-medium">{dayName}</div>
@@ -77,26 +86,26 @@ export function HearingsBoard({ cases }: HearingsBoardProps) {
               </div>
             </div>
 
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 space-y-2 sm:space-y-3">
               {hearings.map((hearing, index) => (
                 <div
                   key={`${hearing.caseName}-${index}`}
-                  className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all"
+                  className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-primary/30 transition-all"
                 >
-                  <h3 className="font-semibold text-slate-800 text-lg mb-1 text-right">{hearing.caseName}</h3>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2 text-slate-600">
+                  <h3 className="font-semibold text-slate-800 text-base sm:text-lg mb-1.5 text-right">{hearing.caseName}</h3>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-1.5 text-slate-600">
                       <Clock className="h-4 w-4 text-primary" />
                       <span className="text-sm">{hearing.time}</span>
                     </div>
                     {hearing.court && (
-                      <div className="flex items-center gap-2 text-slate-600">
+                      <div className="flex items-center gap-1.5 text-slate-600">
                         <MapPin className="h-4 w-4 text-primary" />
                         <span className="text-sm">{hearing.court}</span>
                       </div>
                     )}
                     {hearing.judge && (
-                      <div className="flex items-center gap-2 text-slate-600">
+                      <div className="flex items-center gap-1.5 text-slate-600">
                         <User className="h-4 w-4 text-primary" />
                         <span className="text-sm">{hearing.judge}</span>
                       </div>

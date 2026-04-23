@@ -72,12 +72,21 @@ export function MeetingsBoard({ cases }: MeetingsBoardProps) {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-5 max-w-4xl mx-auto">
       {Object.entries(meetingsByDate).map(([date, meetings]) => {
         const { day, dayName, monthName, year } = formatDateDisplay(date)
         return (
-          <div key={date} className="flex gap-6">
-            <div className="flex-shrink-0 w-24 text-center">
+          <div key={date} className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+            {/* Mobile: compact date strip */}
+            <div className="sm:hidden flex items-center gap-2 px-1">
+              <div className="w-9 h-9 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center font-bold text-purple-600 text-sm flex-shrink-0">
+                {day}
+              </div>
+              <span className="text-sm font-semibold text-slate-700">{dayName}, {day} ב{monthName} {year}</span>
+            </div>
+
+            {/* Desktop: vertical date card */}
+            <div className="hidden sm:block flex-shrink-0 w-24 text-center">
               <div className="bg-purple-100 rounded-2xl p-3 border border-purple-200">
                 <div className="text-3xl font-bold text-purple-600">{day}</div>
                 <div className="text-xs text-purple-600/80 font-medium">{dayName}</div>
@@ -85,24 +94,24 @@ export function MeetingsBoard({ cases }: MeetingsBoardProps) {
               </div>
             </div>
 
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 space-y-2 sm:space-y-3">
               {meetings.map((meeting) => (
                 <div
                   key={meeting.id}
-                  className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all"
+                  className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all"
                 >
-                  <h3 className="font-semibold text-slate-800 text-lg mb-1">{meeting.title}</h3>
-                  <div className="flex items-center gap-2 text-slate-500 mb-3">
-                    <FileText className="h-3.5 w-3.5" />
+                  <h3 className="font-semibold text-slate-800 text-base sm:text-lg mb-1">{meeting.title}</h3>
+                  <div className="flex items-center gap-1.5 text-slate-500 mb-2">
+                    <FileText className="h-3.5 w-3.5 flex-shrink-0" />
                     <span className="text-sm">{meeting.caseName}</span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-2 text-slate-600">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-1.5 text-slate-600">
                       <Clock className="h-4 w-4 text-purple-500" />
                       <span className="text-sm">{meeting.time}</span>
                     </div>
                     {meeting.location && (
-                      <div className="flex items-center gap-2 text-slate-600">
+                      <div className="flex items-center gap-1.5 text-slate-600">
                         <MapPin className="h-4 w-4 text-purple-500" />
                         <span className="text-sm">{meeting.location}</span>
                       </div>
@@ -112,7 +121,7 @@ export function MeetingsBoard({ cases }: MeetingsBoardProps) {
                         href={meeting.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-purple-600 hover:text-purple-700 transition-colors"
+                        className="flex items-center gap-1.5 text-purple-600 hover:text-purple-700 transition-colors"
                       >
                         <ExternalLink className="h-4 w-4" />
                         <span className="text-sm font-medium">הצטרף לפגישה</span>
@@ -120,7 +129,7 @@ export function MeetingsBoard({ cases }: MeetingsBoardProps) {
                     )}
                   </div>
                   {meeting.notes && (
-                    <p className="text-sm text-slate-500 mt-3 pt-3 border-t border-slate-100">
+                    <p className="text-sm text-slate-500 mt-2 pt-2 border-t border-slate-100">
                       {meeting.notes}
                     </p>
                   )}
