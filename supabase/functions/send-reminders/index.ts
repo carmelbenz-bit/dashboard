@@ -153,10 +153,14 @@ Deno.serve(async () => {
         const timeStr: string = (item.time as string) ?? "09:00"
         if (!dateStr || !reminders.length) continue
 
-        // Parse item datetime
+        // Parse item datetime — dates/times are stored in Israel time (Asia/Jerusalem).
+        // Deno runs in UTC, so we convert: Israel summer = UTC+3, winter = UTC+2.
+        // April–October = UTC+3 (IDT), November–March = UTC+2 (IST).
         const [day, month, year] = dateStr.split(".")
         const [hh, mm] = timeStr.split(":")
-        const itemDate = new Date(+year, +month - 1, +day, +hh, +mm)
+        const monthNum = +month
+        const israelOffsetHours = (monthNum >= 4 && monthNum <= 10) ? 3 : 2
+        const itemDate = new Date(Date.UTC(+year, monthNum - 1, +day, +hh - israelOffsetHours, +mm))
 
         for (const reminder of reminders) {
           if (reminder.sent) continue
