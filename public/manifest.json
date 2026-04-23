@@ -1,0 +1,26 @@
+{
+  "name": "ניהול תיקים",
+  "short_name": "תיקים",
+  "description": "מערכת ניהול משימות ותיקים לעורכי דין",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#1d3461",
+  "theme_color": "#1d3461",
+  "orientation": "portrait",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/dashboard/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/dashboard/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
