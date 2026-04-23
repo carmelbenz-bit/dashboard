@@ -53,13 +53,13 @@ export function ReminderSelector({ reminders, onChange }: ReminderSelectorProps)
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm text-slate-500 flex items-center gap-1 justify-end">
+      <Label className="text-sm text-slate-500 flex items-center gap-1">
         <Bell className="h-3.5 w-3.5" />
         תזכורות <span className="text-slate-400">(אופציונלי)</span>
       </Label>
 
       {reminders.length > 0 && (
-        <div className="flex flex-wrap gap-2 justify-end">
+        <div className="flex flex-wrap gap-2">
           {[...reminders]
             .sort((a, b) => b.minutesBefore - a.minutesBefore)
             .map(reminder => (
@@ -79,7 +79,7 @@ export function ReminderSelector({ reminders, onChange }: ReminderSelectorProps)
 
       {available.length > 0 && (
         adding ? (
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-2">
             <Select onValueChange={(v) => addReminder(parseInt(v))}>
               <SelectTrigger className="w-44 bg-slate-50 border-slate-200 text-sm">
                 <SelectValue placeholder="בחרי מתי" />
@@ -97,18 +97,16 @@ export function ReminderSelector({ reminders, onChange }: ReminderSelectorProps)
             </Button>
           </div>
         ) : (
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setAdding(true)}
-              className="gap-1.5 text-slate-500 hover:text-primary hover:bg-primary/5 text-sm"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              הוסף תזכורת
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setAdding(true)}
+            className="gap-1.5 text-slate-500 hover:text-primary hover:bg-primary/5 text-sm px-0"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            הוסף תזכורת
+          </Button>
         )
       )}
     </div>
