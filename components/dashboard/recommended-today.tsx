@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Sparkles, Clock, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -43,6 +43,29 @@ function getUrgencyLabel(daysRemaining: number | null, urgency: string): { text:
 
 export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, onCompleteTask }: RecommendedTodayProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [orderedIds, setOrderedIds] = useState<string[]>(() => tasks.map(t => t.id))
+
+  useEffect(() => {
+    setOrderedIds(tasks.map(t => t.id))
+  }, [tasks.map(t => t.id).join(",")])
+
+  const orderedTasks = orderedIds
+    .map(id => tasks.find(t => t.id === id))
+    .filter(Boolean) as RecommendedTask[]
+
+  const moveUp = (index: number) => {
+    if (index === 0) return
+    const next = [...orderedIds]
+    ;[next[index - 1], next[index]] = [next[index], next[index - 1]]
+    setOrderedIds(next)
+  }
+
+  const moveDown = (index: number) => {
+    if (index === orderedIds.length - 1) return
+    const next = [...orderedIds]
+    ;[next[index], next[index + 1]] = [next[index + 1], next[index]]
+    setOrderedIds(next)
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-t-4 border-t-primary border-slate-200 overflow-hidden">
@@ -65,14 +88,30 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
       </div>
 
       {!isCollapsed && <div className="divide-y divide-slate-100">
-        {tasks.map((task) => {
+        {orderedTasks.map((task, index) => {
           const urgencyLabel = getUrgencyLabel(task.daysRemaining, task.urgency)
           return (
             <div
               key={task.id}
-              className="flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-slate-50"
+              className="group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-slate-50"
             >
               <div className="flex items-center gap-3">
+                <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => moveUp(index)}
+                    disabled={index === 0}
+                    className="text-slate-300 hover:text-slate-500 disabled:opacity-0 leading-none"
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => moveDown(index)}
+                    disabled={index === orderedTasks.length - 1}
+                    className="text-slate-300 hover:text-slate-500 disabled:opacity-0 leading-none"
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+                </div>
                 <button
                   onClick={() => onCompleteTask(task.id, true)}
                   className="w-5 h-5 rounded-full border-2 border-slate-300 hover:border-emerald-400 flex items-center justify-center flex-shrink-0 transition-colors"
