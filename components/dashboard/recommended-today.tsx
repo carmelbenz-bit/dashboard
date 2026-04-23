@@ -81,7 +81,7 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
                   onClick={() => onEditTask(task.id)}
                   className="font-medium text-foreground hover:text-primary hover:underline transition-colors text-right"
                 >
-                  {task.caseName} — {task.title}
+                  <span className="font-bold">{task.caseName}</span> — {task.title}
                 </button>
               </div>
 
