@@ -35,7 +35,7 @@ function StatCard({ title, value, icon, variant, topBorderColor, onClick, isActi
         </div>
         <div className="flex flex-col items-end">
           <span className={cn(
-            "text-3xl font-bold",
+            "text-2xl sm:text-3xl font-bold",
             variant === "default" && "text-blue-600",
             variant === "success" && "text-emerald-600",
             variant === "warning" && "text-amber-600",
@@ -65,7 +65,7 @@ interface StatCardsProps {
 
 export function StatCards({ stats, activeFilter, onFilterChange }: StatCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" dir="rtl">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" dir="rtl">
       <StatCard
         title="תיקים פתוחים"
         value={stats.openCases}
