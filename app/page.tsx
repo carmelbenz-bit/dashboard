@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Header } from "@/components/dashboard/header"
 import { NavigationTabs } from "@/components/dashboard/navigation-tabs"
 import { StatCards, type TaskFilter } from "@/components/dashboard/stat-cards"
@@ -136,28 +136,66 @@ export default function DashboardPage() {
   const [searchFilterOption, setSearchFilterOption] = useState<TaskFilterOption>("all")
   const [sortOption, setSortOption] = useState<SortOption>("dateAsc")
   const [userId, setUserId] = useState<string | null>(null)
-  const [dataLoaded, setDataLoaded] = useState(false)
-  const [cases, setCases] = useState<Record<string, CaseData[]>>(initialCases)
+  const [loading, setLoading] = useState(true)
+  const [cases, setCases] = useState<Record<string, CaseData[]>>({ all: [] })
+  const syncTimeout = useRef<ReturnType<typeof setTimeout>>()
+  const dbReady = useRef(false)
+
+  const rowToCase = (row: Record<string, unknown>): CaseData => ({
+    id: row.id as string,
+    name: row.name as string,
+    court: (row.court as string) || "",
+    client: (row.client as string) || "",
+    lawyer: (row.lawyer as string) || "",
+    judge: row.judge as string | undefined,
+    notes: row.notes as string | undefined,
+    status: row.status as string | undefined,
+    hearings: (row.hearings as CaseData["hearings"]) || [],
+    tasks: (row.tasks as CaseData["tasks"]) || [],
+    meetings: (row.meetings as CaseData["meetings"]) || [],
+    files: (row.files as CaseData["files"]) || [],
+  })
+
+  const caseToRow = (c: CaseData, uid: string) => ({
+    id: c.id,
+    user_id: uid,
+    name: c.name,
+    court: c.court,
+    client: c.client,
+    lawyer: c.lawyer,
+    judge: c.judge,
+    notes: c.notes,
+    status: c.status,
+    hearings: c.hearings,
+    tasks: c.tasks,
+    meetings: c.meetings || [],
+    files: (c.files || []).filter(f => !f.url?.startsWith("blob:")),
+  })
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         const uid = session.user.id
         setUserId(uid)
-        try {
-          const saved = localStorage.getItem(`dashboard-cases-${uid}`)
-          if (saved) setCases(JSON.parse(saved))
-        } catch {}
-        setDataLoaded(true)
+        const { data } = await supabase.from("cases").select("*").order("created_at", { ascending: true })
+        if (data && data.length > 0) {
+          setCases({ all: data.map(rowToCase) })
+        }
+        dbReady.current = true
       }
+      setLoading(false)
     })
   }, [])
 
   useEffect(() => {
-    if (userId && dataLoaded) {
-      localStorage.setItem(`dashboard-cases-${userId}`, JSON.stringify(cases))
-    }
-  }, [cases, userId, dataLoaded])
+    if (!userId || !dbReady.current) return
+    clearTimeout(syncTimeout.current)
+    syncTimeout.current = setTimeout(() => {
+      const allCases = Object.values(cases).flat()
+      allCases.forEach(c => supabase.from("cases").upsert(caseToRow(c, userId)).then())
+    }, 800)
+    return () => clearTimeout(syncTimeout.current)
+  }, [cases, userId])
   const [activeTab, setActiveTab] = useState("cases")
   const [isAddCaseModalOpen, setIsAddCaseModalOpen] = useState(false)
   const [isAddHearingModalOpen, setIsAddHearingModalOpen] = useState(false)
@@ -330,13 +368,10 @@ export default function DashboardPage() {
         files: newCaseData.files || [],
         notes: newCaseData.notes,
       }
-      setCases((prevCases) => {
-        const dateKey = "ללא תאריך"
-        return {
-          ...prevCases,
-          [dateKey]: [...(prevCases[dateKey] || []), newCase],
-        }
-      })
+      setCases((prevCases) => ({
+        ...prevCases,
+        all: [...(prevCases["all"] || []), newCase],
+      }))
     }
   }
 
@@ -520,6 +555,7 @@ export default function DashboardPage() {
       if (newCases[date].length === 0) delete newCases[date]
     })
     setCases(newCases)
+    if (userId) supabase.from("cases").delete().eq("id", caseId).then()
   }
 
   const handleUpdateStatus = (caseId: string, status: string) => {
@@ -764,6 +800,12 @@ export default function DashboardPage() {
       default: return null
     }
   }
+
+  if (loading) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-muted-foreground text-sm">טוען נתונים...</div>
+    </div>
+  )
 
   return (
     <AuthGuard>
