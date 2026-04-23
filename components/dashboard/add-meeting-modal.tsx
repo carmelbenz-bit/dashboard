@@ -11,13 +11,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { ReminderSelector, type Reminder } from "./reminder-selector"
 
 export interface NewMeetingData {
@@ -130,26 +123,25 @@ export function AddMeetingModal({ isOpen, onClose, onSave, caseName, editingMeet
           <div className="space-y-2">
             <Label className="text-sm text-slate-500 block text-right">שעה</Label>
             <div className="flex gap-1 justify-end">
-              <Select value={formData.minute} onValueChange={(v) => updateField("minute", v)}>
-                <SelectTrigger className="bg-slate-50 border-slate-200">
-                  <SelectValue placeholder="00" />
-                </SelectTrigger>
-                <SelectContent>
-                  {minutes.map((m) => (
-                    <SelectItem key={m} value={m}>{m}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={formData.hour} onValueChange={(v) => updateField("hour", v)}>
-                <SelectTrigger className="bg-slate-50 border-slate-200">
-                  <SelectValue placeholder="00" />
-                </SelectTrigger>
-                <SelectContent>
-                  {hours.map((h) => (
-                    <SelectItem key={h} value={h}>{h}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <select
+                value={formData.minute}
+                onChange={(e) => updateField("minute", e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              >
+                {minutes.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
+                value={formData.hour}
+                onChange={(e) => updateField("hour", e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              >
+                <option value="">--</option>
+                {hours.map((h) => (
+                  <option key={h} value={h}>{h}</option>
+                ))}
+              </select>
             </div>
           </div>
 

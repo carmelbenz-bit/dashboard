@@ -406,6 +406,7 @@ export default function DashboardPage() {
             files: task.files,
             notes: task.notes,
             estimatedDuration: task.estimatedDuration,
+            reminders: task.reminders,
           }
         }
       })
@@ -537,7 +538,7 @@ export default function DashboardPage() {
       files: allFiles.length > 0 ? allFiles : undefined,
       notes: taskData.notes || undefined,
       estimatedDuration,
-      reminders: taskData.reminders.length > 0 ? taskData.reminders : undefined,
+      reminders: (taskData.reminders ?? []).length > 0 ? taskData.reminders : undefined,
     }
 
     setCases((prevCases) => {
