@@ -4,13 +4,6 @@ import { useState } from "react"
 import { Bell, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 export interface Reminder {
   id: string
@@ -79,22 +72,26 @@ export function ReminderSelector({ reminders, onChange }: ReminderSelectorProps)
 
       {available.length > 0 && (
         adding ? (
-          <div className="flex gap-2">
-            <Select onValueChange={(v) => addReminder(parseInt(v))}>
-              <SelectTrigger className="w-44 bg-slate-50 border-slate-200 text-sm">
-                <SelectValue placeholder="בחרי מתי" />
-              </SelectTrigger>
-              <SelectContent>
-                {available.map(option => (
-                  <SelectItem key={option.minutesBefore} value={option.minutesBefore.toString()}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setAdding(false)} className="text-slate-400 px-2">
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {available.map(option => (
+                <button
+                  key={option.minutesBefore}
+                  type="button"
+                  onClick={() => addReminder(option.minutesBefore)}
+                  className="text-sm px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-colors"
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setAdding(false)}
+              className="text-xs text-slate-400 hover:text-slate-600"
+            >
               ביטול
-            </Button>
+            </button>
           </div>
         ) : (
           <Button
