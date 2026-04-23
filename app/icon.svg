@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#1d3461"/>
+
+  <!-- Top knob -->
+  <circle cx="256" cy="124" r="20" fill="white"/>
+
+  <!-- Horizontal beam -->
+  <rect x="84" y="166" width="344" height="20" fill="white" rx="10"/>
+
+  <!-- Center post (over beam) -->
+  <rect x="246" y="124" width="20" height="240" fill="white" rx="8"/>
+
+  <!-- Left chain -->
+  <rect x="102" y="186" width="16" height="68" fill="white" rx="6"/>
+
+  <!-- Right chain -->
+  <rect x="394" y="186" width="16" height="68" fill="white" rx="6"/>
+
+  <!-- Left pan (arc bowl) -->
+  <path d="M66 254 Q110 316 154 254" fill="none" stroke="white" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- Right pan (arc bowl) -->
+  <path d="M358 254 Q402 316 446 254" fill="none" stroke="white" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- Base -->
+  <rect x="172" y="354" width="168" height="20" fill="white" rx="10"/>
+</svg>

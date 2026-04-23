@@ -20,10 +20,6 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'ניהול תיקים',
   },
-  icons: {
-    icon: [{ url: '/icon.svg?v=2', type: 'image/svg+xml' }],
-    apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-  },
 }
 
 export default function RootLayout({
