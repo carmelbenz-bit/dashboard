@@ -237,7 +237,7 @@ export default function DashboardPage() {
   }
 
   const recommendedTasks = allTasks
-    .filter((t) => !t.completed && (t.dueDate !== null || t.urgency === "overdue"))
+    .filter((t) => !t.completed && t.tags.includes("שלי") && (t.dueDate !== null || t.urgency === "overdue"))
     .map((t) => {
       const parentCase = allCases.find((c) => c.tasks.some((task) => task.id === t.id))
       const daysRemaining = getDaysRemaining(t.dueDate)
