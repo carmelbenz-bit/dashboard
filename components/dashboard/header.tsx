@@ -1,9 +1,10 @@
 "use client"
 
-import { Scale, Plus, Bell, LogOut } from "lucide-react"
+import { Scale, Plus, Bell, BellOff, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
+import { usePushNotifications } from "@/hooks/usePushNotifications"
 
 interface HeaderProps {
   onAddCase: () => void
@@ -11,11 +12,23 @@ interface HeaderProps {
 
 export function Header({ onAddCase }: HeaderProps) {
   const router = useRouter()
+  const { status, enable, disable } = usePushNotifications()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.replace("/login")
   }
+
+  const handleBellClick = () => {
+    if (status === "enabled") disable()
+    else if (status === "disabled") enable()
+  }
+
+  const bellTitle =
+    status === "enabled" ? "כבה התרעות" :
+    status === "denied" ? "התרעות חסומות בדפדפן" :
+    status === "unsupported" ? "הדפדפן לא תומך בהתרעות" :
+    "הפעל התרעות"
 
   return (
     <header className="bg-sidebar text-sidebar-foreground">
@@ -32,13 +45,25 @@ export function Header({ onAddCase }: HeaderProps) {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden sm:inline-flex text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-            >
-              <Bell className="h-5 w-5" />
-            </Button>
+            {status !== "unsupported" && status !== "loading" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBellClick}
+                disabled={status === "denied"}
+                title={bellTitle}
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent relative"
+              >
+                {status === "enabled" ? (
+                  <Bell className="h-5 w-5 text-primary" />
+                ) : (
+                  <BellOff className="h-5 w-5" />
+                )}
+                {status === "enabled" && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full" />
+                )}
+              </Button>
+            )}
 
             <Button
               variant="ghost"
