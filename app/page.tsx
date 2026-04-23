@@ -824,16 +824,22 @@ export default function DashboardPage() {
             )}
 
             <div className="space-y-8">
-              {Object.entries(sortedFilteredCases)
-                .sort(([a], [b]) => {
-                  const [dayA, monthA, yearA] = a.split(".").map(Number)
-                  const [dayB, monthB, yearB] = b.split(".").map(Number)
-                  return new Date(yearA, monthA - 1, dayA).getTime() - new Date(yearB, monthB - 1, dayB).getTime()
-                })
-                .map(([date, dateCases]) => (
+              {(() => {
+                const getEarliestTaskTime = (c: CaseData): number => {
+                  const myTasks = c.tasks.filter(t => !t.completed && t.dueDate)
+                  if (myTasks.length === 0) return Infinity
+                  return Math.min(...myTasks.map(t => {
+                    const [day, month, year] = t.dueDate!.split(".").map(Number)
+                    return new Date(year, month - 1, day).getTime()
+                  }))
+                }
+                const allSortedCases = Object.values(sortedFilteredCases)
+                  .flat()
+                  .sort((a, b) => getEarliestTaskTime(a) - getEarliestTaskTime(b))
+                return (
                   <DateGroup
-                    key={date}
-                    cases={dateCases}
+                    key="all"
+                    cases={allSortedCases}
                     onEditTask={handleEditTask}
                     onDeleteTask={handleDeleteTask}
                     onCompleteTask={handleCompleteTask}
@@ -849,10 +855,11 @@ export default function DashboardPage() {
                     onCompleteMeeting={handleCompleteMeeting}
                     onEditCase={handleEditCase}
                   />
-                ))}
+                )
+              })()}
             </div>
 
-            {Object.keys(sortedFilteredCases).length === 0 && (
+            {Object.values(sortedFilteredCases).flat().length === 0 && (
               <div className="text-center py-16">
                 <p className="text-muted-foreground text-lg">לא נמצאו תיקים או משימות</p>
               </div>
