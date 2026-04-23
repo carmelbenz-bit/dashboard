@@ -81,12 +81,11 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
                   onClick={() => onEditTask(task.id)}
                   className="font-medium text-foreground hover:text-primary hover:underline transition-colors text-right"
                 >
-                  {task.title}
+                  {task.caseName} — {task.title}
                 </button>
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-500">{task.caseName}</span>
                 {urgencyLabel.text && (
                   <span className={cn(
                     "text-xs font-medium px-2.5 py-1 rounded-full border",
