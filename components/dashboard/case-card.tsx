@@ -17,7 +17,8 @@ import {
   ExternalLink,
   Download,
   Paperclip,
-  Tag
+  Tag,
+  Gavel
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -91,6 +92,7 @@ export interface CaseData {
   court: string
   client: string
   lawyer: string
+  judge?: string
   tasks: Task[]
   files?: CaseFile[]
   notes?: string
@@ -311,10 +313,12 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                   <Building2 className="h-4 w-4" />
                   {caseData.court}
                 </span>
-                <span className="flex items-center gap-1">
-                  <User className="h-4 w-4" />
-                  {caseData.client}
-                </span>
+                {caseData.judge && (
+                  <span className="flex items-center gap-1">
+                    <Gavel className="h-4 w-4" />
+                    {caseData.judge}
+                  </span>
+                )}
                 <span className="flex items-center gap-1.5 text-primary-foreground/90">
                   <Briefcase className="h-4 w-4" />
                   <span className="font-medium">{caseData.lawyer}</span>

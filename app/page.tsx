@@ -285,6 +285,7 @@ export default function DashboardPage() {
         lawyer: foundCase.lawyer,
         court: foundCase.court,
         clientName: foundCase.client,
+        judge: foundCase.judge,
         files: foundCase.files,
         notes: foundCase.notes,
       })
@@ -305,6 +306,7 @@ export default function DashboardPage() {
                 court: newCaseData.court || c.court,
                 client: newCaseData.clientName || c.client,
                 lawyer: newCaseData.lawyer || c.lawyer,
+                judge: newCaseData.judge,
                 files: newCaseData.files || c.files,
                 notes: newCaseData.notes,
               }
@@ -323,6 +325,7 @@ export default function DashboardPage() {
         court: newCaseData.court || "לא צוין",
         client: newCaseData.clientName || "",
         lawyer: newCaseData.lawyer || "",
+        judge: newCaseData.judge,
         tasks: [],
         files: newCaseData.files || [],
         notes: newCaseData.notes,
