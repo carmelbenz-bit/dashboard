@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ReminderSelector, type Reminder } from "./reminder-selector"
 
 export interface NewHearingData {
   date: string
@@ -26,6 +27,7 @@ export interface NewHearingData {
   court: string
   judge: string
   materials: string
+  reminders: Reminder[]
 }
 
 export interface HearingForEdit {
@@ -34,6 +36,7 @@ export interface HearingForEdit {
   time: string
   court?: string
   notes?: string
+  reminders?: Reminder[]
 }
 
 interface AddHearingModalProps {
@@ -53,9 +56,9 @@ export function AddHearingModal({ isOpen, onClose, onSave, caseName, editingHear
         const [day, month, year] = editingHearing.date.split(".")
         dateForInput = `${year}-${month}-${day}`
       }
-      return { date: dateForInput, hour, minute: minute || "00", court: editingHearing.court || "", judge: "", materials: editingHearing.notes || "" }
+      return { date: dateForInput, hour, minute: minute || "00", court: editingHearing.court || "", judge: "", materials: editingHearing.notes || "", reminders: editingHearing.reminders || [] }
     }
-    return { date: "", hour: "", minute: "00", court: "", judge: "", materials: "" }
+    return { date: "", hour: "", minute: "00", court: "", judge: "", materials: "", reminders: [] }
   }
 
   const [formData, setFormData] = useState<NewHearingData>(getInitialFormData)
@@ -65,7 +68,7 @@ export function AddHearingModal({ isOpen, onClose, onSave, caseName, editingHear
   }, [editingHearing])
 
   const handleClose = () => {
-    setFormData({ date: "", hour: "", minute: "00", court: "", judge: "", materials: "" })
+    setFormData({ date: "", hour: "", minute: "00", court: "", judge: "", materials: "", reminders: [] })
     onClose()
   }
 
@@ -166,6 +169,13 @@ export function AddHearingModal({ isOpen, onClose, onSave, caseName, editingHear
               className="text-right bg-slate-50 border-slate-200 focus:bg-white min-h-[100px] resize-none placeholder:text-slate-400"
             />
           </div>
+
+          {formData.date && (
+            <ReminderSelector
+              reminders={formData.reminders}
+              onChange={(reminders) => setFormData(prev => ({ ...prev, reminders }))}
+            />
+          )}
         </div>
 
         <div className="p-6 pt-4 border-t border-slate-100 flex gap-3">

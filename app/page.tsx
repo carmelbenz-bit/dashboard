@@ -537,6 +537,7 @@ export default function DashboardPage() {
       files: allFiles.length > 0 ? allFiles : undefined,
       notes: taskData.notes || undefined,
       estimatedDuration,
+      reminders: taskData.reminders.length > 0 ? taskData.reminders : undefined,
     }
 
     setCases((prevCases) => {
@@ -608,6 +609,7 @@ export default function DashboardPage() {
       time: hearingTime,
       court: hearingData.court,
       notes: hearingData.materials,
+      reminders: hearingData.reminders.length > 0 ? hearingData.reminders : undefined,
     }
     setCases((prevCases) => {
       const newCases = { ...prevCases }
@@ -680,6 +682,7 @@ export default function DashboardPage() {
       location: meetingData.location,
       notes: meetingData.notes,
       link: meetingData.link,
+      reminders: meetingData.reminders.length > 0 ? meetingData.reminders : undefined,
     }
     setCases((prevCases) => {
       const newCases = { ...prevCases }

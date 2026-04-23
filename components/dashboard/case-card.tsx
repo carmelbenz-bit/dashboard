@@ -20,6 +20,7 @@ import {
   Tag,
   Gavel
 } from "lucide-react"
+import type { Reminder } from "./reminder-selector"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -59,6 +60,7 @@ export interface Task {
   notes?: string
   completed?: boolean
   estimatedDuration?: string
+  reminders?: Reminder[]
 }
 
 export interface Hearing {
@@ -66,6 +68,7 @@ export interface Hearing {
   time: string
   court?: string
   notes?: string
+  reminders?: Reminder[]
 }
 
 export interface Meeting {
@@ -77,6 +80,7 @@ export interface Meeting {
   notes?: string
   link?: string
   completed?: boolean
+  reminders?: Reminder[]
 }
 
 export interface CaseFile {

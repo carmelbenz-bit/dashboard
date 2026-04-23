@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { X } from "lucide-react"
+import { ReminderSelector, type Reminder } from "./reminder-selector"
 
 export interface NewTaskData {
   assignee: "שלי" | "הצד השני"
@@ -32,6 +33,7 @@ export interface NewTaskData {
   durationHours: string
   durationMinutes: string
   durationDays: string
+  reminders: Reminder[]
 }
 
 export interface TaskForEdit {
@@ -42,6 +44,7 @@ export interface TaskForEdit {
   files?: { name: string; url: string }[]
   notes?: string
   estimatedDuration?: string
+  reminders?: Reminder[]
 }
 
 interface AddTaskModalProps {
@@ -74,6 +77,7 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
         durationHours: "0",
         durationMinutes: "00",
         durationDays: "0",
+        reminders: editingTask.reminders || [],
       }
     }
     return {
@@ -89,6 +93,7 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
       durationHours: "0",
       durationMinutes: "00",
       durationDays: "0",
+      reminders: [],
     }
   }
 
@@ -133,6 +138,7 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
       durationHours: "0",
       durationMinutes: "00",
       durationDays: "0",
+      reminders: [],
     })
     onClose()
   }
@@ -304,6 +310,14 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
               className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm text-right focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
             />
           </div>
+
+          {/* Reminders */}
+          {formData.assignee === "שלי" && formData.dueDate && (
+            <ReminderSelector
+              reminders={formData.reminders}
+              onChange={(reminders) => updateField("reminders", reminders)}
+            />
+          )}
 
           {/* Estimated Duration */}
           {formData.assignee === "שלי" && (

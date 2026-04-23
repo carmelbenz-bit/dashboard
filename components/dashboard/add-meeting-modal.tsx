@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ReminderSelector, type Reminder } from "./reminder-selector"
 
 export interface NewMeetingData {
   title: string
@@ -27,6 +28,7 @@ export interface NewMeetingData {
   location: string
   notes: string
   link: string
+  reminders: Reminder[]
 }
 
 export interface MeetingForEdit {
@@ -37,6 +39,7 @@ export interface MeetingForEdit {
   location?: string
   notes?: string
   link?: string
+  reminders?: Reminder[]
 }
 
 interface AddMeetingModalProps {
@@ -64,9 +67,10 @@ export function AddMeetingModal({ isOpen, onClose, onSave, caseName, editingMeet
         location: editingMeeting.location || "",
         notes: editingMeeting.notes || "",
         link: editingMeeting.link || "",
+        reminders: editingMeeting.reminders || [],
       }
     }
-    return { title: "", date: "", hour: "", minute: "", location: "", notes: "", link: "" }
+    return { title: "", date: "", hour: "", minute: "", location: "", notes: "", link: "", reminders: [] }
   }
 
   const [formData, setFormData] = useState<NewMeetingData>(getInitialFormData())
@@ -86,7 +90,7 @@ export function AddMeetingModal({ isOpen, onClose, onSave, caseName, editingMeet
   }
 
   const handleClose = () => {
-    setFormData({ title: "", date: "", hour: "", minute: "", location: "", notes: "", link: "" })
+    setFormData({ title: "", date: "", hour: "", minute: "", location: "", notes: "", link: "", reminders: [] })
     onClose()
   }
 
@@ -186,6 +190,13 @@ export function AddMeetingModal({ isOpen, onClose, onSave, caseName, editingMeet
               dir="ltr"
             />
           </div>
+
+          {formData.date && (
+            <ReminderSelector
+              reminders={formData.reminders}
+              onChange={(reminders) => setFormData(prev => ({ ...prev, reminders }))}
+            />
+          )}
         </div>
 
         <div className="p-6 pt-4 border-t border-slate-100 flex gap-3">
