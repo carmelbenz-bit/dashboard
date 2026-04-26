@@ -5,6 +5,7 @@ import { Header } from "@/components/dashboard/header"
 import { NavigationTabs } from "@/components/dashboard/navigation-tabs"
 import { StatCards, type TaskFilter } from "@/components/dashboard/stat-cards"
 import { RecommendedToday } from "@/components/dashboard/recommended-today"
+import { GeneralTasksSection, type GeneralTask } from "@/components/dashboard/general-tasks"
 import { SearchBar, type TaskFilterOption, type SortOption } from "@/components/dashboard/search-bar"
 import { DateGroup } from "@/components/dashboard/date-group"
 import { HearingsBoard } from "@/components/dashboard/hearings-board"
@@ -224,6 +225,12 @@ export default function DashboardPage() {
   const [editingTask, setEditingTask] = useState<TaskForEdit | null>(null)
   const [editingCase, setEditingCase] = useState<CaseForEdit | null>(null)
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all")
+  const [generalTasks, setGeneralTasks] = useState<GeneralTask[]>(() => {
+    try {
+      const saved = typeof window !== "undefined" ? localStorage.getItem("general-tasks") : null
+      return saved ? JSON.parse(saved) : []
+    } catch { return [] }
+  })
 
   const allCases = Object.values(cases).flat()
   const allTasks = allCases.flatMap((c) => c.tasks)
@@ -595,6 +602,19 @@ export default function DashboardPage() {
     })
   }
 
+  const saveGeneralTasks = (next: GeneralTask[]) => {
+    setGeneralTasks(next)
+    try { localStorage.setItem("general-tasks", JSON.stringify(next)) } catch {}
+  }
+
+  const handleAddGeneralTask = (title: string, dueDate: string | null) => {
+    saveGeneralTasks([...generalTasks, { id: `gt-${Date.now()}`, title, dueDate, completed: false }])
+  }
+
+  const handleCompleteGeneralTask = (taskId: string) => {
+    saveGeneralTasks(generalTasks.map((t) => t.id === taskId ? { ...t, completed: true } : t))
+  }
+
   const handleAddHearing = (caseId: string, caseName: string) => {
     setSelectedCaseForHearing({ id: caseId, name: caseName })
     setIsAddHearingModalOpen(true)
@@ -890,6 +910,14 @@ export default function DashboardPage() {
                 onEditTask={handleEditTask}
                 onCompleteTask={handleCompleteTask}
                 storageKey={userId ? `recommended-order-${userId}` : undefined}
+              />
+            )}
+
+            {taskFilter === "all" && !searchQuery && searchFilterOption === "all" && (
+              <GeneralTasksSection
+                tasks={generalTasks}
+                onAdd={handleAddGeneralTask}
+                onComplete={handleCompleteGeneralTask}
               />
             )}
 
