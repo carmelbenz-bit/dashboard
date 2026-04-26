@@ -93,7 +93,7 @@ export function AddMeetingModal({ isOpen, onClose, onSave, caseName, editingMeet
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose() }}>
       <DialogContent
-        className="sm:max-w-md bg-white p-0 gap-0"
+        className="sm:max-w-md bg-white p-0 gap-0 max-h-[90vh] overflow-y-auto"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
       >
@@ -103,7 +103,7 @@ export function AddMeetingModal({ isOpen, onClose, onSave, caseName, editingMeet
           </DialogTitle>
         </DialogHeader>
 
-        <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+        <div className="p-6 space-y-5">
           <div className="space-y-2">
             <Label className="text-sm text-slate-500 block text-right">כותרת הפגישה</Label>
             <Input
