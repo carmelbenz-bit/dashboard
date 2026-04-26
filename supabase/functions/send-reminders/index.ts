@@ -125,8 +125,12 @@ Deno.serve(async () => {
   const now = new Date()
   const windowStart = new Date(now.getTime() - 2 * 60 * 1000)
 
+  console.log(`Checking reminders. now=${now.toISOString()} windowStart=${windowStart.toISOString()}`)
+
   const { data: cases, error } = await supabase.from("cases").select("*")
   if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+
+  console.log(`Cases found: ${cases?.length ?? 0}`)
 
   const updates: Promise<void>[] = []
   let remindersTriggered = 0
@@ -149,9 +153,12 @@ Deno.serve(async () => {
         const israelOffsetHours = (monthNum >= 4 && monthNum <= 10) ? 3 : 2
         const itemDate = new Date(Date.UTC(+year, monthNum - 1, +day, +hh - israelOffsetHours, +mm))
 
+        console.log(`[${section}] "${item.title}" dateStr=${dateStr} timeStr=${timeStr} itemDate=${itemDate.toISOString()} reminders=${reminders.length}`)
+
         for (const reminder of reminders) {
-          if (reminder.sent) continue
+          if (reminder.sent) { console.log(`  reminder ${reminder.minutesBefore}min → already sent`); continue }
           const triggerAt = new Date(itemDate.getTime() - reminder.minutesBefore * 60 * 1000)
+          console.log(`  reminder ${reminder.minutesBefore}min → triggerAt=${triggerAt.toISOString()} inWindow=${triggerAt >= windowStart && triggerAt <= now}`)
           if (triggerAt >= windowStart && triggerAt <= now) {
             remindersTriggered++
             const label = section === "tasks" ? "משימה" : section === "hearings" ? "דיון" : "פגישה"
