@@ -171,7 +171,7 @@ export function GeneralTasksSection({ tasks, onAdd, onComplete }: GeneralTasksSe
 
           {/* Footer add button */}
           {!isAdding && (
-            <div className="px-5 py-2.5 border-t border-slate-100 flex justify-end">
+            <div className="px-5 py-2.5 border-t border-slate-100 flex justify-start">
               <button
                 onClick={openAddForm}
                 className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
