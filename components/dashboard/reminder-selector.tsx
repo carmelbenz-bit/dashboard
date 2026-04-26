@@ -12,6 +12,7 @@ export interface Reminder {
 }
 
 export const REMINDER_OPTIONS = [
+  { label: "5 דקות לפני", minutesBefore: 5 },
   { label: "שעה לפני", minutesBefore: 60 },
   { label: "3 שעות לפני", minutesBefore: 180 },
   { label: "יום לפני", minutesBefore: 1440 },

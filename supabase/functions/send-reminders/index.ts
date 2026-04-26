@@ -156,6 +156,7 @@ Deno.serve(async () => {
             remindersTriggered++
             const label = section === "tasks" ? "משימה" : section === "hearings" ? "דיון" : "פגישה"
             const minutesLabel =
+              reminder.minutesBefore === 5 ? "5 דקות לפני" :
               reminder.minutesBefore === 60 ? "שעה לפני" :
               reminder.minutesBefore === 180 ? "3 שעות לפני" :
               reminder.minutesBefore === 1440 ? "יום לפני" :
