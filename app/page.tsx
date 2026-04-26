@@ -310,9 +310,23 @@ export default function DashboardPage() {
     }
   }
 
-  const pinnedRecommended = allTasks
-    .filter((t) => !t.completed && t.pinned)
-    .map((t) => toRecommendedTask(t, true))
+  const pinnedRecommended = [
+    ...allTasks
+      .filter((t) => !t.completed && t.pinned)
+      .map((t) => toRecommendedTask(t, true)),
+    ...generalTasks
+      .filter((t) => !t.completed && t.pinned)
+      .map((t) => ({
+        id: t.id,
+        title: t.title,
+        caseName: "משימות כלליות",
+        urgency: "none" as const,
+        daysRemaining: getDaysRemaining(t.dueDate),
+        estimatedMinutes: 60,
+        priorityScore: 9999,
+        pinned: true,
+      })),
+  ]
 
   const pinnedIds = new Set(pinnedRecommended.map((t) => t.id))
 
@@ -630,11 +644,15 @@ export default function DashboardPage() {
   }
 
   const handleAddGeneralTask = (title: string, dueDate: string | null) => {
-    saveGeneralTasks([...generalTasks, { id: `gt-${Date.now()}`, title, dueDate, completed: false }])
+    saveGeneralTasks([...generalTasks, { id: `gt-${Date.now()}`, title, dueDate, completed: false, pinned: false }])
   }
 
   const handleCompleteGeneralTask = (taskId: string) => {
     saveGeneralTasks(generalTasks.map((t) => t.id === taskId ? { ...t, completed: true } : t))
+  }
+
+  const handlePinGeneralTask = (taskId: string, pinned: boolean) => {
+    saveGeneralTasks(generalTasks.map((t) => t.id === taskId ? { ...t, pinned } : t))
   }
 
   const handleAddHearing = (caseId: string, caseName: string) => {
@@ -940,6 +958,7 @@ export default function DashboardPage() {
                 tasks={generalTasks}
                 onAdd={handleAddGeneralTask}
                 onComplete={handleCompleteGeneralTask}
+                onPin={handlePinGeneralTask}
               />
             )}
 

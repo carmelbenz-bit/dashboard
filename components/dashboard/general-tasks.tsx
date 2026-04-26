@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { ChevronUp, ChevronDown, Plus, Clock } from "lucide-react"
+import { ChevronUp, ChevronDown, Plus, Clock, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface GeneralTask {
@@ -9,12 +9,14 @@ export interface GeneralTask {
   title: string
   dueDate: string | null
   completed: boolean
+  pinned?: boolean
 }
 
 interface GeneralTasksSectionProps {
   tasks: GeneralTask[]
   onAdd: (title: string, dueDate: string | null) => void
   onComplete: (taskId: string) => void
+  onPin: (taskId: string, pinned: boolean) => void
 }
 
 function getDaysInfo(dueDate: string | null): { label: string; badgeClass: string; borderClass: string } {
@@ -33,7 +35,7 @@ function getDaysInfo(dueDate: string | null): { label: string; badgeClass: strin
   return { label: `${days} ימים`, badgeClass: "bg-green-50 text-green-600", borderClass: "border-l-green-500" }
 }
 
-export function GeneralTasksSection({ tasks, onAdd, onComplete }: GeneralTasksSectionProps) {
+export function GeneralTasksSection({ tasks, onAdd, onComplete, onPin }: GeneralTasksSectionProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [newTitle, setNewTitle] = useState("")
@@ -112,6 +114,13 @@ export function GeneralTasksSection({ tasks, onAdd, onComplete }: GeneralTasksSe
                       onClick={() => onComplete(task.id)}
                       className="w-5 h-5 rounded-full border-2 border-slate-300 hover:border-emerald-400 flex-shrink-0 transition-colors"
                     />
+                    <button
+                      onClick={() => onPin(task.id, !task.pinned)}
+                      title={task.pinned ? "הסר מ״מומלץ להיום״" : "הוסף ל״מומלץ להיום״"}
+                      className={cn("flex-shrink-0 transition-colors", task.pinned ? "text-amber-400 hover:text-amber-500" : "text-slate-300 hover:text-amber-400")}
+                    >
+                      <Star className={cn("h-4 w-4", task.pinned && "fill-amber-400")} />
+                    </button>
                     <span className="text-sm font-medium text-foreground">{task.title}</span>
                   </div>
                   {/* Left: days badge */}
