@@ -296,24 +296,33 @@ export default function DashboardPage() {
     return Math.max(0, 100 - daysRemaining * 10)
   }
 
-  const recommendedTasks = allTasks
-    .filter((t) => !t.completed && t.tags.includes("שלי") && (t.dueDate !== null || t.urgency === "overdue"))
-    .map((t) => {
-      const parentCase = allCases.find((c) => c.tasks.some((task) => task.id === t.id))
-      const daysRemaining = getDaysRemaining(t.dueDate)
-      const priorityScore = calculatePriorityScore(t)
-      return {
-        id: t.id,
-        title: t.title,
-        caseName: parentCase?.name || "",
-        urgency: t.urgency,
-        daysRemaining,
-        estimatedMinutes: 60,
-        priorityScore,
-      }
-    })
+  const toRecommendedTask = (t: typeof allTasks[0], pinned = false) => {
+    const parentCase = allCases.find((c) => c.tasks.some((task) => task.id === t.id))
+    return {
+      id: t.id,
+      title: t.title,
+      caseName: parentCase?.name || "",
+      urgency: t.urgency,
+      daysRemaining: getDaysRemaining(t.dueDate),
+      estimatedMinutes: 60,
+      priorityScore: pinned ? 9999 : calculatePriorityScore(t),
+      pinned,
+    }
+  }
+
+  const pinnedRecommended = allTasks
+    .filter((t) => !t.completed && t.pinned)
+    .map((t) => toRecommendedTask(t, true))
+
+  const pinnedIds = new Set(pinnedRecommended.map((t) => t.id))
+
+  const algorithmRecommended = allTasks
+    .filter((t) => !t.completed && !pinnedIds.has(t.id) && t.tags.includes("שלי") && (t.dueDate !== null || t.urgency === "overdue"))
+    .map((t) => toRecommendedTask(t, false))
     .sort((a, b) => b.priorityScore - a.priorityScore)
-    .slice(0, 5)
+    .slice(0, Math.max(0, 5 - pinnedRecommended.length))
+
+  const recommendedTasks = [...pinnedRecommended, ...algorithmRecommended]
 
   const meetingMinutes = getTodayMeetingMinutes()
   const freeMinutes = Math.max(0, 8 * 60 - meetingMinutes)
@@ -433,6 +442,19 @@ export default function DashboardPage() {
         newCases[date] = newCases[date].map((c) => ({
           ...c,
           tasks: c.tasks.filter((t) => t.id !== taskId),
+        }))
+      })
+      return newCases
+    })
+  }
+
+  const handlePinTask = (taskId: string, pinned: boolean) => {
+    setCases((prev) => {
+      const newCases = { ...prev }
+      Object.keys(newCases).forEach((date) => {
+        newCases[date] = newCases[date].map((c) => ({
+          ...c,
+          tasks: c.tasks.map((t) => t.id === taskId ? { ...t, pinned } : t),
         }))
       })
       return newCases
@@ -952,6 +974,7 @@ export default function DashboardPage() {
                     onDeleteMeeting={handleDeleteMeeting}
                     onCompleteMeeting={handleCompleteMeeting}
                     onEditCase={handleEditCase}
+                    onPinTask={handlePinTask}
                   />
                 )
               })()}

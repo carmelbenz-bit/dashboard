@@ -18,7 +18,8 @@ import {
   Download,
   Paperclip,
   Tag,
-  Gavel
+  Gavel,
+  Star
 } from "lucide-react"
 import type { Reminder } from "./reminder-selector"
 import { Button } from "@/components/ui/button"
@@ -62,6 +63,7 @@ export interface Task {
   completed?: boolean
   estimatedDuration?: string
   reminders?: Reminder[]
+  pinned?: boolean
 }
 
 export interface Hearing {
@@ -120,6 +122,7 @@ interface CaseCardProps {
   onCompleteMeeting?: (meetingId: string, completed: boolean) => void
   onEditCase: () => void
   onUpdateStatus?: (status: string) => void
+  onPinTask: (taskId: string, pinned: boolean) => void
 }
 
 function UrgencyBadge({ urgency, daysInfo }: { urgency: Task["urgency"], daysInfo: string }) {
@@ -275,7 +278,7 @@ function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
   )
 }
 
-export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, onAddTask, onDeleteCase, onAddHearing, onEditHearing, onDeleteHearing, onAddMeeting, onEditMeeting, onDeleteMeeting, onCompleteMeeting, onEditCase, onUpdateStatus }: CaseCardProps) {
+export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, onAddTask, onDeleteCase, onAddHearing, onEditHearing, onDeleteHearing, onAddMeeting, onEditMeeting, onDeleteMeeting, onCompleteMeeting, onEditCase, onUpdateStatus, onPinTask }: CaseCardProps) {
   const [isExpanded, setIsExpanded] = useState(true)
   const [statusInput, setStatusInput] = useState(caseData.status || "")
   const [statusOpen, setStatusOpen] = useState(false)
@@ -520,6 +523,15 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                       <UrgencyBadge urgency={task.urgency} daysInfo={task.daysInfo} />
                     </div>
                     <div className="col-span-2 flex justify-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        title={task.pinned ? "הסר מ״מומלץ להיום״" : "הוסף ל״מומלץ להיום״"}
+                        className={cn("h-8 w-8 p-0", task.pinned ? "text-amber-400 hover:text-amber-500 hover:bg-amber-50" : "text-slate-300 hover:text-amber-400 hover:bg-amber-50")}
+                        onClick={() => onPinTask(task.id, !task.pinned)}
+                      >
+                        <Star className={cn("h-4 w-4", task.pinned && "fill-amber-400")} />
+                      </Button>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 hover:text-primary hover:bg-primary/10" onClick={() => onEditTask(task.id)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -545,6 +557,14 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                           {task.title}
                         </button>
                         <div className="flex items-center gap-0.5 flex-shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn("h-7 w-7 p-0", task.pinned ? "text-amber-400 hover:text-amber-500" : "text-slate-300 hover:text-amber-400")}
+                            onClick={() => onPinTask(task.id, !task.pinned)}
+                          >
+                            <Star className={cn("h-3.5 w-3.5", task.pinned && "fill-amber-400")} />
+                          </Button>
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-400 hover:text-primary hover:bg-primary/10" onClick={() => onEditTask(task.id)}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>

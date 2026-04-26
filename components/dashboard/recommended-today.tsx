@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Sparkles, Clock, ChevronUp, ChevronDown, GripVertical } from "lucide-react"
+import { Sparkles, Clock, ChevronUp, ChevronDown, GripVertical, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface RecommendedTask {
@@ -12,6 +12,7 @@ interface RecommendedTask {
   daysRemaining: number | null
   estimatedMinutes: number
   priorityScore: number
+  pinned?: boolean
 }
 
 interface RecommendedTodayProps {
@@ -140,7 +141,10 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
                 </button>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {task.pinned && (
+                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 flex-shrink-0" />
+                )}
                 {urgencyLabel.text && (
                   <span className={cn(
                     "text-xs font-medium px-2.5 py-1 rounded-full border",

@@ -18,6 +18,7 @@ interface DateGroupProps {
   onCompleteMeeting: (meetingId: string, completed: boolean) => void
   onEditCase: (caseId: string) => void
   onUpdateStatus: (caseId: string, status: string) => void
+  onPinTask: (taskId: string, pinned: boolean) => void
 }
 
 export function DateGroup({
@@ -35,7 +36,8 @@ export function DateGroup({
   onDeleteMeeting,
   onCompleteMeeting,
   onEditCase,
-  onUpdateStatus
+  onUpdateStatus,
+  onPinTask
 }: DateGroupProps) {
   return (
     <div className="space-y-4">
@@ -57,6 +59,7 @@ export function DateGroup({
           onCompleteMeeting={onCompleteMeeting}
           onEditCase={() => onEditCase(caseData.id)}
           onUpdateStatus={(status) => onUpdateStatus(caseData.id, status)}
+          onPinTask={onPinTask}
         />
       ))}
     </div>
