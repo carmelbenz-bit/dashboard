@@ -78,8 +78,8 @@ export function Header({ onAddCase, onAddTask }: HeaderProps) {
 
             <Button
               onClick={onAddTask}
-              variant="outline"
-              className="hidden sm:flex border-sidebar-foreground/20 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              variant="ghost"
+              className="hidden sm:flex text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent border border-sidebar-foreground/25"
             >
               <ClipboardList className="h-4 w-4 ml-2" />
               הוסף משימה
