@@ -12,6 +12,7 @@ interface MeetingWithCase {
   location?: string
   notes?: string
   link?: string
+  completed?: boolean
 }
 
 interface MeetingsBoardProps {
@@ -34,6 +35,7 @@ export function MeetingsBoard({ cases }: MeetingsBoardProps) {
             location: meeting.location,
             notes: meeting.notes,
             link: meeting.link,
+            completed: meeting.completed,
           })
         })
       }
@@ -100,7 +102,7 @@ export function MeetingsBoard({ cases }: MeetingsBoardProps) {
                   key={meeting.id}
                   className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all"
                 >
-                  <h3 className="font-semibold text-slate-800 text-base sm:text-lg mb-1">{meeting.title}</h3>
+                  <h3 className={`font-semibold text-base sm:text-lg mb-1 ${meeting.completed ? "line-through text-slate-400" : "text-slate-800"}`}>{meeting.title}</h3>
                   <div className="flex items-center gap-1.5 text-slate-500 mb-2">
                     <FileText className="h-3.5 w-3.5 flex-shrink-0" />
                     <span className="text-sm">{meeting.caseName}</span>
