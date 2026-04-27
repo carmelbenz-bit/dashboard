@@ -1,6 +1,6 @@
 "use client"
 
-import { Scale, Plus, Bell, BellOff, LogOut } from "lucide-react"
+import { Scale, Plus, Bell, BellOff, LogOut, ClipboardList } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
@@ -8,9 +8,10 @@ import { usePushNotifications } from "@/hooks/usePushNotifications"
 
 interface HeaderProps {
   onAddCase: () => void
+  onAddTask: () => void
 }
 
-export function Header({ onAddCase }: HeaderProps) {
+export function Header({ onAddCase, onAddTask }: HeaderProps) {
   const router = useRouter()
   const { status, enable, disable } = usePushNotifications()
 
@@ -75,6 +76,14 @@ export function Header({ onAddCase }: HeaderProps) {
               <LogOut className="h-5 w-5" />
             </Button>
 
+            <Button
+              onClick={onAddTask}
+              variant="outline"
+              className="hidden sm:flex border-sidebar-foreground/20 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            >
+              <ClipboardList className="h-4 w-4 ml-2" />
+              הוסף משימה
+            </Button>
             <Button
               onClick={onAddCase}
               className="hidden sm:flex bg-primary hover:bg-primary/90 text-primary-foreground"

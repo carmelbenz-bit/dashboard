@@ -16,6 +16,8 @@ import { AddCaseModal, type NewCaseData, type CaseForEdit } from "@/components/d
 import { AddHearingModal, type NewHearingData, type HearingForEdit } from "@/components/dashboard/add-hearing-modal"
 import { AddMeetingModal, type NewMeetingData, type MeetingForEdit } from "@/components/dashboard/add-meeting-modal"
 import { AddTaskModal, type NewTaskData, type TaskForEdit } from "@/components/dashboard/add-task-modal"
+import { PickCaseModal } from "@/components/dashboard/pick-case-modal"
+import { AddGeneralTaskModal } from "@/components/dashboard/add-general-task-modal"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { supabase } from "@/lib/supabase"
 import type { CaseData } from "@/components/dashboard/case-card"
@@ -223,6 +225,8 @@ export default function DashboardPage() {
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false)
   const [selectedCaseForTask, setSelectedCaseForTask] = useState<{ id: string; name: string } | null>(null)
   const [editingTask, setEditingTask] = useState<TaskForEdit | null>(null)
+  const [isPickCaseModalOpen, setIsPickCaseModalOpen] = useState(false)
+  const [isAddGeneralTaskModalOpen, setIsAddGeneralTaskModalOpen] = useState(false)
   const [editingCase, setEditingCase] = useState<CaseForEdit | null>(null)
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all")
   const [generalTasks, setGeneralTasks] = useState<GeneralTask[]>(() => {
@@ -352,6 +356,20 @@ export default function DashboardPage() {
   const handleAddCase = () => {
     setEditingCase(null)
     setIsAddCaseModalOpen(true)
+  }
+
+  const handleAddTaskFromHeader = () => {
+    setIsPickCaseModalOpen(true)
+  }
+
+  const handlePickCase = (caseId: string, caseName: string) => {
+    setSelectedCaseForTask({ id: caseId, name: caseName })
+    setEditingTask(null)
+    setIsAddTaskModalOpen(true)
+  }
+
+  const handlePickGeneral = () => {
+    setIsAddGeneralTaskModalOpen(true)
   }
 
   const handleEditCase = (caseId: string) => {
@@ -897,7 +915,7 @@ export default function DashboardPage() {
   return (
     <AuthGuard>
     <div className="min-h-screen bg-background">
-      <Header onAddCase={handleAddCase} />
+      <Header onAddCase={handleAddCase} onAddTask={handleAddTaskFromHeader} />
 
       <main className="container mx-auto px-4 pt-6 pb-28 sm:py-8 space-y-6">
         <div className="flex justify-start">
@@ -1051,6 +1069,18 @@ export default function DashboardPage() {
         onSave={handleSaveNewTask}
         caseName={selectedCaseForTask?.name || ""}
         editingTask={editingTask}
+      />
+      <PickCaseModal
+        isOpen={isPickCaseModalOpen}
+        onClose={() => setIsPickCaseModalOpen(false)}
+        cases={allCases.map((c) => ({ id: c.id, name: c.name, court: c.court, client: c.client }))}
+        onSelectCase={handlePickCase}
+        onSelectGeneral={handlePickGeneral}
+      />
+      <AddGeneralTaskModal
+        isOpen={isAddGeneralTaskModalOpen}
+        onClose={() => setIsAddGeneralTaskModalOpen(false)}
+        onSave={handleAddGeneralTask}
       />
     </div>
     </AuthGuard>
