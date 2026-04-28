@@ -157,23 +157,28 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader className="p-6 pb-4 border-b border-slate-100">
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => updateField("pinned", !formData.pinned)}
-              title={formData.pinned ? "הסר מ״מומלץ להיום״" : "סמן כחשוב (מומלץ להיום)"}
-              className="p-1.5 rounded-lg transition-colors hover:bg-amber-50"
-            >
-              <Star className={formData.pinned ? "h-5 w-5 fill-amber-400 text-amber-400" : "h-5 w-5 text-slate-300 hover:text-amber-400"} />
-            </button>
-            <DialogTitle className="text-lg font-semibold text-slate-800 text-center flex-1">
-              {editingTask ? "עריכת משימה" : "משימה חדשה"} — {caseName}
-            </DialogTitle>
-            <div className="w-8" />
-          </div>
+          <DialogTitle className="text-lg font-semibold text-slate-800 text-center">
+            {editingTask ? "עריכת משימה" : "משימה חדשה"} — {caseName}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+          {/* Pin toggle */}
+          <button
+            type="button"
+            onClick={() => updateField("pinned", !formData.pinned)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-colors ${
+              formData.pinned
+                ? "border-amber-300 bg-amber-50 text-amber-700"
+                : "border-slate-200 bg-slate-50 text-slate-500 hover:border-amber-200 hover:bg-amber-50/50 hover:text-amber-600"
+            }`}
+          >
+            <Star className={`h-4 w-4 flex-shrink-0 ${formData.pinned ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
+            <span className="text-sm font-medium">
+              {formData.pinned ? "מסומן כמומלץ להיום" : "הוסף למומלץ להיום"}
+            </span>
+          </button>
+
           {/* Assignee Toggle */}
           <div className="space-y-2">
             <Label className="text-sm text-slate-500 block text-right">שייך ל</Label>
