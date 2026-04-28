@@ -167,7 +167,7 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
           <button
             type="button"
             onClick={() => updateField("pinned", !formData.pinned)}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-colors ${
+            className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg border transition-colors ${
               formData.pinned
                 ? "border-amber-300 bg-amber-50 text-amber-700"
                 : "border-slate-200 bg-slate-50 text-slate-500 hover:border-amber-200 hover:bg-amber-50/50 hover:text-amber-600"
