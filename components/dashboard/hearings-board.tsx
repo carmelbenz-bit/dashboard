@@ -1,6 +1,7 @@
 "use client"
 
-import { Clock, MapPin, User } from "lucide-react"
+import { useState } from "react"
+import { Clock, MapPin, User, History } from "lucide-react"
 import type { CaseData } from "./case-card"
 
 interface HearingWithCase {
@@ -15,7 +16,16 @@ interface HearingsBoardProps {
   cases: Record<string, CaseData[]>
 }
 
+const isPast = (dateStr: string) => {
+  const [day, month, year] = dateStr.split(".").map(Number)
+  const d = new Date(year, month - 1, day)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return d < today
+}
+
 export function HearingsBoard({ cases }: HearingsBoardProps) {
+  const [showHistory, setShowHistory] = useState(false)
   const allHearings: HearingWithCase[] = []
 
   Object.values(cases).forEach((dateCases) => {
@@ -41,8 +51,11 @@ export function HearingsBoard({ cases }: HearingsBoardProps) {
     return a.time.localeCompare(b.time)
   })
 
+  const historyCount = allHearings.filter((h) => isPast(h.date)).length
+  const visibleHearings = showHistory ? allHearings : allHearings.filter((h) => !isPast(h.date))
+
   const hearingsByDate: Record<string, HearingWithCase[]> = {}
-  allHearings.forEach((hearing) => {
+  visibleHearings.forEach((hearing) => {
     if (!hearingsByDate[hearing.date]) hearingsByDate[hearing.date] = []
     hearingsByDate[hearing.date].push(hearing)
   })
@@ -65,6 +78,18 @@ export function HearingsBoard({ cases }: HearingsBoardProps) {
 
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
+      {historyCount > 0 && (
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary border border-slate-200 hover:border-primary/30 rounded-full px-3 py-1.5 transition-colors"
+        >
+          <History className="h-3.5 w-3.5" />
+          {showHistory ? "הסתר היסטוריה" : `הצג היסטוריה (${historyCount})`}
+        </button>
+      )}
+      {Object.keys(hearingsByDate).length === 0 && (
+        <div className="text-center py-12 text-slate-400 text-sm">אין דיונים עתידיים</div>
+      )}
       {Object.entries(hearingsByDate).map(([date, hearings]) => {
         const { day, dayName, monthName, year } = formatDateDisplay(date)
         return (

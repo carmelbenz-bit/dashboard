@@ -19,7 +19,8 @@ import {
   Paperclip,
   Tag,
   Gavel,
-  Star
+  Star,
+  History
 } from "lucide-react"
 import type { Reminder } from "./reminder-selector"
 import { Button } from "@/components/ui/button"
@@ -282,6 +283,13 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
   const [isExpanded, setIsExpanded] = useState(true)
   const [statusInput, setStatusInput] = useState(caseData.status || "")
   const [statusOpen, setStatusOpen] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+
+  const historyCount =
+    caseData.tasks.filter((t) => t.completed).length +
+    (caseData.meetings?.filter((m) => m.completed).length ?? 0)
+  const visibleTasks = showHistory ? caseData.tasks : caseData.tasks.filter((t) => !t.completed)
+  const visibleMeetings = showHistory ? caseData.meetings : caseData.meetings?.filter((m) => !m.completed)
 
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
@@ -416,6 +424,15 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
       {/* Tasks Table */}
       {isExpanded && (
         <div className="p-5">
+          {historyCount > 0 && (
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="mb-3 flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary border border-slate-200 hover:border-primary/30 rounded-full px-3 py-1.5 transition-colors"
+            >
+              <History className="h-3.5 w-3.5" />
+              {showHistory ? "הסתר היסטוריה" : `הצג היסטוריה (${historyCount})`}
+            </button>
+          )}
           <div className="hidden sm:grid grid-cols-12 gap-3 px-4 py-3 bg-slate-50 rounded-t-lg border border-b-0 border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wide">
             <div className="col-span-4">משימה</div>
             <div className="col-span-2 text-center">אחראי</div>
@@ -425,7 +442,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
           </div>
 
           <div className="border border-slate-200 rounded-lg sm:rounded-t-none sm:rounded-b-lg overflow-hidden">
-            {caseData.tasks.map((task, index) => {
+            {visibleTasks.map((task, index) => {
               const assigneeTag = task.tags.find(t => t === "שלי" || t === "הצד השני")
               const otherTags = task.tags.filter(t => t !== "שלי" && t !== "הצד השני")
               const isOverdue = task.urgency === "overdue"
@@ -464,7 +481,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                   key={task.id}
                   className={cn(
                     "transition-colors",
-                    index !== caseData.tasks.length - 1 && "border-b border-slate-100",
+                    index !== visibleTasks.length - 1 && "border-b border-slate-100",
                     isOverdue && "bg-red-50/50",
                     isSoon && !isOverdue && "bg-amber-50/30",
                     !isOverdue && !isSoon && "bg-white hover:bg-slate-50/50"
@@ -586,9 +603,9 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
             })}
           </div>
 
-          {caseData.meetings && caseData.meetings.length > 0 && (
+          {visibleMeetings && visibleMeetings.length > 0 && (
             <div className="mt-4 space-y-2">
-              {caseData.meetings.map((meeting) => {
+              {visibleMeetings.map((meeting) => {
                 const getMeetingUrgency = () => {
                   if (!meeting.date) return { urgency: "none" as const, daysInfo: "" }
                   const [day, month, year] = meeting.date.split(".")

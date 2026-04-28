@@ -1,6 +1,7 @@
 "use client"
 
-import { Clock, FileText, ExternalLink, MapPin } from "lucide-react"
+import { useState } from "react"
+import { Clock, FileText, ExternalLink, MapPin, History } from "lucide-react"
 import type { CaseData } from "./case-card"
 
 interface MeetingWithCase {
@@ -20,6 +21,7 @@ interface MeetingsBoardProps {
 }
 
 export function MeetingsBoard({ cases }: MeetingsBoardProps) {
+  const [showHistory, setShowHistory] = useState(false)
   const allMeetings: MeetingWithCase[] = []
 
   Object.values(cases).forEach((dateCases) => {
@@ -51,8 +53,11 @@ export function MeetingsBoard({ cases }: MeetingsBoardProps) {
     return a.time.localeCompare(b.time)
   })
 
+  const historyCount = allMeetings.filter((m) => m.completed).length
+  const visibleMeetings = showHistory ? allMeetings : allMeetings.filter((m) => !m.completed)
+
   const meetingsByDate: Record<string, MeetingWithCase[]> = {}
-  allMeetings.forEach((meeting) => {
+  visibleMeetings.forEach((meeting) => {
     if (!meetingsByDate[meeting.date]) meetingsByDate[meeting.date] = []
     meetingsByDate[meeting.date].push(meeting)
   })
@@ -75,6 +80,18 @@ export function MeetingsBoard({ cases }: MeetingsBoardProps) {
 
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
+      {historyCount > 0 && (
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary border border-slate-200 hover:border-primary/30 rounded-full px-3 py-1.5 transition-colors"
+        >
+          <History className="h-3.5 w-3.5" />
+          {showHistory ? "הסתר היסטוריה" : `הצג היסטוריה (${historyCount})`}
+        </button>
+      )}
+      {Object.keys(meetingsByDate).length === 0 && (
+        <div className="text-center py-12 text-slate-400 text-sm">כל הפגישות הושלמו</div>
+      )}
       {Object.entries(meetingsByDate).map(([date, meetings]) => {
         const { day, dayName, monthName, year } = formatDateDisplay(date)
         return (
