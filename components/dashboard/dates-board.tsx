@@ -1,6 +1,7 @@
 "use client"
 
-import { Clock, MapPin, User, FileText, ExternalLink, Timer } from "lucide-react"
+import { useState } from "react"
+import { Clock, MapPin, User, FileText, ExternalLink, Timer, History } from "lucide-react"
 import type { CaseData } from "./case-card"
 
 type EventType = "hearing" | "meeting" | "task"
@@ -25,7 +26,16 @@ interface DatesBoardProps {
   cases: Record<string, CaseData[]>
 }
 
+const isPast = (dateStr: string) => {
+  const [day, month, year] = dateStr.split(".").map(Number)
+  const d = new Date(year, month - 1, day)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return d < today
+}
+
 export function DatesBoard({ cases }: DatesBoardProps) {
+  const [showHistory, setShowHistory] = useState(false)
   const allEvents: CalendarEvent[] = []
 
   Object.values(cases).forEach((dateCases) => {
@@ -80,8 +90,11 @@ export function DatesBoard({ cases }: DatesBoardProps) {
     return a.time.localeCompare(b.time)
   })
 
+  const historyCount = allEvents.filter((e) => isPast(e.date) || e.completed).length
+  const visibleEvents = showHistory ? allEvents : allEvents.filter((e) => !isPast(e.date) && !e.completed)
+
   const eventsByDate: Record<string, CalendarEvent[]> = {}
-  allEvents.forEach((event) => {
+  visibleEvents.forEach((event) => {
     if (!eventsByDate[event.date]) eventsByDate[event.date] = []
     eventsByDate[event.date].push(event)
   })
@@ -131,6 +144,18 @@ export function DatesBoard({ cases }: DatesBoardProps) {
 
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
+      {historyCount > 0 && (
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary border border-slate-200 hover:border-primary/30 rounded-full px-3 py-1.5 transition-colors"
+        >
+          <History className="h-3.5 w-3.5" />
+          {showHistory ? "הסתר היסטוריה" : `הצג היסטוריה (${historyCount})`}
+        </button>
+      )}
+      {Object.keys(eventsByDate).length === 0 && (
+        <div className="text-center py-12 text-slate-400 text-sm">אין מועדים עתידיים</div>
+      )}
       {Object.entries(eventsByDate).map(([date, events]) => {
         const { day, dayName, monthName, year } = formatDateDisplay(date)
         const style = getDateBadgeStyle(events)
