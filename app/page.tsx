@@ -456,6 +456,7 @@ export default function DashboardPage() {
             notes: task.notes,
             estimatedDuration: task.estimatedDuration,
             reminders: task.reminders,
+            pinned: task.pinned,
           }
         }
       })
@@ -608,6 +609,7 @@ export default function DashboardPage() {
       notes: taskData.notes || undefined,
       estimatedDuration,
       reminders: (taskData.reminders ?? []).length > 0 ? taskData.reminders : undefined,
+      pinned: taskData.pinned || undefined,
     }
 
     setCases((prevCases) => {

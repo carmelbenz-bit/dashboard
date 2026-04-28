@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { X } from "lucide-react"
+import { X, Star } from "lucide-react"
 import { ReminderSelector, type Reminder } from "./reminder-selector"
 
 export interface NewTaskData {
@@ -27,6 +27,7 @@ export interface NewTaskData {
   durationMinutes: string
   durationDays: string
   reminders: Reminder[]
+  pinned: boolean
 }
 
 export interface TaskForEdit {
@@ -39,6 +40,7 @@ export interface TaskForEdit {
   notes?: string
   estimatedDuration?: string
   reminders?: Reminder[]
+  pinned?: boolean
 }
 
 interface AddTaskModalProps {
@@ -73,6 +75,7 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
         durationMinutes: "00",
         durationDays: "0",
         reminders: editingTask.reminders || [],
+        pinned: editingTask.pinned || false,
       }
     }
     return {
@@ -89,6 +92,7 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
       durationMinutes: "00",
       durationDays: "0",
       reminders: [],
+      pinned: false,
     }
   }
 
@@ -134,6 +138,7 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
       durationMinutes: "00",
       durationDays: "0",
       reminders: [],
+      pinned: false,
     })
     onClose()
   }
@@ -152,9 +157,20 @@ export function AddTaskModal({ isOpen, onClose, onSave, caseName, editingTask }:
         onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader className="p-6 pb-4 border-b border-slate-100">
-          <DialogTitle className="text-lg font-semibold text-slate-800 text-center">
-            {editingTask ? "עריכת משימה" : "משימה חדשה"} — {caseName}
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => updateField("pinned", !formData.pinned)}
+              title={formData.pinned ? "הסר מ״מומלץ להיום״" : "סמן כחשוב (מומלץ להיום)"}
+              className="p-1.5 rounded-lg transition-colors hover:bg-amber-50"
+            >
+              <Star className={formData.pinned ? "h-5 w-5 fill-amber-400 text-amber-400" : "h-5 w-5 text-slate-300 hover:text-amber-400"} />
+            </button>
+            <DialogTitle className="text-lg font-semibold text-slate-800 text-center flex-1">
+              {editingTask ? "עריכת משימה" : "משימה חדשה"} — {caseName}
+            </DialogTitle>
+            <div className="w-8" />
+          </div>
         </DialogHeader>
 
         <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
