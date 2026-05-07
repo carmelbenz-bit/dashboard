@@ -50,8 +50,16 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
   const dragOverIndex = useRef<number | null>(null)
   const taskIds = tasks.map(t => t.id).join(",")
 
+  const pinnedFirst = (ids: string[]) => {
+    const pinnedIds = new Set(tasks.filter(t => t.pinned).map(t => t.id))
+    return [
+      ...ids.filter(id => pinnedIds.has(id)),
+      ...ids.filter(id => !pinnedIds.has(id)),
+    ]
+  }
+
   useEffect(() => {
-    if (!storageKey) { setOrderedIds(tasks.map(t => t.id)); return }
+    if (!storageKey) { setOrderedIds(pinnedFirst(tasks.map(t => t.id))); return }
     try {
       const saved = localStorage.getItem(storageKey)
       const savedOrder: string[] = saved ? JSON.parse(saved) : []
@@ -60,15 +68,16 @@ export function RecommendedToday({ tasks, freeTime, meetingsTime, onEditTask, on
         ...savedOrder.filter(id => currentIds.includes(id)),
         ...currentIds.filter(id => !savedOrder.includes(id)),
       ]
-      setOrderedIds(merged)
+      setOrderedIds(pinnedFirst(merged))
     } catch {
-      setOrderedIds(tasks.map(t => t.id))
+      setOrderedIds(pinnedFirst(tasks.map(t => t.id)))
     }
   }, [taskIds, storageKey])
 
   const updateOrder = (next: string[]) => {
-    setOrderedIds(next)
-    if (storageKey) localStorage.setItem(storageKey, JSON.stringify(next))
+    const sorted = pinnedFirst(next)
+    setOrderedIds(sorted)
+    if (storageKey) localStorage.setItem(storageKey, JSON.stringify(sorted))
   }
 
   const orderedTasks = orderedIds
