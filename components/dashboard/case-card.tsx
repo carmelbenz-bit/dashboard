@@ -126,24 +126,37 @@ interface CaseCardProps {
   onPinTask: (taskId: string, pinned: boolean) => void
 }
 
-function UrgencyBadge({ urgency, daysInfo }: { urgency: Task["urgency"], daysInfo: string }) {
-  if (urgency === "none" || !daysInfo) {
+function UrgencyBadge({ dueDate }: { dueDate: string | null }) {
+  if (!dueDate) {
     return <span className="text-xs text-muted-foreground/60">ללא מועד</span>
   }
 
+  const [day, month, year] = dueDate.split(".").map(Number)
+  const due = new Date(year, month - 1, day)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  due.setHours(0, 0, 0, 0)
+  const diff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+
+  let urgency: "overdue" | "soon" | "normal"
+  let label: string
+  if (diff < 0) { urgency = "overdue"; label = `איחור ${Math.abs(diff)} ימים` }
+  else if (diff === 0) { urgency = "soon"; label = "היום" }
+  else if (diff === 1) { urgency = "soon"; label = "מחר" }
+  else if (diff <= 7) { urgency = "soon"; label = `עוד ${diff} ימים` }
+  else { urgency = "normal"; label = `עוד ${diff} ימים` }
+
   return (
-    <div
-      className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold",
-        urgency === "overdue" && "bg-red-100 text-red-800",
-        urgency === "soon" && "bg-amber-100 text-amber-800",
-        urgency === "normal" && "bg-emerald-100 text-emerald-800"
-      )}
-    >
+    <div className={cn(
+      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold",
+      urgency === "overdue" && "bg-red-100 text-red-800",
+      urgency === "soon" && "bg-amber-100 text-amber-800",
+      urgency === "normal" && "bg-emerald-100 text-emerald-800"
+    )}>
       {urgency === "overdue" && <AlertCircle className="h-3.5 w-3.5" />}
       {urgency === "soon" && <Clock className="h-3.5 w-3.5" />}
       {urgency === "normal" && <CheckCircle2 className="h-3.5 w-3.5" />}
-      {daysInfo}
+      {label}
     </div>
   )
 }
@@ -537,7 +550,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                       {task.time && <span className="text-xs text-slate-400 block">{task.time}</span>}
                     </div>
                     <div className="col-span-2 flex justify-center">
-                      <UrgencyBadge urgency={task.urgency} daysInfo={task.daysInfo} />
+                      <UrgencyBadge dueDate={task.dueDate} />
                     </div>
                     <div className="col-span-2 flex justify-center gap-1">
                       <Button
@@ -593,7 +606,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5">
                         {assigneeTag && <AssigneeBadge assignee={assigneeTag as "שלי" | "הצד השני"} />}
                         {task.dueDate && <span className="text-xs text-slate-400">{task.dueDate}{task.time ? ` ${task.time}` : ""}</span>}
-                        {task.urgency !== "none" && task.daysInfo && <UrgencyBadge urgency={task.urgency} daysInfo={task.daysInfo} />}
+                        {task.dueDate && <UrgencyBadge dueDate={task.dueDate} />}
                       </div>
                       {task.notes && <p className="text-xs text-muted-foreground mt-1">{task.notes}</p>}
                     </div>
@@ -606,19 +619,6 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
           {visibleMeetings && visibleMeetings.length > 0 && (
             <div className="mt-4 space-y-2">
               {visibleMeetings.map((meeting) => {
-                const getMeetingUrgency = () => {
-                  if (!meeting.date) return { urgency: "none" as const, daysInfo: "" }
-                  const [day, month, year] = meeting.date.split(".")
-                  const meetingDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
-                  const today = new Date()
-                  today.setHours(0, 0, 0, 0)
-                  const diffDays = Math.ceil((meetingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-                  if (diffDays < 0) return { urgency: "overdue" as const, daysInfo: `איחור ${Math.abs(diffDays)} ימים` }
-                  if (diffDays <= 7) return { urgency: "soon" as const, daysInfo: `עוד ${diffDays} ימים` }
-                  return { urgency: "normal" as const, daysInfo: `עוד ${diffDays} ימים` }
-                }
-                const { urgency, daysInfo } = getMeetingUrgency()
-
                 const meetingCheckbox = (
                   <button
                     onClick={() => onCompleteMeeting?.(meeting.id, !meeting.completed)}
@@ -660,7 +660,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                         <span className="text-sm text-foreground">{meeting.date || "—"}</span>
                       </div>
                       <div className="col-span-2 flex justify-center">
-                        <UrgencyBadge urgency={urgency} daysInfo={daysInfo} />
+                        <UrgencyBadge dueDate={meeting.date} />
                       </div>
                       <div className="col-span-2 flex justify-center gap-1">
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 hover:text-purple-600 hover:bg-purple-100" onClick={() => onEditMeeting?.(meeting.id)}>
@@ -693,7 +693,7 @@ export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, o
                         </div>
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5">
                           {meeting.date && <span className="text-xs text-slate-500">{meeting.date}</span>}
-                          <UrgencyBadge urgency={urgency} daysInfo={daysInfo} />
+                          <UrgencyBadge dueDate={meeting.date} />
                           {meeting.link && (
                             <a href={meeting.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-purple-600">
                               <ExternalLink className="h-3 w-3" />קישור
