@@ -663,6 +663,14 @@ export default function DashboardPage() {
     try { localStorage.setItem("general-tasks", JSON.stringify(next)) } catch {}
   }
 
+  const handleCompleteRecommendedTask = (taskId: string, completed: boolean) => {
+    if (generalTasks.some((t) => t.id === taskId)) {
+      saveGeneralTasks(generalTasks.map((t) => t.id === taskId ? { ...t, completed } : t))
+    } else {
+      handleCompleteTask(taskId, completed)
+    }
+  }
+
   const handleAddGeneralTask = (title: string, dueDate: string | null) => {
     saveGeneralTasks([...generalTasks, { id: `gt-${Date.now()}`, title, dueDate, completed: false, pinned: false }])
   }
@@ -968,7 +976,7 @@ export default function DashboardPage() {
                 freeTime={freeTimeStr}
                 meetingsTime={meetingsTimeStr}
                 onEditTask={handleEditTask}
-                onCompleteTask={handleCompleteTask}
+                onCompleteTask={handleCompleteRecommendedTask}
                 storageKey={userId ? `recommended-order-${userId}` : undefined}
               />
             )}
