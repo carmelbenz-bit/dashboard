@@ -200,9 +200,6 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
                       <p className="text-sm font-medium text-slate-800 leading-tight truncate">{task.title}</p>
                       <p className="text-xs text-slate-400 mt-0.5 truncate">{task.caseName}</p>
                     </div>
-                    <span className="text-xs text-red-500 font-medium flex-shrink-0 mt-0.5">
-                      {task.daysOverdue} י׳
-                    </span>
                   </div>
                 ))}
               </div>
