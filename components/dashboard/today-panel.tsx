@@ -17,7 +17,6 @@ interface OverdueTask {
   id: string
   title: string
   caseName: string
-  daysOverdue: number
 }
 
 interface TodayPanelProps {
@@ -83,11 +82,11 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
     return new Date(y, m - 1, d)
   }
 
-  const getDaysOverdue = (dueDate: string | null): number => {
-    if (!dueDate) return 0
+  const isPastDue = (dueDate: string | null): boolean => {
+    if (!dueDate) return false
     const due = parseDDMMYYYY(dueDate)
-    if (!due) return 0
-    return Math.ceil((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
+    if (!due) return false
+    return due < now
   }
 
   const overdueTasks: OverdueTask[] = []
@@ -95,23 +94,17 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
   cases.forEach((c) => {
     c.tasks.forEach((t) => {
       if (t.completed) return
-      const daysOverdue = getDaysOverdue(t.dueDate)
-      const isPastDue = daysOverdue > 0
-      if (t.urgency === "overdue" || isPastDue) {
-        overdueTasks.push({ id: t.id, title: t.title, caseName: c.name, daysOverdue })
+      if (t.urgency === "overdue" || isPastDue(t.dueDate)) {
+        overdueTasks.push({ id: t.id, title: t.title, caseName: c.name })
       }
     })
   })
 
   generalTasks.forEach((t) => {
-    if (t.completed || !t.dueDate) return
-    const daysOverdue = getDaysOverdue(t.dueDate)
-    if (daysOverdue > 0) {
-      overdueTasks.push({ id: t.id, title: t.title, caseName: "משימות כלליות", daysOverdue })
+    if (!t.completed && isPastDue(t.dueDate)) {
+      overdueTasks.push({ id: t.id, title: t.title, caseName: "משימות כלליות" })
     }
   })
-
-  overdueTasks.sort((a, b) => b.daysOverdue - a.daysOverdue)
 
   const hearingCount = events.filter((e) => e.type === "hearing").length
   const meetingCount = events.filter((e) => e.type === "meeting").length
