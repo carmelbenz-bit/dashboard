@@ -72,24 +72,32 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
     return a.time.localeCompare(b.time)
   })
 
-  const overdueTasks: OverdueTask[] = []
   const now = new Date()
   now.setHours(0, 0, 0, 0)
+
+  const parseDDMMYYYY = (dateStr: string): Date | null => {
+    const parts = dateStr.split(".")
+    if (parts.length !== 3) return null
+    const [d, m, y] = parts.map(Number)
+    if (isNaN(d) || isNaN(m) || isNaN(y)) return null
+    return new Date(y, m - 1, d)
+  }
+
+  const getDaysOverdue = (dueDate: string | null): number => {
+    if (!dueDate) return 0
+    const due = parseDDMMYYYY(dueDate)
+    if (!due) return 0
+    return Math.ceil((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
+  }
+
+  const overdueTasks: OverdueTask[] = []
 
   cases.forEach((c) => {
     c.tasks.forEach((t) => {
       if (t.completed) return
-      if (t.urgency === "overdue" || (t.dueDate && (() => {
-        const [d, m, y] = t.dueDate!.split(".").map(Number)
-        const due = new Date(y, m - 1, d)
-        return due < now
-      })())) {
-        let daysOverdue = 0
-        if (t.dueDate) {
-          const [d, m, y] = t.dueDate.split(".").map(Number)
-          const due = new Date(y, m - 1, d)
-          daysOverdue = Math.ceil((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
-        }
+      const daysOverdue = getDaysOverdue(t.dueDate)
+      const isPastDue = daysOverdue > 0
+      if (t.urgency === "overdue" || isPastDue) {
         overdueTasks.push({ id: t.id, title: t.title, caseName: c.name, daysOverdue })
       }
     })
@@ -97,10 +105,8 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
 
   generalTasks.forEach((t) => {
     if (t.completed || !t.dueDate) return
-    const [d, m, y] = t.dueDate.split(".").map(Number)
-    const due = new Date(y, m - 1, d)
-    if (due < now) {
-      const daysOverdue = Math.ceil((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
+    const daysOverdue = getDaysOverdue(t.dueDate)
+    if (daysOverdue > 0) {
       overdueTasks.push({ id: t.id, title: t.title, caseName: "משימות כלליות", daysOverdue })
     }
   })
@@ -156,6 +162,15 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
           <div className="flex bg-slate-100 gap-px border-b border-slate-100">
             <div className="flex-1 text-center py-3 bg-white">
               <div className="flex items-center justify-center gap-1 mb-0.5">
+                <AlertCircle className="h-3.5 w-3.5 text-red-500" />
+                <span className={`text-xl font-bold ${overdueTasks.length > 0 ? "text-red-600" : "text-slate-800"}`}>
+                  {overdueTasks.length}
+                </span>
+              </div>
+              <div className="text-xs text-slate-400">באיחור</div>
+            </div>
+            <div className="flex-1 text-center py-3 bg-white">
+              <div className="flex items-center justify-center gap-1 mb-0.5">
                 <Gavel className="h-3.5 w-3.5 text-primary" />
                 <span className="text-xl font-bold text-slate-800">{hearingCount}</span>
               </div>
@@ -163,17 +178,10 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
             </div>
             <div className="flex-1 text-center py-3 bg-white">
               <div className="flex items-center justify-center gap-1 mb-0.5">
-                <MessageSquare className="h-3.5 w-3.5 text-purple-500" />
-                <span className="text-xl font-bold text-slate-800">{meetingCount}</span>
-              </div>
-              <div className="text-xs text-slate-400">פגישות</div>
-            </div>
-            <div className="flex-1 text-center py-3 bg-white">
-              <div className="flex items-center justify-center gap-1 mb-0.5">
                 <CheckSquare className="h-3.5 w-3.5 text-emerald-500" />
-                <span className="text-xl font-bold text-slate-800">{taskCount}</span>
+                <span className="text-xl font-bold text-slate-800">{taskCount + meetingCount}</span>
               </div>
-              <div className="text-xs text-slate-400">משימות</div>
+              <div className="text-xs text-slate-400">להיום</div>
             </div>
           </div>
 
