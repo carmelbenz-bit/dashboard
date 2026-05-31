@@ -65,15 +65,9 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
     return a.time.localeCompare(b.time)
   })
 
-  const meetingMinutes = events
-    .filter((e) => e.type === "hearing" || e.type === "meeting")
-    .reduce((sum, e) => sum + (e.type === "hearing" ? 60 : 30), 0)
-
-  const completedToday = cases
-    .flatMap((c) => c.tasks)
-    .filter((t) => t.completed && t.dueDate === todayStr).length
-
-  const scheduledCount = events.length
+  const hearingCount = events.filter((e) => e.type === "hearing").length
+  const meetingCount = events.filter((e) => e.type === "meeting").length
+  const taskCount = events.filter((e) => e.type === "task").length
 
   const dayName = today.toLocaleDateString("he-IL", { weekday: "long" })
   const dayNum = today.getDate()
@@ -119,16 +113,25 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
         <>
           <div className="flex bg-slate-100 gap-px border-b border-slate-100">
             <div className="flex-1 text-center py-3 bg-white">
-              <div className="text-xl font-bold text-slate-800">{meetingMinutes}</div>
-              <div className="text-xs text-slate-400 mt-0.5">ס.מ&quot;ד</div>
+              <div className="flex items-center justify-center gap-1 mb-0.5">
+                <Gavel className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xl font-bold text-slate-800">{hearingCount}</span>
+              </div>
+              <div className="text-xs text-slate-400">דיונים</div>
             </div>
             <div className="flex-1 text-center py-3 bg-white">
-              <div className="text-xl font-bold text-emerald-600">{completedToday}</div>
-              <div className="text-xs text-slate-400 mt-0.5">הושלמו</div>
+              <div className="flex items-center justify-center gap-1 mb-0.5">
+                <MessageSquare className="h-3.5 w-3.5 text-purple-500" />
+                <span className="text-xl font-bold text-slate-800">{meetingCount}</span>
+              </div>
+              <div className="text-xs text-slate-400">פגישות</div>
             </div>
             <div className="flex-1 text-center py-3 bg-white">
-              <div className="text-xl font-bold text-slate-800">{scheduledCount}</div>
-              <div className="text-xs text-slate-400 mt-0.5">מתוכנן</div>
+              <div className="flex items-center justify-center gap-1 mb-0.5">
+                <CheckSquare className="h-3.5 w-3.5 text-emerald-500" />
+                <span className="text-xl font-bold text-slate-800">{taskCount}</span>
+              </div>
+              <div className="text-xs text-slate-400">משימות</div>
             </div>
           </div>
 
