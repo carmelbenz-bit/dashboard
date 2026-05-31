@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Sun, ChevronLeft, ChevronRight, Clock, Gavel, MessageSquare, CheckSquare, Calendar } from "lucide-react"
+import { Sun, ChevronLeft, ChevronRight, Clock, Gavel, MessageSquare, CheckSquare, Calendar, AlertCircle } from "lucide-react"
 import type { CaseData } from "./case-card"
 import type { GeneralTask } from "./general-tasks"
 import { cn } from "@/lib/utils"
@@ -11,6 +11,13 @@ interface TodayEvent {
   title: string
   type: "hearing" | "meeting" | "task"
   subtitle?: string
+}
+
+interface OverdueTask {
+  id: string
+  title: string
+  caseName: string
+  daysOverdue: number
 }
 
 interface TodayPanelProps {
@@ -64,6 +71,41 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
     if (!b.time) return -1
     return a.time.localeCompare(b.time)
   })
+
+  const overdueTasks: OverdueTask[] = []
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+
+  cases.forEach((c) => {
+    c.tasks.forEach((t) => {
+      if (t.completed) return
+      if (t.urgency === "overdue" || (t.dueDate && (() => {
+        const [d, m, y] = t.dueDate!.split(".").map(Number)
+        const due = new Date(y, m - 1, d)
+        return due < now
+      })())) {
+        let daysOverdue = 0
+        if (t.dueDate) {
+          const [d, m, y] = t.dueDate.split(".").map(Number)
+          const due = new Date(y, m - 1, d)
+          daysOverdue = Math.ceil((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
+        }
+        overdueTasks.push({ id: t.id, title: t.title, caseName: c.name, daysOverdue })
+      }
+    })
+  })
+
+  generalTasks.forEach((t) => {
+    if (t.completed || !t.dueDate) return
+    const [d, m, y] = t.dueDate.split(".").map(Number)
+    const due = new Date(y, m - 1, d)
+    if (due < now) {
+      const daysOverdue = Math.ceil((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24))
+      overdueTasks.push({ id: t.id, title: t.title, caseName: "משימות כלליות", daysOverdue })
+    }
+  })
+
+  overdueTasks.sort((a, b) => b.daysOverdue - a.daysOverdue)
 
   const hearingCount = events.filter((e) => e.type === "hearing").length
   const meetingCount = events.filter((e) => e.type === "meeting").length
@@ -135,14 +177,42 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
             </div>
           </div>
 
-          {events.length === 0 ? (
+          {overdueTasks.length > 0 && (
+            <div className="border-b border-slate-100">
+              <div className="flex items-center gap-1.5 px-4 py-2 bg-red-50">
+                <AlertCircle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
+                <span className="text-xs font-semibold text-red-600">באיחור</span>
+                <span className="mr-auto text-xs font-medium text-red-400">{overdueTasks.length}</span>
+              </div>
+              <div className="divide-y divide-red-50">
+                {overdueTasks.map((task) => (
+                  <div key={task.id} className="flex items-start gap-2.5 px-4 py-2.5 bg-red-50/40">
+                    <AlertCircle className="h-3.5 w-3.5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800 leading-tight truncate">{task.title}</p>
+                      <p className="text-xs text-slate-400 mt-0.5 truncate">{task.caseName}</p>
+                    </div>
+                    <span className="text-xs text-red-500 font-medium flex-shrink-0 mt-0.5">
+                      {task.daysOverdue} י׳
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {events.length === 0 && overdueTasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
               <Calendar className="h-10 w-10 text-slate-200 mb-3" />
               <p className="text-sm font-semibold text-slate-600">יום פנוי!</p>
               <p className="text-xs text-slate-400 mt-1">אין אירועים מתוכננים להיום</p>
             </div>
-          ) : (
-            <div className="divide-y divide-slate-50 max-h-[calc(100vh-300px)] overflow-y-auto">
+          ) : events.length === 0 ? null : (
+            <>
+              <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
+                <span className="text-xs font-semibold text-slate-500">היום</span>
+              </div>
+              <div className="divide-y divide-slate-50 max-h-[calc(100vh-380px)] overflow-y-auto">
               {events.map((event, i) => (
                 <div key={i} className="flex items-start gap-2.5 px-4 py-3">
                   <div className="flex-shrink-0 mt-0.5">
@@ -166,7 +236,8 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
                   )}
                 </div>
               ))}
-            </div>
+              </div>
+            </>
           )}
         </>
       )}
