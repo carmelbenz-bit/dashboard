@@ -18,6 +18,7 @@ import { AddMeetingModal, type NewMeetingData, type MeetingForEdit } from "@/com
 import { AddTaskModal, type NewTaskData, type TaskForEdit } from "@/components/dashboard/add-task-modal"
 import { PickCaseModal } from "@/components/dashboard/pick-case-modal"
 import { AddGeneralTaskModal } from "@/components/dashboard/add-general-task-modal"
+import { TodayPanel } from "@/components/dashboard/today-panel"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { supabase } from "@/lib/supabase"
 import type { CaseData } from "@/components/dashboard/case-card"
@@ -927,119 +928,128 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <Header onAddCase={handleAddCase} onAddTask={handleAddTaskFromHeader} />
 
-      <main className="container mx-auto px-4 pt-6 pb-28 sm:py-8 space-y-6">
-        <div className="flex justify-start">
-          <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
+      <div className="container mx-auto px-4 pt-6 pb-28 sm:py-8">
+        <div className="flex gap-5 items-start">
+          {/* Right sidebar – TodayPanel (first child = visual right in RTL) */}
+          <aside className="hidden xl:block flex-shrink-0 sticky top-8">
+            <TodayPanel cases={allCases} generalTasks={generalTasks} />
+          </aside>
 
-        {activeTab === "cases" && (
-          <StatCards
-            stats={stats}
-            activeFilter={taskFilter}
-            onFilterChange={setTaskFilter}
-          />
-        )}
-
-        {activeTab === "cases" && (
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            filterOption={searchFilterOption}
-            onFilterChange={setSearchFilterOption}
-            sortOption={sortOption}
-            onSortChange={setSortOption}
-          />
-        )}
-
-        {activeTab === "cases" && taskFilter !== "all" && (
-          <div className="flex justify-start">
-            <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
-              <span>מציג: {getFilterLabel()}</span>
-              <button
-                onClick={() => setTaskFilter("all")}
-                className="hover:bg-primary-foreground/20 rounded-full p-0.5 transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
+          <main className="flex-1 min-w-0 space-y-6">
+            <div className="flex justify-start">
+              <NavigationTabs activeTab={activeTab} onTabChange={setActiveTab} />
             </div>
-          </div>
-        )}
 
-        {activeTab === "cases" && (
-          <>
-            {taskFilter === "all" && !searchQuery && searchFilterOption === "all" && (
-              <RecommendedToday
-                tasks={recommendedTasks}
-                freeTime={freeTimeStr}
-                meetingsTime={meetingsTimeStr}
-                onEditTask={handleEditTask}
-                onCompleteTask={handleCompleteRecommendedTask}
-                storageKey={userId ? `recommended-order-${userId}` : undefined}
+            {activeTab === "cases" && (
+              <StatCards
+                stats={stats}
+                activeFilter={taskFilter}
+                onFilterChange={setTaskFilter}
               />
             )}
 
-            {taskFilter === "all" && !searchQuery && searchFilterOption === "all" && (
-              <GeneralTasksSection
-                tasks={generalTasks}
-                onAdd={handleAddGeneralTask}
-                onComplete={handleCompleteGeneralTask}
-                onPin={handlePinGeneralTask}
+            {activeTab === "cases" && (
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                filterOption={searchFilterOption}
+                onFilterChange={setSearchFilterOption}
+                sortOption={sortOption}
+                onSortChange={setSortOption}
               />
             )}
 
-            <div className="space-y-8">
-              {(() => {
-                const getEarliestTaskTime = (c: CaseData): number => {
-                  const myTasks = c.tasks.filter(t => !t.completed && t.dueDate)
-                  if (myTasks.length === 0) return Infinity
-                  return Math.min(...myTasks.map(t => {
-                    const [day, month, year] = t.dueDate!.split(".").map(Number)
-                    return new Date(year, month - 1, day).getTime()
-                  }))
-                }
-                const allSortedCases = Object.values(sortedFilteredCases)
-                  .flat()
-                  .sort((a, b) => getEarliestTaskTime(a) - getEarliestTaskTime(b))
-                return (
-                  <DateGroup
-                    key="all"
-                    cases={allSortedCases}
-                    onEditTask={handleEditTask}
-                    onDeleteTask={handleDeleteTask}
-                    onCompleteTask={handleCompleteTask}
-                    onAddTask={handleAddTask}
-                    onDeleteCase={handleDeleteCase}
-                    onAddHearing={handleAddHearing}
-                    onEditHearing={handleEditHearing}
-                    onDeleteHearing={handleDeleteHearing}
-                    onUpdateStatus={handleUpdateStatus}
-                    onAddMeeting={handleAddMeeting}
-                    onEditMeeting={handleEditMeeting}
-                    onDeleteMeeting={handleDeleteMeeting}
-                    onCompleteMeeting={handleCompleteMeeting}
-                    onEditCase={handleEditCase}
-                    onPinTask={handlePinTask}
-                  />
-                )
-              })()}
-            </div>
-
-            {Object.values(sortedFilteredCases).flat().length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-muted-foreground text-lg">לא נמצאו תיקים או משימות</p>
+            {activeTab === "cases" && taskFilter !== "all" && (
+              <div className="flex justify-start">
+                <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
+                  <span>מציג: {getFilterLabel()}</span>
+                  <button
+                    onClick={() => setTaskFilter("all")}
+                    className="hover:bg-primary-foreground/20 rounded-full p-0.5 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
               </div>
             )}
-          </>
-        )}
 
-        {activeTab === "hearings" && <HearingsBoard cases={cases} />}
-        {activeTab === "meetings" && <MeetingsBoard cases={cases} />}
-        {activeTab === "dates" && <DatesBoard cases={cases} />}
-        {activeTab === "deadlines" && <DeadlinesBoard cases={cases} />}
-      </main>
+            {activeTab === "cases" && (
+              <>
+                {taskFilter === "all" && !searchQuery && searchFilterOption === "all" && (
+                  <RecommendedToday
+                    tasks={recommendedTasks}
+                    freeTime={freeTimeStr}
+                    meetingsTime={meetingsTimeStr}
+                    onEditTask={handleEditTask}
+                    onCompleteTask={handleCompleteRecommendedTask}
+                    storageKey={userId ? `recommended-order-${userId}` : undefined}
+                  />
+                )}
+
+                {taskFilter === "all" && !searchQuery && searchFilterOption === "all" && (
+                  <GeneralTasksSection
+                    tasks={generalTasks}
+                    onAdd={handleAddGeneralTask}
+                    onComplete={handleCompleteGeneralTask}
+                    onPin={handlePinGeneralTask}
+                  />
+                )}
+
+                <div className="space-y-8">
+                  {(() => {
+                    const getEarliestTaskTime = (c: CaseData): number => {
+                      const myTasks = c.tasks.filter(t => !t.completed && t.dueDate)
+                      if (myTasks.length === 0) return Infinity
+                      return Math.min(...myTasks.map(t => {
+                        const [day, month, year] = t.dueDate!.split(".").map(Number)
+                        return new Date(year, month - 1, day).getTime()
+                      }))
+                    }
+                    const allSortedCases = Object.values(sortedFilteredCases)
+                      .flat()
+                      .sort((a, b) => getEarliestTaskTime(a) - getEarliestTaskTime(b))
+                    return (
+                      <DateGroup
+                        key="all"
+                        cases={allSortedCases}
+                        onEditTask={handleEditTask}
+                        onDeleteTask={handleDeleteTask}
+                        onCompleteTask={handleCompleteTask}
+                        onAddTask={handleAddTask}
+                        onDeleteCase={handleDeleteCase}
+                        onAddHearing={handleAddHearing}
+                        onEditHearing={handleEditHearing}
+                        onDeleteHearing={handleDeleteHearing}
+                        onUpdateStatus={handleUpdateStatus}
+                        onAddMeeting={handleAddMeeting}
+                        onEditMeeting={handleEditMeeting}
+                        onDeleteMeeting={handleDeleteMeeting}
+                        onCompleteMeeting={handleCompleteMeeting}
+                        onEditCase={handleEditCase}
+                        onPinTask={handlePinTask}
+                      />
+                    )
+                  })()}
+                </div>
+
+                {Object.values(sortedFilteredCases).flat().length === 0 && (
+                  <div className="text-center py-16">
+                    <p className="text-muted-foreground text-lg">לא נמצאו תיקים או משימות</p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeTab === "hearings" && <HearingsBoard cases={cases} />}
+            {activeTab === "meetings" && <MeetingsBoard cases={cases} />}
+            {activeTab === "dates" && <DatesBoard cases={cases} />}
+            {activeTab === "deadlines" && <DeadlinesBoard cases={cases} />}
+          </main>
+        </div>
+      </div>
 
       {/* Mobile FAB */}
       <button
