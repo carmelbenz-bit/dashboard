@@ -19,6 +19,7 @@ import { AddTaskModal, type NewTaskData, type TaskForEdit } from "@/components/d
 import { PickCaseModal } from "@/components/dashboard/pick-case-modal"
 import { AddGeneralTaskModal } from "@/components/dashboard/add-general-task-modal"
 import { TodayPanel } from "@/components/dashboard/today-panel"
+import { WeekPanel } from "@/components/dashboard/week-panel"
 import { AuthGuard } from "@/components/auth/auth-guard"
 import { supabase } from "@/lib/supabase"
 import type { CaseData } from "@/components/dashboard/case-card"
@@ -930,9 +931,10 @@ export default function DashboardPage() {
 
       <div className="container mx-auto px-4 pt-6 pb-28 sm:py-8">
         <div className="flex gap-5 items-start">
-          {/* Right sidebar – TodayPanel (first child = visual right in RTL) */}
-          <aside className="hidden xl:block flex-shrink-0 sticky top-8">
+          {/* Right sidebar – TodayPanel + WeekPanel (first child = visual right in RTL) */}
+          <aside className="hidden xl:flex flex-col gap-4 flex-shrink-0 sticky top-8 w-72">
             <TodayPanel cases={allCases} generalTasks={generalTasks} />
+            <WeekPanel cases={allCases} generalTasks={generalTasks} />
           </aside>
 
           <main className="flex-1 min-w-0 space-y-6">

@@ -117,8 +117,8 @@ export function TodayPanel({ cases, generalTasks }: TodayPanelProps) {
   return (
     <div
       className={cn(
-        "bg-white border border-slate-200 rounded-2xl shadow-sm flex-shrink-0 overflow-hidden transition-all duration-200",
-        isCollapsed ? "w-12" : "w-72"
+        "bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden transition-all duration-200",
+        isCollapsed ? "w-12" : "w-full"
       )}
     >
       <div
