@@ -26,7 +26,7 @@ import type { Reminder } from "./reminder-selector"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import React, { useState } from "react"
 import {
   Popover,
   PopoverContent,
@@ -124,6 +124,7 @@ interface CaseCardProps {
   onEditCase: () => void
   onUpdateStatus?: (status: string) => void
   onPinTask: (taskId: string, pinned: boolean) => void
+  expandVersion?: { v: number; expanded: boolean }
 }
 
 function UrgencyBadge({ dueDate }: { dueDate: string | null }) {
@@ -292,8 +293,18 @@ function HearingsDisplay({ hearings, onEditHearing, onDeleteHearing }: {
   )
 }
 
-export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, onAddTask, onDeleteCase, onAddHearing, onEditHearing, onDeleteHearing, onAddMeeting, onEditMeeting, onDeleteMeeting, onCompleteMeeting, onEditCase, onUpdateStatus, onPinTask }: CaseCardProps) {
+export function CaseCard({ caseData, onEditTask, onDeleteTask, onCompleteTask, onAddTask, onDeleteCase, onAddHearing, onEditHearing, onDeleteHearing, onAddMeeting, onEditMeeting, onDeleteMeeting, onCompleteMeeting, onEditCase, onUpdateStatus, onPinTask, expandVersion }: CaseCardProps) {
   const [isExpanded, setIsExpanded] = useState(true)
+
+  // sync with global expand/collapse
+  const prevVersion = React.useRef<number | undefined>(undefined)
+  React.useEffect(() => {
+    if (!expandVersion) return
+    if (expandVersion.v !== prevVersion.current) {
+      prevVersion.current = expandVersion.v
+      setIsExpanded(expandVersion.expanded)
+    }
+  }, [expandVersion])
   const [statusInput, setStatusInput] = useState(caseData.status || "")
   const [statusOpen, setStatusOpen] = useState(false)
   const [showHistory, setShowHistory] = useState(false)

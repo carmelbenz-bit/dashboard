@@ -19,6 +19,7 @@ interface DateGroupProps {
   onEditCase: (caseId: string) => void
   onUpdateStatus: (caseId: string, status: string) => void
   onPinTask: (taskId: string, pinned: boolean) => void
+  expandVersion?: { v: number; expanded: boolean }
 }
 
 export function DateGroup({
@@ -37,7 +38,8 @@ export function DateGroup({
   onCompleteMeeting,
   onEditCase,
   onUpdateStatus,
-  onPinTask
+  onPinTask,
+  expandVersion,
 }: DateGroupProps) {
   return (
     <div className="space-y-4">
@@ -45,6 +47,7 @@ export function DateGroup({
         <CaseCard
           key={caseData.id}
           caseData={caseData}
+          expandVersion={expandVersion}
           onEditTask={onEditTask}
           onDeleteTask={onDeleteTask}
           onCompleteTask={onCompleteTask}

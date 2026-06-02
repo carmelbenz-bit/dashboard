@@ -231,6 +231,7 @@ export default function DashboardPage() {
   const [isAddGeneralTaskModalOpen, setIsAddGeneralTaskModalOpen] = useState(false)
   const [editingCase, setEditingCase] = useState<CaseForEdit | null>(null)
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all")
+  const [expandVersion, setExpandVersion] = useState<{ v: number; expanded: boolean } | undefined>(undefined)
   const [generalTasks, setGeneralTasks] = useState<GeneralTask[]>(() => {
     try {
       const saved = typeof window !== "undefined" ? localStorage.getItem("general-tasks") : null
@@ -1000,6 +1001,22 @@ export default function DashboardPage() {
                   />
                 )}
 
+                <div className="flex justify-end gap-3 text-sm text-slate-500">
+                  <button
+                    onClick={() => setExpandVersion(prev => ({ v: (prev?.v ?? 0) + 1, expanded: true }))}
+                    className="hover:text-primary transition-colors"
+                  >
+                    הרחב הכל
+                  </button>
+                  <span className="text-slate-300">|</span>
+                  <button
+                    onClick={() => setExpandVersion(prev => ({ v: (prev?.v ?? 0) + 1, expanded: false }))}
+                    className="hover:text-primary transition-colors"
+                  >
+                    כווץ הכל
+                  </button>
+                </div>
+
                 <div className="space-y-8">
                   {(() => {
                     const getEarliestTaskTime = (c: CaseData): number => {
@@ -1017,6 +1034,7 @@ export default function DashboardPage() {
                       <DateGroup
                         key="all"
                         cases={allSortedCases}
+                        expandVersion={expandVersion}
                         onEditTask={handleEditTask}
                         onDeleteTask={handleDeleteTask}
                         onCompleteTask={handleCompleteTask}
